@@ -188,9 +188,7 @@ EVM transactions in Sei follow the Ethereum transaction format with standard pro
   <Tabs.Tab>
     <div className="flex flex-col gap-6">
       <h3 className="text-xl font-bold">Legacy Transactions (Type 0)</h3>
-      <p>
-        Pre-EIP-1559 transaction format that specifies a single gasPrice.
-      </p>
+      Pre-EIP-1559 transaction format that specifies a single gasPrice.
       <SyntaxHighlighter
         language="json"
         code={`
@@ -207,9 +205,7 @@ EVM transactions in Sei follow the Ethereum transaction format with standard pro
       />
 
       <h3 className="text-xl font-bold">Access List Transactions (Type 1, EIP-2930)</h3>
-      <p>
-        Transactions with an optional access list of addresses and storage keys to reduce gas costs.
-      </p>
+      Transactions with an optional access list of addresses and storage keys to reduce gas costs.
       <SyntaxHighlighter
         language="json"
         code={`
@@ -236,9 +232,7 @@ EVM transactions in Sei follow the Ethereum transaction format with standard pro
 />
 
       <h3 className="text-xl font-bold">Fee Market Transactions (Type 2, EIP-1559)</h3>
-      <p>
-        Transaction format that supports dynamic base fees with a priority fee tip to validators.
-      </p>
+      Transaction format that supports dynamic base fees with a priority fee tip to validators.
       <SyntaxHighlighter
         language="json"
         code={`
