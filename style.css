@@ -546,73 +546,135 @@ button[aria-selected="true"][role="tab"] {
 }
 
 /* --------------------------------------------------------------------------
-   SIDEBAR — dense, small, Sei-styled active state
+   SIDEBAR — dense, narrow, Sei-styled active state
+   Mintlify (maple theme) hardcodes w-[19rem] (304px) in four places. We
+   override the column itself, its bottom band, the main-content offset,
+   and the article width so the layout stays in sync.
    -------------------------------------------------------------------------- */
 
-aside nav,
-aside ul,
-[class*="sidebar"] nav,
-[class*="sidebar"] ul {
-  font-size: 13px;
-  letter-spacing: -0.005em;
+/* 1. The sidebar column itself */
+#sidebar {
+  width: 220px !important;
 }
 
-aside nav a,
-aside nav button,
-[class*="sidebar"] a,
-[class*="sidebar"] button {
+/* 2. The footer band inside the sidebar (Developer Hub / GitHub / Launch dApp).
+      Original: w-[calc(19rem-1px)] px-4 py-3                                  */
+#sidebar > div:last-child {
+  width: calc(220px - 1px) !important;
+  padding-left: 12px !important;
+  padding-right: 10px !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+
+/* 3. Main content wrapper — slide left to match new sidebar width.
+      Original: lg:ml-[19rem] ... lg:pl-16 lg:pr-10                            */
+@media (min-width: 1024px) {
+  div[class*="lg:ml-[19rem]"],
+  .advanced-footer[class*="lg:ml-[19rem]"] {
+    margin-left: 220px !important;
+  }
+  /* Trim the generous left padding (lg:pl-16 = 64px) that pushes content right */
+  div[class*="lg:pl-16"] {
+    padding-left: 32px !important;
+  }
+}
+
+/* 4. Article width override */
+div[class*="xl:w-[calc(100%-19rem)]"] {
+  width: calc(100% - 220px) !important;
+}
+
+/* Inner sidebar content padding — was px-7 (28px). Tighten dramatically. */
+#sidebar-content {
+  padding-left: 12px !important;
+  padding-right: 10px !important;
+  padding-top: 16px !important;
+}
+
+/* Density — small font, tight line-height */
+#sidebar,
+#sidebar-content {
+  font-size: 12px;
+  letter-spacing: -0.005em;
+  line-height: 1.25;
+}
+
+/* All sidebar links and buttons — tight horizontal padding */
+#sidebar a,
+#sidebar button {
+  padding-left: 8px !important;
+  padding-right: 4px !important;
   border-radius: var(--sei-radius-sm) !important;
+  min-height: 0 !important;
+  line-height: 1.3 !important;
   transition:
     background-color 0.12s ease,
     color 0.12s ease;
 }
 
-/* Active/current page */
-aside a[aria-current="page"],
-aside a.active,
-[class*="sidebar"] a[aria-current="page"],
-[class*="sidebar"] a.active,
-a[data-active="true"] {
-  background-color: rgba(96, 0, 20, 0.08) !important;
-  color: var(--sei-maroon-100) !important;
-  font-weight: 500 !important;
-  border-left: 2px solid var(--sei-maroon-100);
+/* Nested page items (the "ml-4 border-l" bar Mintlify renders for each page) */
+#sidebar [class*="ml-4"][class*="border-l"] {
+  margin-left: 6px !important;
+  padding-left: 10px !important;
+  padding-top: 3px !important;
+  padding-bottom: 3px !important;
+  width: calc(100% - 6px) !important;
 }
 
-.dark aside a[aria-current="page"],
-.dark aside a.active,
-.dark [class*="sidebar"] a[aria-current="page"],
-.dark [class*="sidebar"] a.active,
-.dark a[data-active="true"] {
-  background-color: rgba(185, 155, 161, 0.08) !important;
-  color: var(--sei-maroon-25) !important;
-  border-left-color: var(--sei-maroon-25);
+/* Group accordion buttons (each group title) — tighter vertical */
+#sidebar button[aria-expanded] {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
 }
 
-/* Section / group headers in sidebar */
-aside [class*="group-label"],
-aside [class*="heading"],
-aside h5,
-aside h6,
-[class*="sidebar"] [class*="group-label"],
-[class*="sidebar"] h5,
-[class*="sidebar"] h6 {
+/* Section / group headers (GETTING STARTED, CORE ARCHITECTURE, ...) */
+#sidebar h5,
+#sidebar h6,
+#sidebar [class*="uppercase"] {
   font-family: var(--sei-font-mono) !important;
   text-transform: uppercase !important;
   font-size: 10px !important;
   letter-spacing: 0.08em !important;
   color: var(--sei-gold-100) !important;
   font-weight: 500 !important;
+  margin-top: 10px !important;
+  margin-bottom: 2px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  line-height: 1.2 !important;
 }
 
-.dark aside [class*="group-label"],
-.dark aside [class*="heading"],
-.dark aside h5,
-.dark aside h6,
-.dark [class*="sidebar"] [class*="group-label"],
-.dark [class*="sidebar"] h5,
-.dark [class*="sidebar"] h6 {
+.dark #sidebar h5,
+.dark #sidebar h6,
+.dark #sidebar [class*="uppercase"] {
   color: var(--sei-gold-25) !important;
+}
+
+/* Active / current page */
+#sidebar a[aria-current="page"],
+#sidebar a.active,
+#sidebar [data-active="true"] {
+  background-color: rgba(96, 0, 20, 0.08) !important;
+  color: var(--sei-maroon-100) !important;
+  font-weight: 500 !important;
+  border-left: 2px solid var(--sei-maroon-100) !important;
+}
+
+.dark #sidebar a[aria-current="page"],
+.dark #sidebar a.active,
+.dark #sidebar [data-active="true"] {
+  background-color: rgba(185, 155, 161, 0.08) !important;
+  color: var(--sei-maroon-25) !important;
+  border-left-color: var(--sei-maroon-25) !important;
+}
+
+/* Search input inside sidebar — keep it full-width within the trimmed padding */
+#sidebar input[type="search"],
+#sidebar [role="searchbox"],
+#sidebar [class*="search"] button {
+  width: 100% !important;
+  font-size: 12.5px !important;
 }
 
 /* --------------------------------------------------------------------------

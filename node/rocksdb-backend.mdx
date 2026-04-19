@@ -2,12 +2,8 @@
 title: 'RocksDB Backend Setup & Performance'
 description: 'Build and enable the RocksDB backend for seid to significantly improve iteration-heavy operations and traceBlock latency, especially on long-history RPC and archive nodes.'
 keywords: ['rocksdb', 'sei node', 'state store', 'performance', 'traceBlock', 'archive node', 'rpc']
+mode: "wide"
 ---
-
-
-
-# RocksDB Backend Setup & Performance Guide
-
 ## Overview
 
 As Sei nodes accumulate more history and state data, iteration-heavy operations—like those performed during `traceBlock` calls—can become significantly slower. This is especially true for archive or RPC nodes where the state store contains millions of versions.
