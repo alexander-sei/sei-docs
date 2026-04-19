@@ -1,0 +1,122 @@
+---
+title: 'SIP-03 Migration Guide'
+description: 'Practical steps and resources for users migrating during SIP-03, including asset transfer and USDC guidance.'
+keywords: ['SIP-03', 'migration', 'asset transfer', 'USDC on Sei', 'Keplr', 'Leap', 'Compass', 'EVM wallet']
+---
+
+
+# SIP-03 Migration
+
+<Danger>
+
+**Action required: IBC assets on Sei will become inaccessible**
+
+If you hold [USDC.n](https://seiscan.io/address/0x3894085Ef7Ff0f0aeDf52E2A2704928d1Ec074F1) (USDC via Noble), [USDT.kava](https://seiscan.io/address/0xb75d0b03c06a926e488e2659df1a861f860bd3d1) (Kava USDT), Wormhole-bridged tokens, or any other IBC asset on Sei, you **must** swap, migrate, or bridge out **before the governance proposal to disable inbound/outbound IBC transfers passes and is activated** to avoid permanent loss of access. After this, Sei will no longer support IBC bridging of assets from Cosmos-based chains to and from Sei Network.
+
+Consult the [IBC Asset Migration Table](#ibc-asset-migration-table) below for the full list of affected assets, required actions, and supported routes.
+
+For USDC.n specifically, see: [Holders of USDC.n Need to Swap or Migrate](https://blog.sei.io/announcements/holders-of-usdcn-need-to-swap-or-migrate/).
+
+</Danger>
+
+This page consolidates the most important, practical actions for the SIP-03 migration and links to the official resources.
+
+<Info>
+
+For the full proposal text, see:
+
+- The [official SIP-03](https://github.com/sei-protocol/sips/blob/main/sips/sip-3.md)
+
+- Governance proposal [Proposal #99](https://www.mintscan.io/sei/proposals/99)
+
+</Info>
+
+## What most users need to do
+
+- If you use Keplr or Leap (Cosmos-style wallets) and hold assets on the native address (sei1...), you should move assets to an EVM-compatible address (0x...). Use the Asset Transfer tool linked below.
+- If you use Compass or another EVM wallet already, you’re good — continue as normal.
+
+## IBC Asset Migration Table
+
+If you hold any of the following IBC assets on Sei, take action before the governance proposal to disable inbound IBC transfers passes and is activated.
+
+\[We’ll update this table as more resources are made available\]
+
+| Asset | Token contract | Action(s) | Possible route(s) | Support |
+| :---- | :---- | :---- | :---- | :---- |
+| **USDC.n (USDC via Noble)** | [seiscan](https://seiscan.io/address/0x3894085ef7ff0f0aedf52e2a2704928d1ec074f1) [mintscan](https://www.mintscan.io/sei/assets/ibc%2FCA6FBFAF399474A06263E10D0CE5AEBBE15189D6D4B2DD9ADE61007E68EB9DB0) | Swap to native USDC or migrate via CCTP | Sapyhre, [Symphony](https://symph.ag/), or [Stargate](https://stargate.finance/?srcChain=sei&srcToken=0x3894085Ef7Ff0f0aeDf52E2A2704928d1Ec074F1) | [Sei blog](https://blog.sei.io/announcements/holders-of-usdcn-need-to-swap-or-migrate/) [Sei Tech Chat](https://t.me/+KZdhZ1eE-G01NmZk)  [Discord](https://discord.com/invite/sei?ref=blog.sei.io) |
+| **USDT.kava (USDT via Kava)** | [seiscan](https://seiscan.io/token/0xb75d0b03c06a926e488e2659df1a861f860bd3d1) [mintscan](https://www.mintscan.io/sei/assets/ibc%2F6C00E4AA0CC7618370F81F7378638AE6C48EFF8C9203CE1C2357012B440EBDB7)| Swap via Symphony or bridge out to Kava | [Symphony](https://symph.ag/), [Stargate](https://stargate.finance/?srcChain=sei&srcToken=0xB75D0B03c06A926e488e2659DF1A861F860bD3d1) | [Sei Tech Chat](https://t.me/+KZdhZ1eE-G01NmZk)  [Discord](https://discord.com/invite/sei) |
+| **USDCso (Wormhole, Solana)** | [mintscan](https://www.mintscan.io/sei/assets/factory%2Fsei189adguawugk3e55zn63z8r9ll29xrjwca636ra7v7gxuzn98sxyqwzt47l%2F9fELvUhFo6yWL34ZaLgPbCPzdk9MD1tAzMycgH45qShH) | Bridge out to Solana via Wormhole | Wormhole frontend | [Sei Tech Chat](https://t.me/+KZdhZ1eE-G01NmZk) [Discord](https://discord.com/invite/sei) |
+| **Wormhole-bridged WETH** | [mintscan](https://www.mintscan.io/sei/assets/factory%2Fsei189adguawugk3e55zn63z8r9ll29xrjwca636ra7v7gxuzn98sxyqwzt47l%2F4tLQqCLaoKKfNFuPjA9o39YbKUwhR1F8N29Tz3hEbfP2) | Bridge out to Ethereum via Wormhole | Wormhole frontend | [Sei Tech Chat](https://t.me/+KZdhZ1eE-G01NmZk)  [Discord](https://discord.com/invite/sei) |
+| **USDCet (Wormhole, Ethereum)** | [mintscan](https://www.mintscan.io/sei/assets/factory%2Fsei189adguawugk3e55zn63z8r9ll29xrjwca636ra7v7gxuzn98sxyqwzt47l%2FHq4tuDzhRBnxw3tFA5n6M52NVMVcC19XggbyDiJKCD6H) | Bridge out to Ethereum via Wormhole | Wormhole frontend | [Sei Tech Chat](https://t.me/+KZdhZ1eE-G01NmZk)  [Discord](https://discord.com/invite/sei) |
+| **USDCop (Wormhole, Optimism)** | [mintscan](https://www.mintscan.io/sei/assets/factory%2Fsei189adguawugk3e55zn63z8r9ll29xrjwca636ra7v7gxuzn98sxyqwzt47l%2F3VKKYtbQ9iq8f9CaZfgR6Cr3TUj6ypXPAn6kco6wjcAu) | Bridge out to Optimism via Wormhole | Wormhole frontend | [Sei Tech Chat](https://t.me/+KZdhZ1eE-G01NmZk)  [Discord](https://discord.com/invite/sei) |
+| **USDTbs (Wormhole, BSC Chain)** | [mintscan](https://www.mintscan.io/sei/assets/factory%2Fsei189adguawugk3e55zn63z8r9ll29xrjwca636ra7v7gxuzn98sxyqwzt47l%2F871jbn9unTavWsAe83f2Ma9GJWSv6BKsyWYLiQ6z3Pva) | Bridge out to BSC Chain via Wormhole | Wormhole frontend | [Sei Tech Chat](https://t.me/+KZdhZ1eE-G01NmZk)  [Discord](https://discord.com/invite/sei) |
+| **ATOM** | [mintscan](https://www.mintscan.io/sei/assets/ibc%2FC4CFF46FD6DE35CA4CF4CE031E643C8FDC9BA4B99AE598E9B0ED98FE3A2319F9) | Bridge out to Cosmos Hub | Skip:Go | [Sei Tech Chat](https://t.me/+KZdhZ1eE-G01NmZk) [Discord](https://discord.com/invite/sei) |
+| **WBTC** | [mintscan](https://www.mintscan.io/sei/assets/factory%2Fsei189adguawugk3e55zn63z8r9ll29xrjwca636ra7v7gxuzn98sxyqwzt47l%2F7omXa4gryZ5NiBmLep7JsTtTtANCVKXwT9vbN91aS1br) | Bridge out to origin chain | Skip:Go | [Sei Tech Chat](https://t.me/+KZdhZ1eE-G01NmZk)  [Discord](https://discord.com/invite/sei) |
+
+The mention of third-party platforms does not constitute an endorsement. Users should do their own research before using any third-party service.
+
+## Key tools and resources
+
+### 1) Asset Transfer (Native ↔ EVM)
+
+- Use the official Sei Dashboard to move assets between native (Keplr/Leap/Fin) and EVM (MetaMask/Compass etc.) addresses: [Sei Dashboard Transfer](https://dashboard.sei.io/evm-upgrade) or the Bridge tab at [Sei Dashboard Bridge](https://dashboard.sei.io/bridge).
+
+When to use this:
+
+- You used Keplr or Leap before and want assets available via an EVM wallet going forward.
+- You need to access tokens on apps that now expect an EVM (0x) address.
+
+### 2) USDC on Sei
+
+Native USDC and Circle's CCTP V2 are now supported on Sei. USDC from Noble (USDC.n) is deprecated.
+
+- QuickStart: [USDC on Sei](/evm/usdc-on-sei)
+- Background: [USDC & CCTP v2 announcement](https://www.circle.com/blog/native-usdc-and-cctp-v2-are-coming-to-sei)
+
+#### How to swap or migrate USDC.n
+
+**Swap (smaller amounts):**
+
+- [DragonSwap](https://dragonswap.app/) or [Symphony](https://symph.ag/?tokenIn=0x3894085ef7ff0f0aedf52e2a2704928d1ec074f1&tokenOut=0xe15fc38f6d8c56af07bbcbe3baf5708a2bf42392) — slippage may vary depending on market conditions and liquidity.
+
+**Migrate (larger amounts):**
+
+- **Manual migration:** Bridge USDC.n via [Stargate](https://stargate.finance/?srcChain=sei&srcToken=0x3894085Ef7Ff0f0aeDf52E2A2704928d1Ec074F1) to an intermediary chain with CCTP v1 and v2 (e.g., Base), then use CCTP to burn/mint native USDC back to Sei.
+- Other useful bridging frontends: [CCTP Exchange](https://cctp.exchange/)
+
+**For DeFi suppliers of USDC.n (Yei, Takara Lend, etc.):**
+
+- Wind down and withdraw your positions **before** migrating to native USDC. Failure to do so before the SIP-03 upgrade may result in inability to access your supplied assets.
+
+## FAQ
+
+### I am a Keplr / Leap wallet user; do I need to do anything?
+
+Yes. Use the Asset Transfer tool to ensure your assets are available via an EVM wallet. See Asset Transfer above.
+
+### I use Compass wallet; do I need to do anything?
+
+No action needed. Compass ensures your assets are available via EVM. Continue connecting to Sei like any EVM chain.
+
+### I stake SEI — do I need to do anything?
+
+It depends on whether your Cosmos (`sei1...`) and EVM (`0x...`) addresses are **associated (linked)**. Staking on Sei is handled by the Cosmos staking module. After SIP-03, Cosmos-native transaction interfaces will no longer be available — but the underlying staking state is preserved and accessible via EVM for associated addresses.
+
+**If your addresses are associated:** No action is needed. After the upgrade, your existing delegations, rewards, and unbonding state will be fully accessible via EVM. You can continue managing your stake through an EVM wallet using the [Staking Precompile](/evm/precompiles/staking), the [Sei Dashboard](https://dashboard.sei.io/stake), or the [Sei Dashboard](https://dashboard.sei.io/stake).
+
+**If your addresses are NOT associated:** You must act before the upgrade. After SIP-03, you will not be able to associate addresses or manage delegations through a Cosmos wallet.
+
+Your options:
+1. **Associate your addresses** before the upgrade. You can do this by connecting your Cosmos wallet on the [Sei Dashboard](https://dashboard.sei.io) or by using any of the methods described in [Accounts](/learn/accounts). Once associated, your staking state becomes accessible via EVM — no need to unbond.
+2. **Unbond your stake** and migrate assets to an EVM wallet using the [Asset Transfer tool](https://dashboard.sei.io/evm-upgrade). **The unbonding period is 21 days**, so you must begin this process at least 21 days before the Cosmos shutdown to ensure your tokens are liquid in time.
+
+To check whether your addresses are linked, see [Query Linked Addresses](/learn/accounts#query-linked-addresses).
+
+<Warning>
+**Do not confuse address linking with staking migration.** Even though `sei1...` and `0x...` addresses point to the same underlying account once associated, the chain can only recognize this link after explicit association. Without association, your staked SEI will not be accessible via EVM after the upgrade, and you will have no way to unbond or claim rewards.
+</Warning>
+
+### I hold USDC.n (USDC via Noble) — what should I do?
+
+You must swap or migrate your USDC.n to native USDC before the SIP-03 upgrade (expected end of March 2026). After the upgrade, USDC.n may become inaccessible or lose its value on Sei. See the [USDC on Sei](#3-usdc-on-sei) section above for swap and migration options, or read the full announcement: [Holders of USDC.n Need to Swap or Migrate](https://blog.sei.io/announcements/holders-of-usdcn-need-to-swap-or-migrate/).

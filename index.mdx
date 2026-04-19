@@ -1,97 +1,103 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "Sei Documentation"
+description: "The first parallelized EVM blockchain — build with Ethereum tooling, settle in sub-second finality, and scale to 100 MGas/s throughput."
+keywords: ["Sei", "EVM", "blockchain", "smart contracts", "Solidity", "parallelized EVM", "web3", "dApps"]
+mode: "wide"
 ---
 
-## Setting up
+<Warning>
+  **Action required: IBC assets on Sei will become inaccessible**
 
-Get your documentation site up and running in minutes.
+  If you hold [USDC.n](https://seitrace.com/address/0x3894085Ef7Ff0f0aeDf52E2A2704928d1Ec074F1) (USDC via Noble), [USDT.kava](https://seitrace.com/address/0xb75d0b03c06a926e488e2659df1a861f860bd3d1), Wormhole-bridged tokens, or any other IBC asset on Sei, you **must** swap, migrate, or bridge out **before the governance proposal disables inbound/outbound IBC transfers** to avoid permanent loss of access.
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+  Consult the [SIP-03 Migration Guide](/learn/sip-03-migration) for affected assets, required actions, and supported routes.
+</Warning>
 
-## Make it yours
+## Start building in minutes
 
-Design a docs site that looks great and empowers your users.
+<CardGroup cols={3}>
+  <Card title="Deploy a smart contract" icon="code" href="/evm/evm-general">
+    Build and deploy EVM contracts with parallelized execution and sub-second finality.
+  </Card>
+  <Card title="Build a frontend" icon="browser" href="/evm/building-a-frontend">
+    Wire wagmi, ethers, or viem into the fastest EVM dApp stack.
+  </Card>
+  <Card title="Scaffold a project" icon="terminal" href="/evm/sei-js/create-sei">
+    Spin up a full-stack Sei app in a single command with `create-sei`.
+  </Card>
+  <Card title="Run a node" icon="server" href="/node">
+    Deploy validators, RPC, and archive nodes on Sei infrastructure.
+  </Card>
+  <Card title="Connect your wallet" icon="wallet" href="/evm/sei-global-wallet">
+    Sei Global Wallet ships with every Sei dApp — no extensions required.
+  </Card>
+  <Card title="Integrate MCP" icon="robot" href="/evm/ai-tooling/mcp-server">
+    Give Claude, Cursor, and ChatGPT native access to Sei via MCP.
+  </Card>
+</CardGroup>
+
+## Why Sei
 
 <Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+  <Card title="400ms block time" icon="bolt">
+    Twin Turbo Consensus delivers sub-second finality — 30× faster than Ethereum, while staying 100% EVM-compatible.
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="100 MGas/s throughput" icon="gauge-high">
+    Parallel execution processes non-conflicting transactions across all cores, scaling with hardware.
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Full Ethereum tooling" icon="ethereum">
+    Hardhat, Foundry, wagmi, ethers, viem, MetaMask — everything you already use works out of the box.
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Unified dual-VM account" icon="link">
+    One public key, one wallet, two runtimes. Native EVM and CosmWasm interop via precompiles.
   </Card>
 </Columns>
 
-## Create beautiful pages
+## Explore the docs
 
-Everything you need to create world-class documentation.
+<CardGroup cols={2}>
+  <Card title="Learn" icon="book-open" href="/learn">
+    Core architecture, consensus, tokenomics, staking, governance, and the Sei Giga upgrade.
+  </Card>
+  <Card title="EVM" icon="cube" href="/evm">
+    Smart contracts, precompiles, frontend integration, bridging, oracles, and the sei-js library.
+  </Card>
+  <Card title="Cosmos-SDK" icon="layer-group" href="/cosmos-sdk">
+    The Cosmos-SDK layer powering Sei's interoperability stack.
+  </Card>
+  <Card title="Nodes" icon="server" href="/node">
+    Run validator, RPC, archive, and statesync nodes — with hardware specs and tuning guides.
+  </Card>
+</CardGroup>
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+## Popular guides
 
-## Need inspiration?
+<CardGroup cols={2}>
+  <Card title="User quickstart" icon="rocket" href="/learn/user-quickstart">
+    Get a wallet, fund it, and start using Sei in a few minutes.
+  </Card>
+  <Card title="EVM differences" icon="code-compare" href="/evm/differences-with-ethereum">
+    What Sei keeps from Ethereum — and what it changes to go faster.
+  </Card>
+  <Card title="Migrate from another EVM" icon="arrow-right-arrow-left" href="/evm/migrate-from-other-evms">
+    Port existing contracts and dApps from Ethereum, Arbitrum, Base, or Optimism.
+  </Card>
+  <Card title="Migrate from Solana" icon="arrow-right-arrow-left" href="/evm/migrate-from-solana">
+    Bring SVM apps to a parallelized EVM with familiar tooling.
+  </Card>
+  <Card title="Optimize for parallelization" icon="gauge-high" href="/evm/best-practices/optimizing-for-parallelization">
+    Write contracts that benefit from Sei's parallel execution engine.
+  </Card>
+  <Card title="Verify contracts" icon="shield-check" href="/evm/evm-verify-contracts">
+    Publish contract source to explorers for public verification.
+  </Card>
+</CardGroup>
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+## Stay connected
+
+<CardGroup cols={4}>
+  <Card title="X (Twitter)" icon="x-twitter" href="https://x.com/SeiNetwork" />
+  <Card title="Discord" icon="discord" href="https://discord.com/invite/sei" />
+  <Card title="GitHub" icon="github" href="https://github.com/sei-protocol" />
+  <Card title="Blog" icon="newspaper" href="https://blog.sei.io" />
+</CardGroup>

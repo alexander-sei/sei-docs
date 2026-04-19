@@ -1,0 +1,945 @@
+---
+title: 'Sei EVM JSON-RPC API Reference'
+description: "Comprehensive reference documentation for Sei's EVM JSON-RPC API endpoints, including standard Ethereum methods and Sei-specific extensions for developers."
+keywords: ['json-rpc', 'api reference', 'evm endpoints', 'blockchain api', 'sei development']
+---
+
+
+# RPC Reference Guide
+
+Sei fully supports the standard Ethereum JSON-RPC API, so existing EVM tooling (ethers.js, viem, Hardhat, Foundry, etc.) works out of the box. This page covers every supported `eth_*` and `debug_*` method, plus the legacy `sei_*`/`sei2_*` extensions (now deprecated) for cross-VM address resolution and synthetic transactions.
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Standard Ethereum Endpoints](#standard-ethereum-endpoints)
+  - [Send Transactions](#send-transactions)
+  - [Transaction Lookup](#transaction-lookup)
+  - [Account Information](#account-information)
+  - [Block Information](#block-information)
+  - [Blockchain Information](#blockchain-information)
+  - [Filter Endpoints](#filter-endpoints)
+  - [Simulation & Debugging](#simulation--debugging)
+- [Sei Custom Endpoints (Deprecated)](#sei-custom-endpoints)
+  - [Legacy API Configuration](#legacy-api-configuration)
+  - [Address & Cross-VM Helpers](#address--cross-vm-helpers)
+
+## Overview
+
+Sei supports the [Ethereum JSON-RPC API](https://ethereum.org/en/developers/docs/apis/json-rpc/) with some Sei-specific extensions to support cross-VM operations, synthetic transactions, and other advanced features.
+
+All endpoints follow the standard JSON-RPC format:
+
+<details>
+<summary>JSON-RPC Request/Response Format</summary>
+
+**Request Format**
+
+- HTTP method: always "`POST`"
+- Header: `accept: application/json`
+- Header: `content-type: application/json`
+- Body (JSON):
+  - `id`: an arbitrary string identifier
+  - `jsonrpc`: always "2.0"
+  - `method`: endpoint name (e.g. "eth_sendRawTransaction")
+  - `params`: an array that differs from endpoint to endpoint
+
+**Response Format**
+
+- Body (JSON):
+  - `id`: the same identifier in request
+  - `jsonrpc`: always "2.0"
+  - `result`: an object that differs from endpoint to endpoint
+  - `error` (if applicable): error details
+
+</details>
+
+## Standard Ethereum Endpoints
+
+Sei supports all standard Ethereum JSON-RPC endpoints, organized into the following categories. Click on each category to view the available endpoints and their documentation.
+
+### Send Transactions
+
+These endpoints allow you to send transactions to the Sei network.
+
+<details>
+<summary>View Send Transaction Endpoints</summary>
+
+#### eth_sendRawTransaction
+
+Sends a signed transaction.
+
+- **Parameters**:
+
+| Type     | Description                                 |
+| :------- | :------------------------------------------ |
+| `string` | The hex-encoding of the signed transaction. |
+
+- **Result**:
+
+| Type     | Description           |
+| :------- | :-------------------- |
+| `string` | The transaction hash. |
+
+</details>
+
+### Transaction Lookup
+
+These endpoints allow you to find transaction details.
+
+<details>
+<summary>View Transaction Lookup Endpoints</summary>
+
+#### eth_getTransactionReceipt
+
+Gets the receipt of a sent transaction
+
+- **Parameters**:
+
+| Type     | Description           |
+| :------- | :-------------------- |
+| `string` | The transaction hash. |
+
+- **Result**:
+
+| Type     | Description                                                                                             |
+| :------- | :------------------------------------------------------------------------------------------------------ |
+| `object` | The [receipt object](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_gettransactionreceipt). |
+
+#### eth_getTransactionByBlockNumberAndIndex
+
+Gets transaction by the block number and the index of the transaction in the
+block
+
+- **Parameters**:
+
+| Type     | Description                                                                                                                                                                                                             |
+| :------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `string` | The block number, which can either be a hexadecimal number, or one of "safe", "finalized", "latest", or "earliest". Note that "safe", "finalized", and "latest" mean the same thing on Sei due to its instant finality. |
+| `string` | The transaction index as a hexadecimal number.                                                                                                                                                                          |
+
+- **Result**:
+
+| Type     | Description                                                                                                 |
+| :------- | :---------------------------------------------------------------------------------------------------------- |
+| `object` | The [transaction details](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_gettransactionbyhash). |
+
+#### eth_getTransactionByBlockHashAndIndex
+
+Gets transaction by the block hash and the index of the transaction in the
+block.
+
+- **Parameters**:
+
+| Type     | Description                                    |
+| :------- | :--------------------------------------------- |
+| `string` | The block hash.                                |
+| `string` | The transaction index as a hexadecimal number. |
+
+- **Result**:
+
+| Type     | Description                                                                                                 |
+| :------- | :---------------------------------------------------------------------------------------------------------- |
+| `object` | The [transaction details](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_gettransactionbyhash). |
+
+#### eth_getTransactionByHash
+
+Gets transaction by the transaction hash.
+
+- **Parameters**:
+
+| Type     | Description           |
+| :------- | :-------------------- |
+| `string` | The transaction hash. |
+
+- **Result**:
+
+| Type     | Description                                                                                                 |
+| :------- | :---------------------------------------------------------------------------------------------------------- |
+| `object` | The [transaction details](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_gettransactionbyhash). |
+
+</details>
+
+### Account Information
+
+These endpoints allow you to query account-related information.
+
+<details>
+<summary>View Account Information Endpoints</summary>
+
+#### eth_getTransactionCount
+
+Gets the number of transactions sent by the account
+
+- **Parameters**:
+
+| Type     | Description                                                                                                                                                                                                             |
+| :------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `string` | The address to look up.                                                                                                                                                                                                 |
+| `string` | The block number, which can either be a hexadecimal number, or one of "safe", "finalized", "latest", or "earliest". Note that "safe", "finalized", and "latest" mean the same thing on Sei due to its instant finality. |
+
+- **Result**:
+
+| Type     | Description                                         |
+| :------- | :-------------------------------------------------- |
+| `string` | The hexadecimal form of the number of transactions. |
+
+#### eth_getBalance
+
+Gets the balance in wei (i.e. 10^-12 usei) of the account
+
+- **Parameters**:
+
+| Type     | Description                                                                                                                                                                                                                                                      |
+| :------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `string` | The address to look up.                                                                                                                                                                                                                                          |
+| `string` | The block number or hash, which can be one of 1. block hash, 2. hexadecimal block number, 3. one of `safe`, `finalized`, `latest`, `pending`, or `earliest`. Note that `safe`, `finalized`, and `latest` mean the same thing on Sei due to its instant finality. |
+
+- **Result**:
+
+| Type     | Description                              |
+| :------- | :--------------------------------------- |
+| `string` | The hexadecimal form of the wei balance. |
+
+#### eth_getCode
+
+Gets EVM code stored at the account address
+
+- **Parameters**:
+
+| Type     | Description                                                                                                                                                                                                                                                      |
+| :------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `string` | The address to look up.                                                                                                                                                                                                                                          |
+| `string` | The block number or hash, which can be one of 1. block hash, 2. hexadecimal block number, 3. one of `safe`, `finalized`, `latest`, `pending`, or `earliest`. Note that `safe`, `finalized`, and `latest` mean the same thing on Sei due to its instant finality. |
+
+- **Result**:
+
+| Type     | Description                              |
+| :------- | :--------------------------------------- |
+| `string` | The hexadecimal form of the code binary. |
+
+#### eth_getStorageAt
+
+Gets value at given key of the account
+
+- **Parameters**:
+
+| Type     | Description                                                                                                                                                                                                                                                      |
+| :------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `string` | The address to look up.                                                                                                                                                                                                                                          |
+| `string` | The hexadecimal form of the key.                                                                                                                                                                                                                                 |
+| `string` | The block number or hash, which can be one of 1. block hash, 2. hexadecimal block number, 3. one of `safe`, `finalized`, `latest`, `pending`, or `earliest`. Note that `safe`, `finalized`, and `latest` mean the same thing on Sei due to its instant finality. |
+
+- **Result**:
+
+| Type     | Description                                |
+| :------- | :----------------------------------------- |
+| `string` | The hexadecimal form of the storage value. |
+
+#### eth_getProof
+
+<Warning>
+Sei uses IAVL trees instead of Merkle Patricia Tries (MPT). The proof returned by this endpoint is an IAVL proof, not an MPT proof. Ethereum tooling that expects MPT proofs may not parse the response correctly.
+</Warning>
+
+Gets the IAVL proof of the given keys for an account.
+
+- **Parameters**:
+
+| Type       | Description                                                                                                                                                                                                                                                      |
+| :--------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `string`   | The address to look up.                                                                                                                                                                                                                                          |
+| `string[]` | The hexadecimal form of the keys.                                                                                                                                                                                                                                |
+| `string`   | The block number or hash, which can be one of 1. block hash, 2. hexadecimal block number, 3. one of `safe`, `finalized`, `latest`, `pending`, or `earliest`. Note that `safe`, `finalized`, and `latest` mean the same thing on Sei due to its instant finality. |
+
+- **Result**:
+
+| Type     | Description                              |
+| :------- | :--------------------------------------- |
+| `object` | An object with data from the IAVL proof. |
+
+Object Schema:
+
+```json {
+    address: // The requested address.
+    hexValues: // An array of the hexdecimal form of the values at the given keys.
+    storageProof: // An array of storage proofs.
+}
+```
+
+Note: The storage proofs in the return object follow this
+[format](https://github.com/sei-protocol/sei-tendermint/blob/main/proto/tendermint/crypto/proof.pb.go#L272-L274).
+
+</details>
+
+### Block Information
+
+Endpoints for retrieving block data and related information.
+
+<details>
+<summary>View complete list of Block Information endpoints</summary>
+
+#### eth_getBlockTransactionCountByNumber
+
+Gets the count of EVM transactions in a block by its number.
+
+- **Parameters**:
+
+| Type     | Description                                                                                                                                                                       |
+| :------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `string` | Block number (hexadecimal or `safe`, `finalized`, `latest`, `pending`, or `earliest`). Note that `safe`, `finalized`, and `latest` are equivalent on Sei due to instant finality. |
+
+- **Result**:
+
+| Type     | Description                                  |
+| :------- | :------------------------------------------- |
+| `string` | Count of EVM transactions in the block (hex) |
+
+---
+
+#### eth_getBlockTransactionCountByHash
+
+Gets the count of EVM transactions in a block by its hash.
+
+- **Parameters**:
+
+| Type     | Description |
+| :------- | :---------- |
+| `string` | Block hash  |
+
+- **Result**:
+
+| Type     | Description                                  |
+| :------- | :------------------------------------------- |
+| `string` | Count of EVM transactions in the block (hex) |
+
+---
+
+#### eth_getBlockByHash
+
+Gets block metadata and, optionally, its EVM transactions by block hash.
+
+- **Parameters**:
+
+| Type      | Description                                                                   |
+| :-------- | :---------------------------------------------------------------------------- |
+| `string`  | Block hash                                                                    |
+| `boolean` | Whether to include full transaction objects (`true`) or only hashes (`false`) |
+
+- **Result**:
+
+| Type     | Description                        |
+| :------- | :--------------------------------- |
+| `object` | Block object per Ethereum JSON-RPC |
+
+---
+
+#### eth_getBlockByNumber
+
+Gets block metadata and, optionally, its EVM transactions by block number.
+
+- **Parameters**:
+
+| Type      | Description                                                                           |
+| :-------- | :------------------------------------------------------------------------------------ |
+| `string`  | Block number (hexadecimal or `safe`, `finalized`, `latest`, `pending`, or `earliest`) |
+| `boolean` | Whether to include full transaction objects (`true`) or only hashes (`false`)         |
+
+- **Result**:
+
+| Type     | Description                        |
+| :------- | :--------------------------------- |
+| `object` | Block object per Ethereum JSON-RPC |
+
+---
+
+#### eth_getBlockReceipts
+
+Gets an array of EVM transaction receipts in a block by its number.
+
+- **Parameters**:
+
+| Type     | Description                                                                                                                                                                                                                                                      |
+| :------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `string` | The block number or hash, which can be one of 1. block hash, 2. hexadecimal block number, 3. one of `safe`, `finalized`, `latest`, `pending`, or `earliest`. Note that `safe`, `finalized`, and `latest` mean the same thing on Sei due to its instant finality. |
+
+- **Result**:
+
+| Type       | Description                   |
+| :--------- | :---------------------------- |
+| `object[]` | Array of transaction receipts |
+
+</details>
+
+### Blockchain Information
+
+Endpoints for querying general blockchain data.
+
+<details>
+<summary>View complete list of Blockchain Information endpoints</summary>
+
+#### eth_blockNumber
+
+Gets the latest committed block number.
+
+- **Parameters**:
+
+_None_
+
+- **Result**:
+
+| Type     | Description               |
+| :------- | :------------------------ |
+| `string` | Latest block number (hex) |
+
+---
+
+#### eth_chainId
+
+Gets the chain ID.
+
+- **Parameters**:
+
+_None_
+
+- **Result**:
+
+| Type     | Description    |
+| :------- | :------------- |
+| `string` | Chain ID (hex) |
+
+---
+
+#### eth_coinbase
+
+Gets the fee-collector (coinbase) address.
+
+- **Parameters**:
+
+_None_
+
+- **Result**:
+
+| Type     | Description           |
+| :------- | :-------------------- |
+| `string` | Fee-collector address |
+
+---
+
+#### eth_feeHistory
+
+Gets fee history over a block range.
+
+- **Parameters**:
+
+| Type      | Description                                                   |
+| :-------- | :------------------------------------------------------------ |
+| `string`  | Number of blocks (decimal or hex)                             |
+| `string`  | Block number reference (hex or `safe`, `finalized`, `latest`) |
+| `float[]` | Array of reward percentiles (e.g. `[10, 50, 90]`)             |
+
+- **Result**:
+
+| Type     | Description                                                                          |
+| :------- | :----------------------------------------------------------------------------------- |
+| `object` | Object containing `oldestBlock`, `baseFeePerGas`, `gasUsedRatio[]`, and `reward[][]` |
+
+---
+
+#### eth_gasPrice
+
+Gets the 50th-percentile gas price in the most recent block.
+
+- **Parameters**:
+
+_None_
+
+- **Result**:
+
+| Type     | Description                    |
+| :------- | :----------------------------- |
+| `string` | Gas price in wei (hexadecimal) |
+
+---
+
+#### net_version
+
+Gets the chain ID. Alias for `eth_chainId`, but returns the chain ID as a decimal instead of hex.
+
+- **Parameters**: _None_
+
+- **Result**:
+
+| Type     | Description        |
+| :------- | :----------------- |
+| `string` | Chain ID (decimal) |
+
+---
+
+#### web3_clientVersion
+
+Gets the RPC node's client version.
+
+- **Parameters**:
+
+_None_
+
+- **Result**:
+
+| Type     | Description           |
+| :------- | :-------------------- |
+| `string` | Client version string |
+
+</details>
+
+### Filter Endpoints
+
+Endpoints for creating and managing event filters.
+
+<Info>
+
+Note that log filters are subject to the following limits by default:
+
+- **Open-ended block range:** up to 10,000 logs in one response
+
+- **Close-ended block range:** up to 2,000 blocks to query over
+
+</Info>
+
+<details>
+<summary>View complete list of Filter endpoints</summary>
+
+#### eth_newFilter
+
+Creates a new log filter.
+
+- **Parameters**:
+
+| Type     | Description                                                                     |
+| :------- | :------------------------------------------------------------------------------ |
+| `object` | Filter object with fields: `address`, `topics`, optional `fromBlock`/`toBlock`. |
+
+- **Result**:
+
+| Type     | Description |
+| :------- | :---------- |
+| `string` | Filter ID   |
+
+---
+
+#### eth_newBlockFilter
+
+Creates a new block filter.
+
+- **Parameters**:
+
+_None_
+
+- **Result**:
+
+| Type     | Description |
+| :------- | :---------- |
+| `string` | Filter ID   |
+
+---
+
+#### eth_getFilterChanges
+
+Fetches updates since the last poll for a filter.
+
+- **Parameters**:
+
+| Type     | Description                                             |
+| :------- | :------------------------------------------------------ |
+| `string` | Filter ID from `eth_newFilter` or `eth_newBlockFilter`. |
+
+- **Result**:
+
+| Type       | Description                               |
+| :--------- | :---------------------------------------- |
+| `string[]` | Array of block hashes (for block filters) |
+| `object[]` | Array of log objects (for log filters)    |
+
+---
+
+#### eth_getFilterLogs
+
+Retrieves all logs matching a log filter, including historical logs.
+
+- **Parameters**:
+
+| Type     | Description |
+| :------- | :---------- |
+| `string` | Filter ID   |
+
+- **Result**:
+
+| Type       | Description          |
+| :--------- | :------------------- |
+| `object[]` | Array of log objects |
+
+---
+
+#### eth_getLogs
+
+Fetches logs matching given filter criteria.
+
+- **Parameters**:
+
+| Type     | Description                                                                                     |
+| :------- | :---------------------------------------------------------------------------------------------- |
+| `object` | Filter object with fields: `address`, `topics`, `fromBlock`, `toBlock`, `blockHash` (optional). |
+
+- **Result**:
+
+| Type       | Description          |
+| :--------- | :------------------- |
+| `object[]` | Array of log objects |
+
+---
+
+#### eth_uninstallFilter
+
+Removes a previously created filter.
+
+- **Parameters**:
+
+| Type     | Description |
+| :------- | :---------- |
+| `string` | Filter ID   |
+
+- **Result**:
+
+| Type   | Description                                   |
+| :----- | :-------------------------------------------- |
+| `bool` | `true` if the filter existed and was removed. |
+
+</details>
+
+### Simulation & Debugging
+
+<details>
+<summary>Simulation Endpoints</summary>
+
+Endpoints for simulating contract execution.
+
+#### eth_estimateGas
+
+Estimates gas usage for a transaction without broadcasting it.
+
+- **Parameters**:
+
+| Type     | Description                                                                 |
+| :------- | :-------------------------------------------------------------------------- |
+| `object` | Transaction call object (`from`, `to`, `gas`, `gasPrice`, `value`, `data`). |
+| `string` | (Optional) Block number or `"latest"`, `"pending"`, `"earliest"`.           |
+
+- **Result**:
+
+| Type     | Description                  |
+| :------- | :--------------------------- |
+| `string` | Estimated gas (hexadecimal). |
+
+---
+
+#### eth_call
+
+Executes a message call immediately without creating a transaction.
+
+- **Parameters**:
+
+| Type     | Description                                                     |
+| :------- | :-------------------------------------------------------------- |
+| `object` | Call object (`from`, `to`, `gas`, `gasPrice`, `value`, `data`). |
+| `string` | (Optional) Block number or `latest`, `pending`, `earliest`.     |
+
+- **Result**:
+
+| Type     | Description                  |
+| :------- | :--------------------------- |
+| `string` | Returned data (hexadecimal). |
+
+</details>
+
+<details>
+<summary>Debugging Endpoints</summary>
+
+Endpoints for debugging transactions and blocks.
+
+#### debug_traceTransaction
+
+Traces the execution of a transaction by its hash.
+
+- **Parameters**:
+
+| Type     | Description                                                             |
+| :------- | :---------------------------------------------------------------------- |
+| `string` | Transaction hash.                                                       |
+| `object` | (Optional) Tracing options (`tracer`, `timeout`, `enableMemory`, etc.). |
+
+- **Result**:
+
+| Type     | Description          |
+| :------- | :------------------- |
+| `object` | Trace result object. |
+
+---
+
+#### debug_traceBlockByNumber
+
+Traces all transactions in a block specified by number.
+
+- **Parameters**:
+
+| Type     | Description                                                                            |
+| :------- | :------------------------------------------------------------------------------------- |
+| `string` | Block number (hexadecimal or `safe`, `finalized`, `latest`, `pending`, or `earliest`). |
+| `object` | (Optional) Tracing options.                                                            |
+
+- **Result**:
+
+| Type       | Description                           |
+| :--------- | :------------------------------------ |
+| `object[]` | Array of trace result objects per tx. |
+
+---
+
+#### debug_traceBlockByHash
+
+Traces all transactions in a block specified by hash.
+
+- **Parameters**:
+
+| Type     | Description |
+| :------- | :---------- |
+| `string` | Block hash  |
+
+- **Result**:
+
+| Type       | Description                           |
+| :--------- | :------------------------------------ |
+| `object[]` | Array of trace result objects per tx. |
+
+</details>
+
+## Sei Custom Endpoints
+
+Sei extends the standard Ethereum JSON-RPC API with custom endpoints that enhance functionality for developers. These extensions enable better handling of cross-VM interactions, synthetic transactions, improved error reporting, and other Sei-specific features.
+
+<Warning>
+**Deprecation Notice:** All `sei_*` and `sei2_*` JSON-RPC methods are deprecated and scheduled for removal. Do not build new integrations on these endpoints. Use standard `eth_*` and `debug_*` methods instead.
+
+Access is controlled by the `enabled_legacy_sei_apis` setting under `[evm]` in `app.toml`. Only methods explicitly listed in this allowlist are available. Disabled methods return a standard JSON-RPC error (code `-32601`, data `"legacy_sei_deprecated"`). Allowed methods pass through unchanged, with an optional `Sei-Legacy-RPC-Deprecation` HTTP response header signaling deprecation.
+</Warning>
+
+### Legacy API Configuration
+
+The `enabled_legacy_sei_apis` setting in `app.toml` controls which `sei_*` and `sei2_*` methods are accessible on the EVM HTTP endpoint.
+
+**Default allowlist** (enabled on `seid init`):
+
+```toml [evm]
+enabled_legacy_sei_apis = [
+  "sei_getSeiAddress",
+  "sei_getEVMAddress",
+  "sei_getCosmosTx",
+]
+```
+
+To enable additional legacy methods, add them to this array. All other `sei_*` and `sei2_*` methods (including all `sei2_*` block methods) are disabled by default and must be explicitly enabled.
+
+<details>
+<summary>View all available legacy methods</summary>
+
+**`sei_*` methods:**
+
+| Method | Description |
+| ------ | ----------- |
+| `sei_associate` | Associate Sei and EVM addresses |
+| `sei_getSeiAddress` | Get Sei address for an EVM address |
+| `sei_getEVMAddress` | Get EVM address for a Sei address |
+| `sei_getCosmosTx` | Get Cosmos transaction by EVM tx hash |
+| `sei_getEvmTx` | Get EVM transaction by Cosmos tx hash |
+| `sei_getTransactionErrorByHash` | Get error message for a failed transaction |
+| `sei_getVMError` | Get VM error details for a transaction |
+| `sei_getBlockByHash` | Get block by hash (includes synthetic txs) |
+| `sei_getBlockByNumber` | Get block by number (includes synthetic txs) |
+| `sei_getBlockReceipts` | Get block receipts (includes synthetic txs) |
+| `sei_getBlockTransactionCountByHash` | Get tx count by block hash (includes synthetic txs) |
+| `sei_getBlockTransactionCountByNumber` | Get tx count by block number (includes synthetic txs) |
+| `sei_getTransactionByBlockHashAndIndex` | Get tx by block hash and index (includes synthetic txs) |
+| `sei_getTransactionByBlockNumberAndIndex` | Get tx by block number and index (includes synthetic txs) |
+| `sei_getTransactionByHash` | Get transaction by hash (includes synthetic txs) |
+| `sei_getTransactionCount` | Get account transaction count |
+| `sei_getTransactionReceipt` | Get transaction receipt (includes synthetic txs) |
+| `sei_getFilterLogs` | Get filter logs (includes synthetic logs) |
+| `sei_getLogs` | Get logs (includes synthetic logs) |
+| `sei_getFilterChanges` | Get filter changes (includes synthetic events) |
+| `sei_newFilter` | Create a new log filter |
+| `sei_newBlockFilter` | Create a new block filter |
+| `sei_uninstallFilter` | Remove a filter |
+| `sei_getBlockByHashExcludeTraceFail` | Get block by hash excluding failed traces |
+| `sei_getBlockByNumberExcludeTraceFail` | Get block by number excluding failed traces |
+| `sei_getTransactionReceiptExcludeTraceFail` | Get receipt excluding failed traces |
+| `sei_traceBlockByHashExcludeTraceFail` | Trace block by hash excluding failed traces |
+| `sei_traceBlockByNumberExcludeTraceFail` | Trace block by number excluding failed traces |
+
+**`sei2_*` methods** (block queries with bank transfers included):
+
+| Method | Description |
+| ------ | ----------- |
+| `sei2_getBlockByHash` | Get block by hash (includes bank transfers) |
+| `sei2_getBlockByNumber` | Get block by number (includes bank transfers) |
+| `sei2_getBlockReceipts` | Get block receipts (includes bank transfers) |
+| `sei2_getBlockTransactionCountByHash` | Get tx count by block hash (includes bank transfers) |
+| `sei2_getBlockTransactionCountByNumber` | Get tx count by block number (includes bank transfers) |
+| `sei2_getBlockByHashExcludeTraceFail` | Get block by hash excluding failed traces (includes bank transfers) |
+| `sei2_getBlockByNumberExcludeTraceFail` | Get block by number excluding failed traces (includes bank transfers) |
+
+</details>
+
+### Address & Cross-VM Helpers
+
+These endpoints provide cross-VM address resolution and transaction lookup between the EVM and Cosmos environments. `sei_getSeiAddress`, `sei_getEVMAddress`, and `sei_getCosmosTx` are enabled by default.
+
+<details>
+<summary>View Address & Cross-VM Helper Endpoints</summary>
+
+#### sei_associate
+
+Sends a transaction to establish association between the signer's Sei address
+and EVM address on-chain.
+
+- **Parameters**:
+
+| Type     | Description                                                                        |
+| :------- | :--------------------------------------------------------------------------------- |
+| `object` | A custom object containing a string message and the v, r, s of the signed message. |
+
+Object Schema:
+
+```json {
+    custom_message: // Any string message
+    r: // The R-part of the signature over the Keccak256 hash of the custom message.
+    s: // The S-part of the signature over the Keccak256 hash of the custom message.
+    v: // The V-part of the signature over the Keccak256 hash of the custom message.
+}
+```
+
+- **Result**:
+
+| Type     | Description                           |
+| :------- | :------------------------------------ |
+| `string` | The transaction hash of the association transaction. |
+
+---
+
+#### sei_getSeiAddress
+
+Returns the Sei (bech32) address associated with an EVM address.
+
+- **Parameters**:
+
+| Type     | Description                         |
+| :------- | :---------------------------------- |
+| `string` | The EVM address (0x-prefixed hex).  |
+
+- **Result**:
+
+| Type     | Description                            |
+| :------- | :------------------------------------- |
+| `string` | The associated Sei bech32 address.     |
+
+**Example Request**
+
+```json {
+  "jsonrpc": "2.0",
+  "method": "sei_getSeiAddress",
+  "params": ["0x1234567890abcdef1234567890abcdef12345678"],
+  "id": 1
+}
+```
+
+---
+
+#### sei_getEVMAddress
+
+Returns the EVM address associated with a Sei (bech32) address.
+
+- **Parameters**:
+
+| Type     | Description                     |
+| :------- | :------------------------------ |
+| `string` | The Sei bech32 address.         |
+
+- **Result**:
+
+| Type     | Description                      |
+| :------- | :------------------------------- |
+| `string` | The associated EVM address.      |
+
+**Example Request**
+
+```json {
+  "jsonrpc": "2.0",
+  "method": "sei_getEVMAddress",
+  "params": ["sei1..."],
+  "id": 1
+}
+```
+
+---
+
+#### sei_getCosmosTx
+
+Returns the Cosmos transaction details for a given EVM transaction hash.
+
+- **Parameters**:
+
+| Type     | Description                |
+| :------- | :------------------------- |
+| `string` | The EVM transaction hash.  |
+
+- **Result**:
+
+| Type     | Description                        |
+| :------- | :--------------------------------- |
+| `object` | The Cosmos transaction object.     |
+
+**Example Request**
+
+```json {
+  "jsonrpc": "2.0",
+  "method": "sei_getCosmosTx",
+  "params": ["0xabc123..."],
+  "id": 1
+}
+```
+
+</details>
+
+
+### Legacy Deprecation Error
+
+When a `sei_*` or `sei2_*` method is called but not listed in `enabled_legacy_sei_apis`, the node returns:
+
+```json {
+  "jsonrpc": "2.0",
+  "id": 1,
+  "error": {
+    "code": -32601,
+    "message": "sei_getBlockByNumber is not enabled on this node. The sei_* and sei2_* JSON-RPC surfaces are deprecated, scheduled for removal, and should not be used for new integrations - prefer standard eth_* (and debug_*) methods and official migration guidance. To allow this legacy method, add it to enabled_legacy_sei_apis under [evm] in app.toml.",
+    "data": "legacy_sei_deprecated"
+  }
+}
+```
+
+### Deprecation HTTP Header
+
+When an allowlisted `sei_*` or `sei2_*` method is successfully called, the response includes an optional HTTP header signaling deprecation:
+
+```
+Sei-Legacy-RPC-Deprecation: All sei_* and sei2_* JSON-RPC methods are deprecated and scheduled for removal; migrate to eth_* and supported APIs.
+```
+
+Clients can use this header to detect legacy API usage and plan migration.

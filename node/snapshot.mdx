@@ -1,0 +1,150 @@
+---
+title: 'Join the network using Snapshots'
+description: 'Detailed guide for using snapshots to join the network'
+keywords: ['sei node', 'blockchain node', 'node configuration', 'seidb', 'node maintenance', 'system operations']
+---
+
+
+# Join the testnet and mainnet network using Node Snapshots
+
+<Warning>Before you resync a node using snapshots, make sure that in case of a successful resync that you _under no circumstance_ double sign blocks at previous heights with your validator. Failure to do so will cause tombstoning of your validator.</Warning>
+
+Follow this guide to join an existing network through **snapshot sync**. To quickly spin up a fresh full node and join the network, it's recommended to restore from a snapshot instead of replaying all historical blocks.
+
+## Snapshot Sync
+
+Snapshot sync allows a new node to join a network by downloading a recent, compressed copy of the entire application state and extracting it directly into the data directory. This reduces the initial sync time from days to minutes.
+
+## Snapshot Providers
+
+You can select from various providers for downloading snapshots:
+
+- Polkachu: [Mainnet Snapshots](https://www.polkachu.com/tendermint_snapshots/sei) | [Testnet Snapshots](https://www.polkachu.com/testnets/sei/snapshots)
+- Imperator.co
+- Stakeme
+- kjnodes
+
+<iframe src="https://seistream.app/labs?page=snapshots" width="100%" height="600" style={{ border: 'none', borderRadius: '8px' }} title="Sei Snapshot Providers" />
+
+## Clean Up & Preparation
+
+If you are **not** starting a node from fresh, perform the following backups and clean‑ups first.
+
+<Info>Note: This step is not needed for fresh nodes.</Info>
+
+1. **Stop the service**
+
+   ```bash
+   sudo systemctl stop seid
+   ```
+
+2. **Backup Validator State** (Critical for Validators)
+   Assuming your sei home directory is `$HOME/.sei`, back up `priv_validator_key.json` and `priv_validator_state.json`:
+
+   ```bash
+   cp $HOME/.sei/data/priv_validator_state.json $HOME/priv_validator_state.json
+   cp $HOME/.sei/config/priv_validator_key.json $HOME/priv_validator_key.json
+   ```
+
+3. **Reset the State**
+
+   ```bash
+   seid tendermint unsafe-reset-all --home $HOME/.sei
+   ```
+
+4. **Remove Data and Wasm**
+   ```bash
+   rm -rf $HOME/.sei/data
+   rm -rf $HOME/.sei/wasm
+   ```
+
+<Warning>All snapshots also include the `wasm` folder. Make sure to copy over the `wasm` folder as well, the node cannot successfully sync without it.</Warning>
+
+## Download & Restore
+
+<Info>The following commands are generic examples. Please verify the `SNAPSHOT_URL` and extraction command from your chosen provider above.</Info>
+
+### Prerequisites
+
+Ensure you have the necessary tools installed (e.g., `lz4`, `aria2`, `pv`, `wget`).
+
+```bash
+sudo apt update
+sudo apt install curl lz4 wget aria2 pv -y
+```
+
+### Download and Extract
+
+1. **Set the Snapshot URL**
+   Replace `<SNAPSHOT_URL>` with the link from your chosen provider.
+
+   ```bash
+   SNAPSHOT_URL="<PASTE_SNAPSHOT_URL_HERE>"
+   ```
+
+2. **Download and Extract**
+   Most providers compress the `data` and `wasm` directory directly. The following command streams the download and extracts it into `$HOME/.sei`.
+
+   ```bash
+   curl -L $SNAPSHOT_URL | lz4 -c -d | tar -x -C $HOME/.sei
+   ```
+
+   **Alternative: Parallel Download with aria2**
+
+   For faster downloads, especially with large snapshots, you can use `aria2c` which supports parallel connections:
+
+   ```bash
+   # Download with 16 parallel connections
+   aria2c -x 16 -s 16 -o snapshot.tar.lz4 $SNAPSHOT_URL
+
+   # Extract after download completes
+   lz4 -c -d snapshot.tar.lz4 | tar -x -C $HOME/.sei
+
+   # Clean up the downloaded file
+   rm snapshot.tar.lz4
+   ```
+
+   You can also use `pv` to monitor extraction progress:
+
+   ```bash
+   pv snapshot.tar.lz4 | lz4 -c -d | tar -x -C $HOME/.sei
+   ```
+
+   <Info>The `-x 16` flag sets the maximum connections per server, and `-s 16` splits the file into 16 segments for parallel downloading. You can adjust these values based on your network conditions.</Info>
+
+   <Warning>**Variation Warning**: Some providers might wrap the data in a folder or use different compression. - If the snapshot is a `.tar.gz`, use `tar -xzf`. - If the snapshot contains a root folder (e.g. `sei/data`), you might need to adjust the `-C` target or use `--strip-components`. - Always check the provider's specific page for exact commands.</Warning>
+
+3. **Restore Validator State**
+
+   ```bash
+   cp $HOME/priv_validator_state.json $HOME/.sei/data/priv_validator_state.json
+   ```
+
+4. **Enable SeiDB**
+   Make sure to enable `sei-db` in your config if it's not already enabled:
+
+   ```bash
+   sed -i.bak -E "/^\[state-commit\]/,/^\[.*\]/ s|^(sc-enable[[:space:]]*=[[:space:]]*).*$|\1true| ; /^\[state-store\]/,/^\[.*\]/ s|^(ss-enable[[:space:]]*=[[:space:]]*).*$|\1true|" $HOME/.sei/config/app.toml
+   ```
+
+5. **Restart the Node**
+
+   ```bash
+   sudo systemctl start seid
+   ```
+
+6. **Monitor Logs**
+   ```bash
+   sudo journalctl -fu seid
+   ```
+
+## Troubleshooting
+
+**Q: I can't download a snapshot.**
+A: Try another time later as these snapshots are refreshed regularly and inform us in the [Sei Tech Chat](https://t.me/+KZdhZ1eE-G01NmZk).
+
+**Q: The snapshot finishes, but I immediately get `AppHash` errors upon regular block syncing.**
+A: Make sure that you use the latest version of the node software. This usually means the snapshot version doesn't match your node version, or the snapshot is corrupted. Ensure you are using the correct binary version for the block height of the snapshot.
+
+**Q: "No space left on device"**
+A: Snapshots require significant disk space to download and extract. Ensure you have enough free space (check with `df -h`).

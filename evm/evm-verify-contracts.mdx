@@ -1,0 +1,190 @@
+---
+title: 'Verify Contracts'
+description: 'Comprehensive guide on how to verify your EVM smart contracts on Sei'
+keywords: ['contract verification', 'sourcify', 'hardhat', 'foundry', 'smart contracts', 'solidity', 'sei']
+---
+
+
+# Verify Contract
+
+Verify your deployed contract using flattened source code, JSON input, Sourcify and more. Verifying your deployed contract ensures transparency and trust by making the source code publicly available and verifiable.
+
+## Benefits of Verification
+
+- **Transparency**: Publicly available source code.
+- **Trust**: Community can verify the contract's functionality.
+- **Security**: Greater confidence in the contract's integrity.
+
+## Sourcify
+
+[Sourcify](https://sourcify.dev/) provides decentralized, open-source contract verification. Sei has full Sourcify support on both **mainnet** (chain ID 1329) and **testnet** (chain ID 1328).
+
+Sourcify performs byte-by-byte verification by recompiling your source code with the exact same compiler settings and comparing the output against the on-chain bytecode. No API key is required.
+
+### Verify with Foundry
+
+After deploying your contract with Foundry, verify it on Sourcify:
+
+```bash forge verify-contract \
+  --verifier sourcify \
+  --chain-id <CHAIN_ID> \
+  <DEPLOYED_CONTRACT_ADDRESS> \
+  <PATH:CONTRACT_NAME>
+```
+
+**Testnet example:**
+
+```bash forge verify-contract \
+  --verifier sourcify \
+  --chain-id 1328 \
+  0x1234567890abcdef1234567890abcdef12345678 \
+  src/Counter.sol:Counter
+```
+
+**Mainnet example:**
+
+```bash forge verify-contract \
+  --verifier sourcify \
+  --chain-id 1329 \
+  0x1234567890abcdef1234567890abcdef12345678 \
+  src/Counter.sol:Counter
+```
+
+To check verification status:
+
+```bash forge verify-check \
+  --verifier sourcify \
+  --chain-id 1328 \
+  <VERIFICATION_JOB_ID>
+```
+
+You can also deploy and verify in a single step using `forge create`:
+
+```bash forge create src/Counter.sol:Counter \
+  --rpc-url https://evm-rpc-testnet.sei-apis.com \
+  --private-key $PRIVATE_KEY \
+  --verify \
+  --verifier sourcify \
+  --chain-id 1328
+```
+
+<Info>If you need to pass constructor arguments, append them after the contract path. For example: `forge create src/Token.sol:Token --constructor-args "MyToken" "MTK" 18`</Info>
+
+### Verify with Hardhat
+
+The [`hardhat-verify`](https://hardhat.org/docs/learn-more/smart-contract-verification) plugin supports Sourcify out of the box with no additional configuration or API key.
+
+#### 1. Install dependencies
+
+```bash npm install --save-dev hardhat @nomicfoundation/hardhat-verify
+```
+
+#### 2. Configure `hardhat.config.ts`
+
+```ts import { defineConfig, configVariable } from "hardhat/config";
+import hardhatVerify from "@nomicfoundation/hardhat-verify";
+
+export default defineConfig({
+  networks: {
+    sei_testnet: {
+      type: "http",
+      chainId: 1328,
+      url: "https://evm-rpc-testnet.sei-apis.com",
+      accounts: [configVariable("PRIVATE_KEY")],
+    },
+    sei_mainnet: {
+      type: "http",
+      chainId: 1329,
+      url: "https://evm-rpc.sei-apis.com",
+      accounts: [configVariable("PRIVATE_KEY")],
+    },
+  },
+
+  solidity: {
+    compilers: [
+      {
+        version: "0.8.28",
+        settings: {
+          optimizer: { enabled: true, runs: 200 },
+        },
+      },
+    ],
+  },
+
+  plugins: [hardhatVerify],
+});
+```
+
+<Info>Sourcify verification is enabled by default in `hardhat-verify`. No `verify` config block is needed for Sourcify.</Info>
+
+#### 3. Deploy
+
+```bash npx hardhat ignition deploy ignition/modules/Counter.ts --network sei_testnet
+```
+
+#### 4. Verify with Sourcify
+
+```bash npx hardhat verify sourcify --network sei_testnet <CONTRACT_ADDRESS>
+```
+
+If your contract has constructor arguments:
+
+```bash npx hardhat verify sourcify --network sei_testnet <CONTRACT_ADDRESS> "arg1" "arg2"
+```
+
+Running `npx hardhat verify` without a subtask will attempt verification on all enabled providers (Etherscan, Blockscout, and Sourcify) simultaneously.
+
+### Verify via Sourcify UI
+
+You can also verify contracts directly through the [Sourcify web interface](https://verify.sourcify.dev/):
+
+1. Go to [verify.sourcify.dev](https://verify.sourcify.dev/)
+2. Select **Sei** (chain ID 1329) or **Sei Testnet** (chain ID 1328)
+3. Enter your contract address
+4. Upload your source files or standard JSON input
+5. Click **Verify**
+
+
+## Remix Contract Verification Plugin
+
+Remix IDE offers an automated contract verification solution through its Contract Verification plugin, which integrates with both Sourcify and Etherscan verification services.
+
+### Setup and Configuration
+
+1. **Activate the Plugin**: In Remix IDE, navigate to the Plugin Manager and activate the **Contract Verification** plugin.
+
+2. **Configure Network Settings**:
+   - Search for and select **Sei** as your blockchain
+   - Choose your deployment environment:
+     - **Testnet** (1328) for development
+     - **Mainnet** (1329) for production
+
+3. **Enable Verification Services**: Activate both verification methods:
+   - ✅ **Sourcify**
+   - ✅ **Etherscan**
+
+4. **Etherscan Configuration**: Configure the following settings:
+   - **API Key**: Obtain from [seiscan.io](https://seiscan.io)
+   - **URL**: `https://seiscan.io`
+
+### Deploy and Verify
+
+Once configured, deploy your contract through Remix as usual. The Contract Verification plugin will automatically verify your contract upon successful deployment, submitting to both Sourcify and Seiscan simultaneously.
+
+Verification status will be displayed in the plugin interface, and your verified contract will be publicly viewable on Seiscan explorer.
+
+## Verify via 0xngmi Etherscan Verification (third‑party)
+
+You can batch‑verify a contract that is already verified on another chain using the community tool [Etherscan Verification by 0xngmi](https://etherscan-verification.0xngmi.com/). This copies the verified source from a "source chain" and submits it to [Seiscan](https://seiscan.io), as long as the bytecode and compiler settings match.
+
+<Warning>Prerequsite: The contract is already verified on at least one supported chain (same compiler version, optimization runs, constructor args, and library addresses as on Sei).</Warning>
+
+Steps:
+
+1. Open [Etherscan Verification by 0xngmi](https://etherscan-verification.0xngmi.com/).
+2. In "Source Contract", paste the address of the contract that is already verified and select its chain.
+3. In "Target Contracts", add your Sei deployment address and select "Sei" as the target chain.
+4. Click "Verify Contracts" and wait for the result.
+5. Confirm the result on [Seiscan](https://seiscan.io) by visiting the contract page and checking the Contract tab.
+
+<Info>If verification fails with a bytecode mismatch, re‑check compiler version, optimization runs, constructor arguments, and linked library addresses; they must be identical to the deployment on Sei.</Info>

@@ -1,0 +1,124 @@
+---
+title: 'Sei Giga Developer Guide'
+description: 'Key patterns and techniques for building high-performance dApps on Sei Giga'
+keywords: ['sei giga development', 'smart contracts', 'dapp development', 'solidity', 'parallel execution']
+---
+
+
+# Sei Giga Developer Guide
+
+<Info>This is a sneak peek at the patterns and optimizations developers should consider when building on Sei Giga. For current EVM development tutorials, check out the [EVM development guides](/evm/evm-general).</Info>
+
+## Why Build on Sei Giga?
+
+- **Familiar Tools:** Full EVM compatibility—use existing Ethereum tooling
+- **Parallel Execution:** Transactions touching different state run simultaneously
+- **Lower Costs:** Efficient architecture means cheaper transactions
+- **Native Precompiles:** Access to staking, and more from Solidity
+
+## Key Development Patterns
+
+### Pattern 1: User-Isolated State
+
+Sei Giga's parallel execution engine rewards contracts with isolated state. When users' operations don't touch shared state, they execute simultaneously.
+
+```solidity
+// GOOD: Each user has isolated state - transfers can run in parallel
+contract OptimizedToken {
+    mapping(address => uint256) private balances;
+
+    function transfer(address to, uint256 amount) public {
+        require(balances[msg.sender] >= amount);
+        balances[msg.sender] -= amount;
+        balances[to] += amount;
+    }
+}
+
+// BAD: Global counter forces sequential execution
+contract PoorToken {
+    uint256 public totalTransfers; // Every transfer conflicts!
+
+    function transfer(address to, uint256 amount) public {
+        totalTransfers++; // Blocks parallelism
+        // ... transfer logic
+    }
+}
+```
+
+### Pattern 2: Struct Packing
+
+Pack struct variables to minimize storage slots and reduce gas costs.
+
+```solidity
+contract OptimizedStorage {
+    // GOOD: Uses 1 storage slot (256 bits total)
+    struct User {
+        uint128 balance;    // 128 bits
+        uint64 lastUpdate;  // 64 bits
+        uint64 nonce;       // 64 bits
+    }
+
+    // BAD: Uses 3 storage slots
+    struct InefficientUser {
+        uint256 balance;    // 256 bits = 1 slot
+        uint64 lastUpdate;  // 64 bits = 1 slot (wastes 192 bits)
+        uint64 nonce;       // 64 bits = 1 slot (wastes 192 bits)
+    }
+}
+```
+
+### Pattern 3: Event-Driven Architecture
+
+Store historical data in events instead of storage to reduce costs.
+
+```solidity
+contract EventDrivenAuction {
+    mapping(uint256 => uint128) public highestBids;
+
+    // Bid history stored in events, not storage
+    event BidPlaced(uint256 indexed auctionId, address indexed bidder, uint256 amount);
+
+    function bid(uint256 auctionId) external payable {
+        require(msg.value > highestBids[auctionId], "Bid too low");
+        highestBids[auctionId] = uint128(msg.value);
+        emit BidPlaced(auctionId, msg.sender, msg.value); // Cheap!
+    }
+}
+```
+
+## Gas Optimization Tips
+
+<Info>
+**Quick Wins:**
+- Use `memory` for temporary data, `calldata` for read-only parameters
+- Cache array lengths in loops: `uint256 len = arr.length;`
+- Use `unchecked { i++; }` in loops where overflow is impossible
+- Batch operations to amortize base transaction costs
+</Info>
+
+## Native Precompiles
+
+Sei Giga will also provide precompiles for direct access to chain features from Solidity.
+
+See the [Precompiles documentation](/evm/precompiles) for full details.
+
+## Development Checklists
+
+### Parallel Execution Checklist
+
+- Isolate state by user/entity
+- Avoid global counters and shared state
+- Use mappings over arrays for lookups
+
+### Gas Optimization Checklist
+
+- Pack structs to minimize storage slots
+- Use events for historical data
+- Cache array lengths in loops
+- Batch operations when possible
+
+## Next Steps
+
+1. **Full Tutorials** - Start with the [EVM development guides](/evm/evm-general)
+2. **Architecture Details** - Review the [Sei Giga Overview](/learn/sei-giga)
+3. **Precompiles** - Explore [native precompiles](/evm/precompiles) for advanced features

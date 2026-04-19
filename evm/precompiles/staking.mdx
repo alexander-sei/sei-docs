@@ -1,0 +1,1418 @@
+---
+title: 'Staking Precompile'
+description: "Learn how to interact with Sei's Staking precompile through ethers.js, enabling delegation, undelegation, redelegation, and validator management directly in your EVM smart contracts for DeFi and staking applications."
+keywords: ['staking precompile', 'ethers.js', 'delegation', 'validators', 'staking rewards', 'defi development', 'sei evm', 'blockchain staking']
+---
+
+
+# Staking Precompile
+
+<Info>Watch the video walkthrough for this topic in the [Video Tutorials](/evm/videos) section.</Info>
+
+**Address:** `0x0000000000000000000000000000000000001005`
+
+The Sei staking precompile allows EVM applications to interact directly with Sei's native staking module through standard smart contract calls. This enables delegation, undelegation, redelegation, validator management, and staking queries directly from your dApps without needing separate Cosmos SDK integration.
+
+<Info> **What is a precompile?** A precompile is a special smart contract deployed at a fixed address by the Sei protocol itself, that exposes custom native chain logic to EVM-based applications. It acts like a regular contract from the EVM's perspective, but executes privileged, low-level logic efficiently. </Info>
+
+## How Does the Staking Precompile Work?
+
+The staking precompile at address `0x0000000000000000000000000000000000001005` exposes a comprehensive set of staking functions including `delegate()`, `undelegate()`, `redelegate()`, `createValidator()`, `editValidator()`, and various query functions like `validators()`, `delegatorDelegations()`, `pool()`, and `params()`.
+
+- **Direct Integration:** EVM contracts and dApps can call staking functions like any other smart contract method.
+- **Native Execution:** Operations are executed at the Cosmos SDK level for maximum efficiency and security.
+- **Seamless Bridge:** No need for separate wallet integrations or complex cross-chain interactions.
+- **Event Emission:** All staking operations emit events (`Delegate`, `Undelegate`, `Redelegate`, `ValidatorCreated`, `ValidatorEdited`) for easy tracking and indexing.
+
+## Use Cases
+
+- **DeFi Integration:** Build liquid staking protocols and yield farming strategies.
+- **Delegation Services:** Create user-friendly interfaces for staking operations.
+- **Portfolio Management:** Automate staking strategies and delegation rebalancing.
+- **Validator Management:** Create and manage validators programmatically.
+
+## What You'll Learn in This Guide
+
+By the end of this guide, you'll be able to:
+
+- **Integrate Staking Operations** - Call delegation, undelegation, and redelegation functions directly from your EVM contracts and dApps
+- **Handle Decimal Precision** - Master the critical precision patterns for different operations to avoid common formatting errors
+- **Create and Manage Validators** - Create new validators and edit their parameters programmatically
+- **Query Staking State** - Use the comprehensive query functions to fetch validators, delegations, unbonding info, pool statistics, and staking parameters
+- **Listen for Staking Events** - Track staking operations using emitted events for indexing and notifications
+- **Build Portfolio Tools** - Implement automated rebalancing and delegation tracking for staking management applications
+- **Navigate Staking Risks** - Understand unbonding periods, slashing mechanics, and validator selection for safe staking operations
+
+## Events
+
+The staking precompile emits the following events:
+
+```solidity
+/**
+ * @notice Emitted when tokens are delegated to a validator
+ * @param delegator The address of the delegator
+ * @param validator The validator address
+ * @param amount The amount delegated in base units
+ */
+event Delegate(address indexed delegator, string validator, uint256 amount);
+
+/**
+ * @notice Emitted when tokens are redelegated from one validator to another
+ * @param delegator The address of the delegator
+ * @param srcValidator The source validator address
+ * @param dstValidator The destination validator address
+ * @param amount The amount redelegated in base units
+ */
+event Redelegate(
+    address indexed delegator,
+    string srcValidator,
+    string dstValidator,
+    uint256 amount
+);
+
+/**
+ * @notice Emitted when tokens are undelegated from a validator
+ * @param delegator The address of the delegator
+ * @param validator The validator address
+ * @param amount The amount undelegated in base units
+ */
+event Undelegate(
+    address indexed delegator,
+    string validator,
+    uint256 amount
+);
+
+/**
+ * @notice Emitted when a new validator is created
+ * @param creator The address of the validator creator
+ * @param validatorAddress The validator address
+ * @param moniker The validator moniker
+ */
+event ValidatorCreated(
+    address indexed creator,
+    string validatorAddress,
+    string moniker
+);
+
+/**
+ * @notice Emitted when a validator is edited
+ * @param editor The address of the validator editor
+ * @param validatorAddress The validator address
+ * @param moniker The new validator moniker
+ */
+event ValidatorEdited(
+    address indexed editor,
+    string validatorAddress,
+    string moniker
+);
+```
+
+### Listening for Events
+
+You can listen for these events in your dApp to track staking operations:
+
+```typescript // Listen for delegation events
+staking.on('Delegate', (delegator, validator, amount) => {
+  console.log(`${delegator} delegated ${amount} to ${validator}`);
+});
+
+// Listen for redelegation events
+staking.on('Redelegate', (delegator, srcValidator, dstValidator, amount) => {
+  console.log(`${delegator} redelegated ${amount} from ${srcValidator} to ${dstValidator}`);
+});
+
+// Listen for undelegation events
+staking.on('Undelegate', (delegator, validator, amount) => {
+  console.log(`${delegator} undelegated ${amount} from ${validator}`);
+});
+
+// Listen for validator creation events
+staking.on('ValidatorCreated', (creator, validatorAddress, moniker) => {
+  console.log(`New validator ${moniker} created at ${validatorAddress} by ${creator}`);
+});
+
+// Listen for validator edit events
+staking.on('ValidatorEdited', (editor, validatorAddress, moniker) => {
+  console.log(`Validator ${validatorAddress} edited by ${editor}, new moniker: ${moniker}`);
+});
+```
+
+## Functions
+
+The staking precompile exposes the following functions:
+
+### Transaction Functions
+
+```solidity
+/// Delegates Sei to the specified validator.
+/// @dev This function truncates msg.value to 6 decimal places for interaction with the staking module
+/// @param valAddress The Sei address of the validator.
+/// @return Whether the delegation was successful.
+function delegate(
+    string memory valAddress
+) payable external returns (bool success);
+
+/// Redelegates Sei from one validator to another.
+/// @dev The amount should be in 6 decimal precision, not 18. 1 SEI = 1_000_000 uSEI
+/// @param srcAddress The Sei address of the validator to move delegations from.
+/// @param dstAddress The Sei address of the validator to move delegations to.
+/// @param amount The amount of Sei to move from srcAddress to dstAddress.
+/// @return Whether the redelegation was successful.
+function redelegate(
+    string memory srcAddress,
+    string memory dstAddress,
+    uint256 amount
+) external returns (bool success);
+
+/// Undelegates Sei from the specified validator.
+/// @dev The amount should be in 6 decimal precision, not 18. 1 SEI = 1_000_000 uSEI
+/// @param valAddress The Sei address of the validator to undelegate from.
+/// @param amount The amount of Sei to undelegate.
+/// @return Whether the undelegation was successful.
+function undelegate(
+    string memory valAddress,
+    uint256 amount
+) external returns (bool success);
+
+/// Create a new validator. Delegation amount must be provided as value in wei.
+/// @param pubKeyHex Ed25519 public key in hex format (64 characters)
+/// @param moniker Validator display name
+/// @param commissionRate Initial commission rate (e.g. "0.05" for 5%)
+/// @param commissionMaxRate Maximum commission rate (e.g. "0.20" for 20%)
+/// @param commissionMaxChangeRate Maximum commission change rate per day (e.g. "0.01" for 1%)
+/// @param minSelfDelegation Minimum self-delegation amount in base units
+/// @return success True if validator creation was successful
+function createValidator(
+    string memory pubKeyHex,
+    string memory moniker,
+    string memory commissionRate,
+    string memory commissionMaxRate,
+    string memory commissionMaxChangeRate,
+    uint256 minSelfDelegation
+) external payable returns (bool success);
+
+/// Edit an existing validator's parameters
+/// @param moniker New validator display name
+/// @param commissionRate New commission rate (e.g. "0.10" for 10%)
+///                      Pass empty string "" to not change commission rate
+///                      Note: Commission can only be changed once per 24 hours
+/// @param minSelfDelegation New minimum self-delegation amount
+///                         Pass 0 to not change minimum self-delegation
+///                         Note: Can only increase, cannot decrease below current value
+/// @return success True if validator edit was successful
+function editValidator(
+    string memory moniker,
+    string memory commissionRate,
+    uint256 minSelfDelegation
+) external returns (bool success);
+```
+
+### Query Functions
+
+```solidity
+struct Delegation {
+    Balance balance;
+    DelegationDetails delegation;
+}
+
+struct Balance {
+    uint256 amount;  // Staked balance in usei (6 decimals)
+    string denom;    // Token denomination (e.g., "usei")
+}
+
+struct DelegationDetails {
+    string delegator_address;
+    uint256 shares;    // Delegation shares (18 decimal precision)
+    uint256 decimals;  // Precision for shares field (always 18)
+    string validator_address;
+}
+
+struct Validator {
+    string operatorAddress;      // Validator's operator address (seivaloper...)
+    string consensusPubkey;      // Consensus public key
+    bool jailed;                 // Whether the validator is jailed
+    int32 status;                // Bonding status (1=Unbonded, 2=Unbonding, 3=Bonded)
+    string tokens;               // Total tokens delegated
+    string delegatorShares;      // Total delegator shares
+    string description;          // Validator description/metadata
+    int64 unbondingHeight;       // Height at which unbonding started
+    int64 unbondingTime;         // Time at which unbonding completes
+    string commissionRate;       // Current commission rate
+    string commissionMaxRate;    // Maximum commission rate
+    string commissionMaxChangeRate; // Maximum daily commission change rate
+    int64 commissionUpdateTime;  // Last commission update timestamp
+    string minSelfDelegation;    // Minimum self-delegation requirement
+}
+
+struct ValidatorsResponse {
+    Validator[] validators;      // Array of validators
+    bytes nextKey;               // Pagination key for next page
+}
+
+struct DelegationsResponse {
+    Delegation[] delegations;    // Array of delegations
+    bytes nextKey;               // Pagination key for next page
+}
+
+struct UnbondingDelegationEntry {
+    int64 creationHeight;        // Height when unbonding was initiated
+    int64 completionTime;        // Timestamp when unbonding completes
+    string initialBalance;       // Initial unbonding balance
+    string balance;              // Current unbonding balance
+}
+
+struct UnbondingDelegation {
+    string delegatorAddress;     // Delegator's address
+    string validatorAddress;     // Validator's address
+    UnbondingDelegationEntry[] entries; // Unbonding entries
+}
+
+struct UnbondingDelegationsResponse {
+    UnbondingDelegation[] unbondingDelegations; // Array of unbonding delegations
+    bytes nextKey;               // Pagination key for next page
+}
+
+struct RedelegationEntry {
+    int64 creationHeight;        // Height when redelegation was initiated
+    int64 completionTime;        // Timestamp when redelegation completes
+    string initialBalance;       // Initial redelegation balance
+    string sharesDst;            // Shares at destination validator
+}
+
+struct Redelegation {
+    string delegatorAddress;     // Delegator's address
+    string validatorSrcAddress;  // Source validator address
+    string validatorDstAddress;  // Destination validator address
+    RedelegationEntry[] entries; // Redelegation entries
+}
+
+struct RedelegationsResponse {
+    Redelegation[] redelegations; // Array of redelegations
+    bytes nextKey;               // Pagination key for next page
+}
+
+struct HistoricalInfo {
+    int64 height;                // Block height
+    Validator[] validators;      // Validators at that height
+}
+
+struct Pool {
+    string notBondedTokens;      // Total tokens not bonded
+    string bondedTokens;         // Total tokens bonded
+}
+
+struct Params {
+    uint64 unbondingTime;        // Unbonding duration in seconds
+    uint32 maxValidators;        // Maximum number of validators
+    uint32 maxEntries;           // Max unbonding/redelegation entries
+    uint32 historicalEntries;    // Number of historical entries to keep
+    string bondDenom;            // Bond token denomination
+    string minCommissionRate;    // Minimum commission rate
+    string maxVotingPowerRatio;  // Maximum voting power ratio
+    string maxVotingPowerEnforcementThreshold; // Enforcement threshold
+}
+
+/// Queries delegation for a given delegator and validator address.
+/// @param delegator The address of the delegator.
+/// @param valAddress The Sei address of the validator.
+/// @return The delegation information.
+/// @dev balance.amount is in usei (6 decimals). To calculate SEI: amount / 1e6
+/// @dev shares uses 18 decimal precision. To calculate actual shares: shares / 1e18
+function delegation(
+    address delegator,
+    string memory valAddress
+) external view returns (Delegation delegation);
+
+/// Get list of validators with optional status filter
+/// @param status Filter by validator status ("BOND_STATUS_BONDED", "BOND_STATUS_UNBONDING", "BOND_STATUS_UNBONDED", or "" for all)
+/// @param nextKey Pagination key (use empty bytes for first page)
+/// @return response List of validators with pagination info
+function validators(
+    string memory status,
+    bytes memory nextKey
+) external view returns (ValidatorsResponse memory response);
+
+/// Get validator information for a given validator address
+/// @param validatorAddress The validator address
+/// @return validator Validator details
+function validator(
+    string memory validatorAddress
+) external view returns (Validator memory validator);
+
+/// Get delegations for a specific validator
+/// @param validatorAddress The validator address
+/// @param nextKey Pagination key
+/// @return response Delegations response with pagination
+function validatorDelegations(
+    string memory validatorAddress,
+    bytes memory nextKey
+) external view returns (DelegationsResponse memory response);
+
+/// Get unbonding delegations for a specific validator
+/// @param validatorAddress The validator address
+/// @param nextKey Pagination key
+/// @return response Unbonding delegations response with pagination
+function validatorUnbondingDelegations(
+    string memory validatorAddress,
+    bytes memory nextKey
+) external view returns (UnbondingDelegationsResponse memory response);
+
+/// Get unbonding delegation information for a delegator and validator pair
+/// @param delegator The delegator's address
+/// @param validatorAddress The validator address
+/// @return unbondingDelegation Unbonding delegation details
+function unbondingDelegation(
+    address delegator,
+    string memory validatorAddress
+) external view returns (UnbondingDelegation memory unbondingDelegation);
+
+/// Get all delegations for a delegator
+/// @param delegator The delegator's address
+/// @param nextKey Pagination key
+/// @return response Delegations response with pagination
+function delegatorDelegations(
+    address delegator,
+    bytes memory nextKey
+) external view returns (DelegationsResponse memory response);
+
+/// Get validator information for a delegator and validator pair
+/// @param delegator The delegator's address
+/// @param validatorAddress The validator address
+/// @return validator Validator details
+function delegatorValidator(
+    address delegator,
+    string memory validatorAddress
+) external view returns (Validator memory validator);
+
+/// Get all unbonding delegations for a delegator
+/// @param delegator The delegator's address
+/// @param nextKey Pagination key
+/// @return response Unbonding delegations response with pagination
+function delegatorUnbondingDelegations(
+    address delegator,
+    bytes memory nextKey
+) external view returns (UnbondingDelegationsResponse memory response);
+
+/// Get redelegations with optional filters
+/// @param delegator The delegator's address (empty string for all)
+/// @param srcValidator The source validator address (empty string for all)
+/// @param dstValidator The destination validator address (empty string for all)
+/// @param nextKey Pagination key
+/// @return response Redelegations response with pagination
+function redelegations(
+    string memory delegator,
+    string memory srcValidator,
+    string memory dstValidator,
+    bytes memory nextKey
+) external view returns (RedelegationsResponse memory response);
+
+/// Get all validators that a delegator has delegated to
+/// @param delegator The delegator's address
+/// @param nextKey Pagination key
+/// @return response Validators response with pagination
+function delegatorValidators(
+    address delegator,
+    bytes memory nextKey
+) external view returns (ValidatorsResponse memory response);
+
+/// Get historical info for a given height
+/// @param height The block height
+/// @return historicalInfo Historical validator set info
+function historicalInfo(
+    int64 height
+) external view returns (HistoricalInfo memory historicalInfo);
+
+/// Get staking pool information (bonded and unbonded token totals)
+/// @return pool Pool details
+function pool() external view returns (Pool memory pool);
+
+/// Get staking module parameters
+/// @return params Staking parameters
+function params() external view returns (Params memory params);
+```
+
+<Warning>
+
+**Important Precision Note for `delegation()` Response:**
+
+The response contains two different precision scales:
+
+- `balance.amount`: **6 decimals** (usei) - the actual staked token amount
+- `delegation.shares`: **18 decimals** - the validator pool share amount
+- `delegation.decimals`: Always returns **18** (refers to shares precision, NOT balance)
+
+To convert to SEI for display:
+
+- Balance: `balance.amount / 1e6`
+- Shares: `delegation.shares / 1e18`
+
+</Warning>
+
+## Using the Precompile
+
+### Setup
+
+#### Prerequisites
+
+Before getting started, ensure you have:
+
+- **Node.js** (v18 or higher)
+- **npm** or **yarn** package manager
+- **EVM-compatible wallet**
+- **SEI tokens** for gas fees and staking operations
+
+#### Install Dependencies
+
+Install the required packages for interacting with Sei precompiles:
+
+```bash # Install ethers.js for smart contract interactions
+npm install ethers
+
+# Install Sei EVM bindings for precompile addresses and ABIs
+npm install @sei-js/precompiles@2.1.2
+```
+
+#### Import Precompile Components
+
+```typescript // Import Staking precompile address and ABI
+// View the entire ABI here: https://github.com/sei-protocol/sei-chain/tree/evm/precompiles/staking
+import { STAKING_PRECOMPILE_ABI, STAKING_PRECOMPILE_ADDRESS } from '@sei-js/precompiles';
+import { ethers } from 'ethers';
+```
+
+<Info> **Precompile Address:** The staking precompile is deployed at `0x0000000000000000000000000000000000001005` </Info>
+
+### Contract Initialization
+
+Set up your provider, signer, and contract instance:
+
+```typescript // Using EVM-compatible wallet as the signer and provider
+const provider = new ethers.BrowserProvider(window.ethereum);
+await provider.send('eth_requestAccounts', []);
+const signer = await provider.getSigner();
+
+// Create a contract instance for the staking precompile
+const staking = new ethers.Contract(STAKING_PRECOMPILE_ADDRESS, STAKING_PRECOMPILE_ABI, signer);
+```
+
+## Critical: Understanding Decimal Precision
+
+One of the most important concepts to understand when working with the Sei staking precompile:
+
+### Mixed Decimal Precision System
+
+The staking precompile operates with **different decimal precision for different operations** due to bridging EVM and Cosmos standards:
+
+| Function | Input/Output | Decimal Precision | Example |
+| --- | --- | --- | --- |
+| **delegate()** | msg.value (input) | 18 decimals (wei) | `ethers.parseUnits('1', 18)` |
+| **undelegate()** | amount (input) | 6 decimals (uSEI) | `1000000` (represents 1 SEI) |
+| **redelegate()** | amount (input) | 6 decimals (uSEI) | `500000` (represents 0.5 SEI) |
+| **createValidator()** | msg.value (input) | 18 decimals (wei) | `ethers.parseUnits('1000', 18)` |
+| **delegation()** | return values (output) | Mixed (balance 6, shares 18) | `balance.amount=1000000`, `shares=1000000000000000000` |
+
+
+<Warning>
+
+**Granularity for delegate():**
+
+`msg.value` is truncated to 6 decimals (uSEI). Always send amounts that are a multiple of `1e12` wei (last 12 digits zero) to avoid unintended truncation.
+
+- OK: `1_000_000_000_000` wei (`0.000001000000` SEI)
+- NOT OK: `1_000_000_000_001` wei (`0.000001000000000001` SEI)
+- NOT OK: `1_000_000_330_000` wei (`0.000001000000330000` SEI)
+
+Examples:
+
+- Delegate 10 SEI → `10000000000000000000` wei (18 decimals)
+- Undelegate 10 SEI → `10000000` uSEI (6 decimals)
+
+</Warning>
+
+### How This Works in Practice
+
+**delegate() Function (Uses 18 decimals):**
+
+- `delegate()` - accepts `msg.value` in wei (18 decimals)
+
+**undelegate() and redelegate() Functions (Use 6 decimals):**
+
+- `undelegate()` - expects amount parameter in 6 decimals (uSEI)
+- `redelegate()` - expects amount parameter in 6 decimals (uSEI)
+
+**Reading/Query Operations (Return 6 decimals):**
+
+- `delegation()` - returns `balance.amount` in 6-decimal `uSEI` and `delegation.shares` in 18-decimal precision
+- Rewards are handled by the **Distribution precompile**: `rewards()` query returns 18-decimal `DecCoins`, while withdrawn amounts (events) are 6-decimal `uSEI`
+
+### Why This Mixed System Exists
+
+1. **delegate() EVM Compatibility:** Uses standard 18-decimal wei format for EVM `msg.value` consistency
+2. **Other Operations Cosmos Integration:** `undelegate()` and `redelegate()` use 6-decimal uSEI precision to match native Cosmos operations
+3. **Staking Query Consistency:** Staking precompile query balances use 6-decimal `uSEI` (while `shares` is 18-decimal) for consistent reading
+
+### Best Practice: Different Conversion for Different Functions
+
+When working with user inputs, use the appropriate conversion for each function:
+
+```typescript // Best practice for handling user input amounts
+function prepareAmountForDelegate(seiAmount: number): bigint {
+  // For delegate() - convert to 18 decimals (wei)
+  const fixedAmount = seiAmount.toFixed(6);
+  return ethers.parseUnits(fixedAmount, 18);
+}
+
+function prepareAmountForUndelegateRedelegate(seiAmount: number): bigint {
+  // For undelegate() and redelegate() - convert to 6 decimals (uSEI)
+  return ethers.parseUnits(seiAmount.toFixed(6), 6);
+}
+
+// Usage examples
+const userInputAmount = 1.23456789; // User enters this
+
+// For delegate()
+const delegateAmount = prepareAmountForDelegate(userInputAmount); // 18 decimals
+
+// For undelegate() and redelegate()
+const undelegateAmount = prepareAmountForUndelegateRedelegate(userInputAmount); // 6 decimals
+```
+
+### Normalization Guidelines (Clients and Indexers)
+
+- **Normalize to a single unit** for analytics and reconciliation:
+  - Display: convert to `SEI` (`wei / 1e18`, `uSEI / 1e6`)
+  - Storage/aggregation: prefer `uSEI` (6 decimals)
+- **Reconciling delegate vs. undelegate/redelegate/rewards:** convert delegate `msg.value` from wei to uSEI using integer division by `1e12` (floor), which matches the precompile’s internal truncation.
+- **Enforce granularity at source:** construct `msg.value` as a multiple of `1e12` wei by formatting user input to 6 decimals prior to `parseUnits`.
+
+```typescript // Convert delegate msg.value (wei) to uSEI (6 decimals) for reconciliation
+function weiToUseiForDelegate(valueWei: bigint): bigint {
+  return valueWei / 1_000_000_000_000n; // floor to 6-decimal granularity
+}
+
+// Convert uSEI to SEI for display
+function useiToSeiString(amountUsei: bigint): string {
+  return ethers.formatUnits(amountUsei, 6);
+}
+
+// Ensure msg.value is a multiple of 1e12 wei (last 12 digits zero)
+function normalizeWeiForDelegate(valueWei: bigint): bigint {
+  return (valueWei / 1_000_000_000_000n) * 1_000_000_000_000n;
+}
+```
+
+## Decimal Conversion Helpers
+
+Use these helper functions to avoid precision errors:
+
+```typescript // Helper functions for amount conversion
+class SeiAmountConverter {
+  // Convert SEI to wei (18 decimals) - ONLY for delegate()
+  static seiToWei(seiAmount: number): bigint {
+    return ethers.parseUnits(seiAmount.toFixed(6), 18);
+  }
+
+  // Convert SEI to uSEI (6 decimals) - for undelegate() and redelegate()
+  static seiToUsei(seiAmount: number): bigint {
+    return ethers.parseUnits(seiAmount.toFixed(6), 6);
+  }
+
+  // Convert reading results (6 decimals) to SEI
+  static useiToSei(useiAmount: number | bigint): number {
+    return Number(useiAmount) / 1000000;
+  }
+
+  // Convert wei to SEI (18 decimals) - for delegate operations
+  static weiToSei(weiAmount: bigint): number {
+    return Number(ethers.formatEther(weiAmount));
+  }
+}
+
+// Usage examples - Use correct decimals for each function
+const delegateAmount = SeiAmountConverter.seiToWei(1); // For delegate() - 18 decimals
+const undelegateAmount = SeiAmountConverter.seiToUsei(0.5); // For undelegate() - 6 decimals
+const redelegateAmount = SeiAmountConverter.seiToUsei(2); // For redelegate() - 6 decimals
+```
+
+## Step-by-Step Guide: Using the Staking Precompile
+
+### Delegate Tokens
+
+<Tabs>
+<Tab title="JavaScript">
+
+```typescript // Sei validator address you want to delegate to (seivaloper... format)
+const validatorAddress = 'seivaloper1xyz...';
+
+const amount = 1; // Amount in SEI to delegate
+
+const amountTrimmed = amount.toFixed(6); // Ensure 6 decimal precision for msg.value
+
+// Delegate 1 SEI - Uses 18 decimals for msg.value
+const amountToDelegate = ethers.parseUnits(amountTrimmed, 18);
+
+const tx = await staking.delegate(validatorAddress, { value: amountToDelegate });
+
+const receipt = await tx.wait();
+console.log('Delegation completed:', receipt);
+```
+
+</Tab>
+<Tab title="Solidity">
+```typescript function delegateToValidator(string memory validatorAddress) external payable {
+        require(msg.value > 0, "Amount must be greater than 0");
+        
+        bool success = ISTAKING(0x0000000000000000000000000000000000001005).delegate{value: msg.value}(validatorAddress);
+        require(success, "Delegation failed");
+        
+        emit Delegated(msg.sender, validatorAddress, msg.value);
+    }
+```
+</Tab>
+
+</Tabs>
+
+### Undelegate Tokens
+
+<Tabs>
+<Tab title="JavaScript">
+
+```typescript // Undelegate 1 SEI from a validator - Uses 6 decimals for amount parameter
+const validatorAddress = 'seivaloper1xyz...';
+
+const amount = 1; // Amount in SEI to undelegate
+const amountTrimmed = amount.toFixed(6); // Ensure 6 decimal precision
+const amountToUndelegate = ethers.parseUnits(amountTrimmed, 6); // 1 SEI in 6 decimals
+
+const tx = await staking.undelegate(validatorAddress, amountToUndelegate);
+const receipt = await tx.wait();
+
+console.log('Undelegation started:', receipt);
+```
+
+</Tab>
+<Tab title="Solidity">
+```typescript     function undelegateFromValidator(
+        string memory validatorAddress, 
+        uint256 amount
+    ) external {
+        require(amount > 0, "Amount must be greater than 0");
+        
+        bool success = ISTAKING(0x0000000000000000000000000000000000001005).undelegate(validatorAddress, amount);
+        require(success, "Undelegation failed");
+        
+        emit Undelegated(msg.sender, validatorAddress, amount);
+    }
+    
+```
+</Tab>
+
+</Tabs>
+
+<Warning> **IMPORTANT:** Undelegated tokens are subject to a **21-day unbonding period** during which they cannot be transferred and do not earn rewards. </Warning>
+
+### Redelegate Tokens
+
+<Tabs>
+<Tab title="JavaScript">
+
+```typescript // Redelegate 0.5 SEI from one validator to another - Uses 6 decimals for amount parameter
+const srcValidator = 'seivaloper1abc...';
+const dstValidator = 'seivaloper1xyz...';
+
+const amount = 0.5; // Amount in SEI to redelegate
+const amountTrimmed = amount.toFixed(6); // Ensure 6 decimal precision
+const amountToRedelegate = ethers.parseUnits(amountTrimmed, 6); // 0.5 SEI in 6 decimals
+
+const tx = await staking.redelegate(srcValidator, dstValidator, amountToRedelegate);
+const receipt = await tx.wait();
+
+console.log('Redelegation completed:', receipt);
+```
+
+</Tab>
+<Tab title="Solidity">
+```typescript     function redelegateBetweenValidators(
+        string memory fromValidator,
+        string memory toValidator,
+        uint256 amount
+    ) external {
+        require(amount > 0, "Amount must be greater than 0");
+        
+        bool success = ISTAKING(0x0000000000000000000000000000000000001005).redelegate(fromValidator, toValidator, amount);
+        require(success, "Redelegation failed");
+        
+        emit Redelegated(msg.sender, fromValidator, toValidator, amount);
+    }
+```
+</Tab>
+
+</Tabs>
+
+<Warning> 
+**Redelegation restrictions:**
+
+- Maximum 7 redelegations per validator pair per 21-day period
+
+- After redelegating from Validator A to Validator B, you cannot redelegate from Validator B to another validator for 21 days
+
+- Each redelegation has its own 21-day cooldown period
+
+</Warning>
+
+### Query a Delegation
+
+<Tabs>
+<Tab title="JavaScript">
+
+```typescript // Get your EVM address as the delegator
+const delegator = await signer.getAddress();
+
+try {
+  const delegationInfo = await staking.delegation(delegator, validatorAddress);
+
+  console.log('Delegation details:', {
+    amount: delegationInfo.balance.amount.toString(),
+    denom: delegationInfo.balance.denom,
+    shares: delegationInfo.delegation.shares.toString(),
+    decimals: delegationInfo.delegation.decimals.toString(),
+    delegator_address: delegationInfo.delegation.delegator_address,
+    validator_address: delegationInfo.delegation.validator_address
+  });
+
+  // Convert delegation amount from uSEI to SEI for readable display
+  const delegationAmountSei = ethers.formatUnits(delegationInfo.balance.amount, 6);
+  console.log('Delegation amount (SEI):', delegationAmountSei);
+} catch (error) {
+  if (error.message.includes('delegation not found') || error.message.includes('no delegation')) {
+    console.log('No delegation found for this validator');
+  } else {
+    console.error('Error querying delegation:', error);
+  }
+}
+```
+
+</Tab>
+<Tab title="Solidity">
+```typescript     function getDelegationInfo(
+        address delegator,
+        string memory validatorAddress
+    ) external view returns (IStakingPrecompile.Delegation memory) {
+        return ISTAKING(0x0000000000000000000000000000000000001005).delegation(delegator, validatorAddress);
+    }
+```
+</Tab>
+
+</Tabs>
+
+### Create a Validator
+
+<Warning> Creating a validator requires significant SEI for self-delegation and proper validator infrastructure setup. Only proceed if you understand the responsibilities of running a validator node. </Warning>
+
+<Tabs>
+<Tab title="JavaScript">
+
+```typescript // Ed25519 public key in hex format (64 characters)
+// This comes from your validator node's priv_validator_key.json
+const pubKeyHex = 'your_ed25519_public_key_hex_64_chars';
+const moniker = 'MyValidator';
+
+// Commission rates as decimal strings
+const commissionRate = '0.05'; // 5% commission
+const commissionMaxRate = '0.20'; // Maximum 20% commission
+const commissionMaxChangeRate = '0.01'; // Can change by 1% per day max
+
+// Minimum self-delegation in base units (uSEI)
+const minSelfDelegation = BigInt(1000000); // 1 SEI minimum
+
+// Initial self-delegation amount in wei (18 decimals)
+const selfDelegationAmount = ethers.parseUnits('1000', 18); // 1000 SEI
+
+const tx = await staking.createValidator(pubKeyHex, moniker, commissionRate, commissionMaxRate, commissionMaxChangeRate, minSelfDelegation, { value: selfDelegationAmount });
+
+const receipt = await tx.wait();
+console.log('Validator created:', receipt);
+```
+
+</Tab>
+<Tab title="Solidity">
+
+```solidity function createNewValidator(
+    string memory pubKeyHex,
+    string memory moniker,
+    string memory commissionRate,
+    string memory commissionMaxRate,
+    string memory commissionMaxChangeRate,
+    uint256 minSelfDelegation
+) external payable {
+    require(msg.value > 0, "Self-delegation required");
+
+    bool success = STAKING.createValidator{value: msg.value}(
+        pubKeyHex,
+        moniker,
+        commissionRate,
+        commissionMaxRate,
+        commissionMaxChangeRate,
+        minSelfDelegation
+    );
+    require(success, "Validator creation failed");
+}
+```
+
+</Tab>
+</Tabs>
+
+### Edit a Validator
+
+```typescript // Update validator parameters
+const newMoniker = 'MyUpdatedValidator';
+const newCommissionRate = '0.08'; // 8% commission (or "" to keep current)
+const newMinSelfDelegation = BigInt(2000000); // 2 SEI (or 0 to keep current)
+
+const tx = await staking.editValidator(newMoniker, newCommissionRate, newMinSelfDelegation);
+
+const receipt = await tx.wait();
+console.log('Validator updated:', receipt);
+```
+
+<Info>**Edit Validator Constraints:** - Commission can only be changed once every 24 hours - `minSelfDelegation` can only be increased, never decreased - Pass empty string `""` for `commissionRate` to keep current rate - Pass `0` for `minSelfDelegation` to keep current value</Info>
+
+### Query Validators
+
+```typescript // Get all bonded validators
+const bondedValidators = await staking.validators('BOND_STATUS_BONDED', '0x');
+console.log('Bonded validators:', bondedValidators.validators);
+
+// Get all validators (no filter)
+const allValidators = await staking.validators('', '0x');
+console.log('Total validators:', allValidators.validators.length);
+
+// Pagination - get next page if available
+if (allValidators.nextKey.length > 0) {
+  const nextPage = await staking.validators('', allValidators.nextKey);
+  console.log('Next page validators:', nextPage.validators);
+}
+```
+
+### Query a Specific Validator
+
+```typescript const validatorAddress = 'seivaloper1xyz...';
+const validatorInfo = await staking.validator(validatorAddress);
+
+console.log('Validator details:', {
+  moniker: validatorInfo.description,
+  tokens: validatorInfo.tokens,
+  commission: validatorInfo.commissionRate,
+  jailed: validatorInfo.jailed,
+  status: validatorInfo.status // 1=Unbonded, 2=Unbonding, 3=Bonded
+});
+```
+
+### Query All Delegations for an Address
+
+```typescript const delegator = await signer.getAddress();
+
+// Get all delegations for the connected wallet
+const myDelegations = await staking.delegatorDelegations(delegator, '0x');
+
+console.log('My delegations:');
+for (const del of myDelegations.delegations) {
+  const amountSei = ethers.formatUnits(del.balance.amount, 6);
+  console.log(`  ${del.delegation.validator_address}: ${amountSei} SEI`);
+}
+```
+
+### Query Unbonding Delegations
+
+```typescript const delegator = await signer.getAddress();
+
+// Get all unbonding delegations
+const unbonding = await staking.delegatorUnbondingDelegations(delegator, '0x');
+
+console.log('Unbonding delegations:');
+for (const ud of unbonding.unbondingDelegations) {
+  console.log(`Validator: ${ud.validatorAddress}`);
+  for (const entry of ud.entries) {
+    const completionDate = new Date(Number(entry.completionTime) * 1000);
+    console.log(`  Amount: ${entry.balance}, Completes: ${completionDate.toISOString()}`);
+  }
+}
+
+// Query specific unbonding delegation
+const validatorAddress = 'seivaloper1xyz...';
+const specificUnbonding = await staking.unbondingDelegation(delegator, validatorAddress);
+```
+
+### Query Redelegations
+
+```typescript // Get all redelegations for a specific delegator
+const delegatorAddress = await signer.getAddress();
+const delegatorBech32 = 'sei1...'; // Convert EVM address to Bech32 format
+
+const redelegations = await staking.redelegations(
+  delegatorBech32, // delegator filter (empty string for all)
+  '', // source validator filter (empty string for all)
+  '', // destination validator filter (empty string for all)
+  '0x' // pagination key
+);
+
+console.log('Active redelegations:');
+for (const redel of redelegations.redelegations) {
+  console.log(`From ${redel.validatorSrcAddress} to ${redel.validatorDstAddress}`);
+  for (const entry of redel.entries) {
+    const completionDate = new Date(Number(entry.completionTime) * 1000);
+    console.log(`  Amount: ${entry.initialBalance}, Completes: ${completionDate.toISOString()}`);
+  }
+}
+```
+
+### Query Staking Pool and Parameters
+
+```typescript // Get staking pool totals
+const pool = await staking.pool();
+console.log('Staking Pool:', {
+  bondedTokens: pool.bondedTokens,
+  notBondedTokens: pool.notBondedTokens
+});
+
+// Get staking parameters
+const params = await staking.params();
+console.log('Staking Parameters:', {
+  unbondingTime: `${Number(params.unbondingTime) / 86400} days`,
+  maxValidators: params.maxValidators,
+  bondDenom: params.bondDenom,
+  minCommissionRate: params.minCommissionRate
+});
+```
+
+### Query Historical Validator Info
+
+```typescript // Get validator set at a specific block height
+const blockHeight = 1000000n;
+const historicalInfo = await staking.historicalInfo(blockHeight);
+
+console.log(`Validators at block ${blockHeight}:`);
+for (const val of historicalInfo.validators) {
+  console.log(`  ${val.operatorAddress}: ${val.tokens} tokens`);
+}
+```
+
+## Advanced Usage Examples
+
+### Portfolio Rebalancing
+
+```typescript async function rebalanceStaking(
+  fromValidator: string,
+  toValidator: string,
+  amount: number // Amount in SEI
+) {
+  try {
+    // Convert to 6 decimal precision for redelegate (uses 6 decimals)
+    const amountIn6Decimals = ethers.parseUnits(amount.toFixed(6), 6);
+
+    const tx = await staking.redelegate(fromValidator, toValidator, amountIn6Decimals);
+
+    const receipt = await tx.wait();
+    console.log('Rebalancing completed:', receipt);
+
+    return receipt;
+  } catch (error) {
+    console.error('Rebalancing failed:', error);
+    throw error;
+  }
+}
+```
+
+### Complete Integration Example
+
+<Tabs>
+<Tab title="JavaScript">
+
+```typescript async function stakingExample() {
+  // Setup
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  await provider.send('eth_requestAccounts', []);
+  const signer = await provider.getSigner();
+  const staking = new ethers.Contract(STAKING_PRECOMPILE_ADDRESS, STAKING_PRECOMPILE_ABI, signer);
+
+  const delegator = await signer.getAddress();
+  const validatorAddress = 'seivaloper1xyz...';
+
+  try {
+    // 1. Check current delegation (with error handling)
+    console.log('=== Checking Current Delegation ===');
+    try {
+      const currentDelegation = await staking.delegation(delegator, validatorAddress);
+      const currentAmountSei = ethers.formatUnits(currentDelegation.balance.amount, 6);
+      console.log('Current delegation amount (SEI):', currentAmountSei);
+    } catch (error) {
+      if (error.message.includes('delegation not found') || error.message.includes('no delegation')) {
+        console.log('No existing delegation found for this validator');
+      } else {
+        throw error; // Re-throw if it's a different error
+      }
+    }
+
+    // 2. Delegate additional tokens (uses 18 decimals)
+    console.log('=== Delegating Tokens ===');
+    const amount = 1;
+    const amountTrimmed = amount.toFixed(6); // Ensure 6 decimal precision
+    const amountToDelegate = ethers.parseUnits(amountTrimmed, 18);
+    const delegateTx = await staking.delegate(validatorAddress, {
+      value: amountToDelegate,
+      gasLimit: 300000
+    });
+    await delegateTx.wait();
+    console.log('Delegation successful:', delegateTx.hash);
+
+    // 3. Check updated delegation
+    const updatedDelegation = await staking.delegation(delegator, validatorAddress);
+    const updatedAmountSei = ethers.formatUnits(updatedDelegation.balance.amount, 6);
+    console.log('Updated delegation amount (SEI):', updatedAmountSei);
+
+    // 4. Undelegate partial amount (uses 6 decimals)
+    console.log('=== Undelegating Tokens ===');
+    const undelegateAmount = ethers.parseUnits('0.5', 6); // 0.5 SEI in 6 decimals
+    const undelegateTx = await staking.undelegate(validatorAddress, undelegateAmount);
+    await undelegateTx.wait();
+    console.log('Undelegation successful:', undelegateTx.hash);
+  } catch (error) {
+    console.error('Operation failed:', error);
+  }
+}
+```
+
+</Tab>
+<Tab title="Solidity">
+
+**Contract Example**
+
+```solidity // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+interface IStakingPrecompile {
+    // Events
+    event Delegate(address indexed delegator, string validator, uint256 amount);
+    event Redelegate(address indexed delegator, string srcValidator, string dstValidator, uint256 amount);
+    event Undelegate(address indexed delegator, string validator, uint256 amount);
+    event ValidatorCreated(address indexed creator, string validatorAddress, string moniker);
+    event ValidatorEdited(address indexed editor, string validatorAddress, string moniker);
+
+    // Structs
+    struct Delegation {
+        Balance balance;
+        DelegationDetails delegation;
+    }
+
+    struct Balance {
+        uint256 amount;
+        string denom;
+    }
+
+    struct DelegationDetails {
+        string delegator_address;
+        uint256 shares;
+        uint256 decimals;
+        string validator_address;
+    }
+
+    struct Validator {
+        string operatorAddress;
+        string consensusPubkey;
+        bool jailed;
+        int32 status;
+        string tokens;
+        string delegatorShares;
+        string description;
+        int64 unbondingHeight;
+        int64 unbondingTime;
+        string commissionRate;
+        string commissionMaxRate;
+        string commissionMaxChangeRate;
+        int64 commissionUpdateTime;
+        string minSelfDelegation;
+    }
+
+    struct ValidatorsResponse {
+        Validator[] validators;
+        bytes nextKey;
+    }
+
+    struct Pool {
+        string notBondedTokens;
+        string bondedTokens;
+    }
+
+    struct Params {
+        uint64 unbondingTime;
+        uint32 maxValidators;
+        uint32 maxEntries;
+        uint32 historicalEntries;
+        string bondDenom;
+        string minCommissionRate;
+        string maxVotingPowerRatio;
+        string maxVotingPowerEnforcementThreshold;
+    }
+
+    // Transaction functions
+    function delegate(string memory valAddress) payable external returns (bool success);
+
+    function undelegate(
+        string memory valAddress,
+        uint256 amount
+    ) external returns (bool success);
+
+    function redelegate(
+        string memory srcAddress,
+        string memory dstAddress,
+        uint256 amount
+    ) external returns (bool success);
+
+    function createValidator(
+        string memory pubKeyHex,
+        string memory moniker,
+        string memory commissionRate,
+        string memory commissionMaxRate,
+        string memory commissionMaxChangeRate,
+        uint256 minSelfDelegation
+    ) external payable returns (bool success);
+
+    function editValidator(
+        string memory moniker,
+        string memory commissionRate,
+        uint256 minSelfDelegation
+    ) external returns (bool success);
+
+    // Query functions
+    function delegation(
+        address delegator,
+        string memory valAddress
+    ) external view returns (Delegation memory);
+
+    function validators(
+        string memory status,
+        bytes memory nextKey
+    ) external view returns (ValidatorsResponse memory);
+
+    function validator(
+        string memory validatorAddress
+    ) external view returns (Validator memory);
+
+    function pool() external view returns (Pool memory);
+
+    function params() external view returns (Params memory);
+}
+
+contract StakingManager {
+    IStakingPrecompile constant STAKING = IStakingPrecompile(0x0000000000000000000000000000000000001005);
+
+    event Delegated(address indexed user, string validator, uint256 amount);
+    event Undelegated(address indexed user, string validator, uint256 amount);
+    event Redelegated(address indexed user, string fromValidator, string toValidator, uint256 amount);
+
+    // Delegate user's SEI to a validator
+    function delegateToValidator(string memory validatorAddress) external payable {
+        require(msg.value > 0, "Amount must be greater than 0");
+
+        bool success = STAKING.delegate{value: msg.value}(validatorAddress);
+        require(success, "Delegation failed");
+
+        emit Delegated(msg.sender, validatorAddress, msg.value);
+    }
+
+    // Undelegate SEI from a validator (amount in 6 decimal precision - uSEI)
+    function undelegateFromValidator(
+        string memory validatorAddress,
+        uint256 amount
+    ) external {
+        require(amount > 0, "Amount must be greater than 0");
+
+        bool success = STAKING.undelegate(validatorAddress, amount);
+        require(success, "Undelegation failed");
+
+        emit Undelegated(msg.sender, validatorAddress, amount);
+    }
+
+    // Redelegate SEI between validators (amount in 6 decimal precision - uSEI)
+    function redelegateBetweenValidators(
+        string memory fromValidator,
+        string memory toValidator,
+        uint256 amount
+    ) external {
+        require(amount > 0, "Amount must be greater than 0");
+
+        bool success = STAKING.redelegate(fromValidator, toValidator, amount);
+        require(success, "Redelegation failed");
+
+        emit Redelegated(msg.sender, fromValidator, toValidator, amount);
+    }
+
+    // Get delegation info for a user and validator
+    function getDelegationInfo(
+        address delegator,
+        string memory validatorAddress
+    ) external view returns (IStakingPrecompile.Delegation memory) {
+        return STAKING.delegation(delegator, validatorAddress);
+    }
+
+    // Helper function to convert SEI to uSEI (6 decimals)
+    function seiToUsei(uint256 seiAmount) public pure returns (uint256) {
+        return seiAmount * 1e6;
+    }
+
+    // Helper function to convert uSEI to SEI
+    function useiToSei(uint256 useiAmount) public pure returns (uint256) {
+        return useiAmount / 1e6;
+    }
+}
+```
+
+<Info> **Note:** This is a simplified example for demonstration purposes. The above example works such that when someone delegates through the above contract, the delegation will be recorded under the above contract address and not the user. So maintain correct mapping in the contract for tracking user delegations </Info>
+
+**Client Integration Example**
+
+```javascript const abi = require('./artifacts/contracts/Staking.sol/StakingManager.json');
+const { ethers } = require('hardhat');
+const dotenv = require('dotenv');
+dotenv.config();
+
+async function main() {
+  const [deployer] = await ethers.getSigners();
+  console.log('Deploying contracts with the account:', deployer.address);
+
+  const balance = await deployer.provider.getBalance(deployer.address);
+  console.log('Account balance:', ethers.formatEther(balance));
+
+  const StakingManager = await ethers.getContractFactory('StakingManager');
+  console.log('Deploying StakingManager...');
+  const stakingManager = await StakingManager.deploy();
+
+  await stakingManager.waitForDeployment();
+  console.log('StakingManager deployed to:', await stakingManager.getAddress());
+
+  const validatorAddress = 'seival......123';
+
+  const amount = 1;
+  const trimmedAmount = amount.toFixed(6);
+  const formattedAmount = ethers.parseEther(trimmedAmount.toString());
+
+  const delegate = await stakingManager.delegateToValidator(validatorAddress, { value: formattedAmount });
+
+  await delegate.wait();
+  console.log('Delegation transaction hash:', delegate.hash);
+
+  // Use deployer address for querying delegation
+  const queryDelegation = await stakingManager.getDelegationInfo(deployer.address, validatorAddress);
+  console.log('Delegation Info:', queryDelegation);
+
+  const undelegateAmount = ethers.parseUnits(trimmedAmount.toString(), 6);
+  const undelegate = await stakingManager.undelegateFromValidator(validatorAddress, undelegateAmount);
+
+  await undelegate.wait();
+  console.log('Undelegation transaction hash:', undelegate.hash);
+
+  const redelegate = await stakingManager.redelegateBetweenValidators(
+    validatorAddress,
+    'seival.....123', // Replace with the new validator address
+    undelegateAmount
+  );
+
+  await redelegate.wait();
+  console.log('Redelegation transaction hash:', redelegate.hash);
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
+```
+
+</Tab>
+</Tabs>
+
+## Security Considerations & Risks
+
+### Unbonding Period
+
+- **21-day lock:** Undelegated tokens cannot be transferred or earn rewards for 21 days
+- **No exceptions:** This cannot be canceled once initiated
+- **Planning:** Consider this when managing liquidity needs
+
+### Validator Selection Criteria
+
+- **Commission Rate:** Lower commission means more rewards for you (typically 1-10%)
+- **Uptime:** Check for validators with high uptime (99%+)
+
+### Redelegation Complexity
+
+- **7-transaction limit:** You can only redelegate from the same validator to the same destination validator 7 times in 21 days
+- **Serial blocking:** After redelegating A→B, you cannot redelegate B→C for 21 days
+- **Each redelegation starts its own 21-day timer**
+
+## Troubleshooting
+
+### Common Issues and Solutions
+
+#### Gas-Related Issues
+
+```typescript // Set appropriate gas limits for different operations
+const delegateTx = await staking.delegate(validatorAddress, {
+  value: amount,
+  gasLimit: 300000
+});
+```
+
+### Error Code Reference
+
+| Error | Cause | Solution |
+| --- | --- | --- |
+| `insufficient funds` | Not enough SEI for operation | Check balance and reduce amount |
+| `validator does not exist` | Invalid validator address | Verify validator address format |
+| `invalid delegation amount` | Amount formatting issue | Use correct decimal precision |
+| `commission rate too high` | Commission above max rate | Lower commission rate |
+| `commission change too frequent` | Changing commission within 24h | Wait 24 hours between changes |
+| `self delegation too low` | Below minimum self-delegation | Increase self-delegation amount |
+| `too many redelegations` | Exceeded 7 redelegation limit | Wait for earliest redelegation to expire |
+
+
+## FAQ: Precision and Normalization
+
+- **What are the base units and precision standards defined for SEI across operations?**
+  - `delegate()`: accepts `msg.value` in wei (18 decimals), but is internally truncated to 6-decimal `uSEI`. Effective granularity is 1 uSEI = `1e12` wei.
+  - `undelegate()` / `redelegate()`: amounts use 6-decimal `uSEI`.
+  - Staking queries: balances are 6-decimal `uSEI` (and shares are 18-decimal). Distribution `rewards()` query returns 18-decimal `DecCoins`, but withdrawn amounts are 6-decimal `uSEI`.
+- **Should applications normalize between 18 and 6 decimals?**
+  - Yes. For reconciliation, convert delegate `wei` to `uSEI` via integer division by `1e12` (floor). For display, convert to SEI (`wei → /1e18`, `uSEI → /1e6`).
+- **Is this behavior consistent and intentional?**
+  - Yes. This is intentional and not planned to change. Delegation uses EVM-native `msg.value` (18 decimals), while staking operations are executed in the Cosmos staking module, which uses 6-decimal `uSEI`.
+- **Why multiple decimal precisions on one chain?**
+  - To bridge EVM conventions (18-decimal `msg.value`) with the Cosmos staking module’s native 6-decimal accounting while keeping queries and non-`delegate()` writes consistent at 6 decimals.
+
+## Important Notes
+
+<Info> Remember the key rule: delegate() uses 18 decimals, undelegate()/redelegate() use 6 decimals, delegation() returns 6 decimals! </Info>
+
+### Decimal Precision
+
+- **delegate()** uses 18 decimals (wei) for msg.value
+- **undelegate() and redelegate()** use 6 decimals (uSEI) for amount parameters
+- **Query results** return amounts in 6 decimal precision
+- **Best practice:** Use appropriate conversion functions for each operation
+- **Rewards/claims (Distribution precompile):** `rewards()` query returns 18-decimal `DecCoins`; withdrawn amounts (events) are 6-decimal `uSEI`
+- **Granularity:** `delegate()` `msg.value` must be a multiple of `1e12` wei (last 12 digits zero) because the precompile truncates to 6 decimals internally
+
+### Validator Addresses
+
+- Use valid Sei validator addresses with `seivaloper1...` prefix
+- These are Cosmos-format addresses, not EVM addresses
+
+### Staking Risks
+
+- **Unbonding:** 21-day waiting period for undelegated tokens
+- **Redelegation limits:** Complex rules around frequency and serial operations
+
+### Commission and Rewards
+
+- Validators keep a commission percentage
+- Rewards are distributed proportionally to delegation amounts
+- Choose validators wisely based on commission, uptime, and governance participation

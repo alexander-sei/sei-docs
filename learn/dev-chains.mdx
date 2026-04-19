@@ -1,0 +1,58 @@
+---
+title: 'Sei Blockchain Network Chains Overview'
+description: "Compare Sei's different network environments including testnet, mainnet, and local chains, with detailed chain IDs and purposes for each development stage."
+keywords: ['sei chains', 'blockchain networks', 'sei mainnet', 'sei testnet', 'chain registry']
+---
+
+# Chains
+
+Sei utilizes multiple chains for various stages of the development lifecycle.
+This multi-chain approach allows developers to build, deploy, manage, and
+iterate confidently, ensuring thorough testing and feedback before updates go
+live on the mainnet.
+
+<Info>All chain updates are first deployed to the testnet for thorough testing and validation before they are released to the mainnet. This process allows developers to test their applications thoroughly and raise any concerns regarding the upgrades before they go live on the mainnet.</Info>
+
+## Mainnet
+
+Mainnet is the live, production environment where actual transactions and
+smart contract deployments occur. This chain is used for all real-world
+applications and activities.
+
+- **Purpose**: Production
+- **Chain ID**: `pacific-1`
+- **EVM Chain ID**: `1329` or `0x531`
+
+## Testnet
+
+Testnet is used for testing and development purposes. Developers can
+deploy and test their dApps and smart contracts in a controlled environment that
+simulates the mainnet conditions. This chain is crucial for ensuring that
+applications work as expected before going live.
+
+- **Purpose**: Staging
+- **Chain ID**: `atlantic-2`
+- **EVM Chain ID**: `1328` or `0x530`
+
+## Local Chains
+
+Developers can also run local chains on their machines for testing and
+development purposes. Local chains are isolated environments that mimic the
+behavior of the mainnet or testnet chains. They are useful for testing
+new features, debugging issues, and experimenting with smart contracts with full
+control over all tokens and governance decisions.
+
+- **Purpose**: Development
+- **Chain ID**: Set by user (default: `sei-chain`)
+
+Please read the [Nodes Introduction](/node) section for more
+information on how to set up and run a local chain.
+
+<Tip>
+  TIP: View more chain specific information, RPC endpoints, and Explorers for the [EVM](/evm/networks).
+</Tip>
+
+## Chain Registry
+
+The [Sei Chain Registry](https://github.com/sei-protocol/chain-registry)
+contains additional information about each chain.

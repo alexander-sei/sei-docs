@@ -1,0 +1,75 @@
+---
+title: "Node Operations"
+description: "Deploy and maintain Sei Network infrastructure with comprehensive guides for validators, RPC nodes, and archive nodes — including hardware specs, install steps, and operational best practices."
+keywords: ["sei node", "node operations", "validator", "RPC node", "sei blockchain", "node infrastructure"]
+mode: "wide"
+---
+
+Comprehensive guides for running, maintaining, and optimizing Sei network nodes. Whether you're setting up a validator, an RPC node, or a relayer, you'll find detailed instructions and best practices for optimal performance and security.
+
+<CardGroup cols={4}>
+  <Card title="RPC / API nodes" icon="network-wired" />
+  <Card title="Validator nodes" icon="shield" />
+  <Card title="Statesync nodes" icon="shuffle" />
+  <Card title="Archive nodes" icon="database" />
+</CardGroup>
+
+## Hardware requirements
+
+| Component | Required                                               |
+| --------- | ------------------------------------------------------ |
+| CPU       | 16 cores (Intel Xeon / Core i7-i9 or AMD Epyc / Ryzen) |
+| RAM       | 256 GB DDR5 or better                                  |
+| Storage   | 2 TB NVMe SSD (high IOPS required)                     |
+| Network   | 2 Gbps with low latency                                |
+
+<Info>
+  Use a bare-metal or high-performance cloud instance. Commodity VMs will struggle with state I/O under load.
+</Info>
+
+## Node operations
+
+<CardGroup cols={2}>
+  <Card title="Node operator overview" icon="book-open" href="/node/node-operators">
+    Start here — prerequisites, setup, and the full lifecycle.
+  </Card>
+  <Card title="Seictl setup helper" icon="terminal" href="/node/seictl">
+    Automated installer and helper for provisioning a node.
+  </Card>
+  <Card title="Statesync" icon="rotate" href="/node/statesync">
+    Fastest way to bootstrap a node to the latest state.
+  </Card>
+  <Card title="Snapshot sync" icon="file-zipper" href="/node/snapshot">
+    Bootstrap via downloadable snapshot archives.
+  </Card>
+  <Card title="Node types" icon="sitemap" href="/node/node-types">
+    Compare RPC, validator, statesync, and archive node modes.
+  </Card>
+  <Card title="Troubleshooting" icon="wrench" href="/node/troubleshooting">
+    Common errors, fixes, and recovery procedures.
+  </Card>
+  <Card title="API configuration" icon="code" href="/node/swagger">
+    Enable and configure the REST/Swagger API surface.
+  </Card>
+  <Card title="Validator operations" icon="shield" href="/node/validators">
+    Register, sign, vote, and maintain a healthy validator.
+  </Card>
+</CardGroup>
+
+## Advanced operations
+
+<CardGroup cols={3}>
+  <Card title="Config & monitoring" icon="gauge-simple-high" href="/node/advanced-config-monitoring">
+    Prometheus, alerting, log aggregation, and tuning knobs.
+  </Card>
+  <Card title="RocksDB backend" icon="database" href="/node/rocksdb-backend">
+    Run with RocksDB instead of the default backend.
+  </Card>
+  <Card title="Technical reference" icon="book" href="/node/technical-reference">
+    Parameter reference, directory layout, and upgrade paths.
+  </Card>
+</CardGroup>
+
+<Tip>
+  Need node binaries, genesis, or peers for a specific network? See the [technical reference](/node/technical-reference) for current mainnet and testnet values.
+</Tip>

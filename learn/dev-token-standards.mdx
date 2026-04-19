@@ -1,0 +1,92 @@
+---
+title: 'Token Standards'
+description: 'Explore the different token types on Sei including native SEI, smart contract tokens (ERC20/CW20), and NFTs, with implementation guidance for each standard.'
+keywords: ['token standards', 'erc20', 'cw20', 'nfts']
+---
+
+
+# Token Standards
+
+In this section, we delve into the various token standards supported on Sei.
+Understanding these standards is crucial for developers as they form the
+foundation of many decentralized applications.
+
+Sei offers support for the following token types:
+
+- [Sei Token](#sei-token)
+- [Smart Contract Tokens](#smart-contract-tokens)
+
+## Sei Token
+
+The Sei token is the native token of the Sei blockchain, serving multiple roles
+within the ecosystem.
+
+- **Fee Token**: Used to pay transaction fees on the Sei network.
+- **Governance Token**: Used to participate in governance decisions affecting
+  the network.
+
+**EVM**
+
+    `1sei = 10**18 wei =  1000000000000000000 wei`
+
+    `1sei = 10**9 gwei = 1000000000 gwei` (giga-wei)
+
+**Cosmos**
+
+    `1sei = 10**18 asei = 1000000000000000000 asei` (atto-sei)
+
+    `1sei = 10**9 nsei = 1000000000 nsei` (nano-sei)
+
+    `1sei = 10**6 usei = 1000000 usei` (micro-sei)
+
+    `1 gwei = 1 nsei`
+
+## Fungible Tokens
+
+Fungible tokens are digital assets that are interchangeable with one another and
+are not unique. Sei supports both ERC20 and CW20 fungible token standards.
+
+### Smart Contract Tokens
+
+- **ERC20**: The ERC20 standard defines a common set of rules for fungible
+  tokens on EVM-based blockchains. These tokens can be transferred, approved,
+  and queried using standard functions.
+- **Standard Compatibility**: Supporting both CW20 and ERC20 ensure
+  compatibility with existing dApps and ecosystems while enabling onboarding of
+  EVM-centric projects.
+- **Interoperability**: Both standards support pointer contracts, enabling
+  seamless interaction between Cosmos and EVM environments.
+- **Interoperability and Pointer Contracts**:
+  [Pointer contracts](/learn/pointers) enable interoperability
+  between ERC20 and CW20 tokens, allowing for seamless interaction between the
+  two standards. A registry is kept to track pointer contracts and facilitate
+  interoperability.
+- **Recommended Use**: Suitable for applications needing standard token
+  interactions for use with existing dApps and maximum compatibility.
+
+<Info>
+**Interoperability:** CW20/ERC20 tokens can have pointer contracts deployed, facilitating seamless cross-vm interoperability.
+
+For more detailed guidance, refer to the
+[Pointer Contracts Documentation](/learn/pointers).
+
+</Info>
+
+## NFTs
+
+Non-fungible tokens (NFTs) represent unique digital assets. Sei supports both
+ERC721 and CW721 standards as well as their counterparts with royalties (2981).
+
+- **ERC721**: The ERC721 standard defines the structure for non-fungible tokens
+  on EVM-based blockchains. Each token is unique and cannot be exchanged on a
+  one-to-one basis like fungible tokens.
+- **ERC2981**: These standards define royalty mechanisms for NFTs,
+  ensuring creators receive a percentage of sales.
+- **Interoperability**: Similar to fungible tokens, NFTs can interact across
+  different standards using pointer contracts.
+- **Pointer Contract Registry**: A registry for tracking pointer contracts
+  specific to NFTs.
+
+## Wrapped Sei (wSei)
+
+Some dApps may require Sei tokens to be wrapped in order to interact with them (similar to Wrapped ETH on Ethereum). The Wrapped Sei Token WSEI is deployed under the contract address [`0xE30feDd158A2e3b13e9badaeABaFc5516e95e8C7`](https://seiscan.io/address/0xE30feDd158A2e3b13e9badaeABaFc5516e95e8C7).

@@ -1,0 +1,542 @@
+---
+title: 'Migrate Your EVM dApp to Sei'
+description: 'Step-by-step checklist for teams that already run on another EVM chain and want to redeploy on Sei, including environment prep, contract migration, liquidity planning, and chain-specific guidance for Ethereum, Arbitrum, Base, Polygon, and Avalanche.'
+keywords: ['EVM migration', 'cross-chain deployment', 'ethereum to sei', 'arbitrum to sei', 'base to sei', 'polygon to sei', 'avalanche to sei', 'smart contract deployment']
+---
+
+
+# How to migrate to Sei from another EVM chain
+
+Sei offers full EVM bytecode compatibility plus near-instant finality and sub-second blocks. This guide distills what product teams need to do when they already run on Polygon, Base, Ethereum, Arbitrum, Avalanche or another EVM chain and want to bring your dApp stack to Sei.
+
+<Info>
+**Why Migrate to Sei?**
+
+- **400ms block times** – 30× faster than Ethereum, 2-5× faster than most L2s
+- **~100 MGas/s throughput** – 33× higher than Ethereum mainnet
+- **Instant finality** – No waiting for confirmations or safe/finalized states
+- **Parallelized execution** – Higher throughput without code changes
+- **Full EVM compatibility** – Deploy your existing Solidity contracts unchanged
+
+</Info>
+
+## Chain Comparison Overview
+
+Before diving into migration steps, understand how Sei compares to your source chain:
+
+| Feature | Sei | Ethereum | Arbitrum | Base | Polygon PoS | Avalanche C-Chain |
+| --- | --- | --- | --- | --- | --- | --- |
+| Chain ID | 1329 | 1 | 42161 | 8453 | 137 | 43114 |
+| Block Time | 400 ms | ~12 s | ~250 ms | ~2 s | ~2 s | ~2 s |
+| Finality | Instant | ~15 min (finalized) | ~7 days (L1 settlement) | ~7 days (L1 settlement) | ~5 s (Heimdall v2) | ~1 s |
+| Gas Limit | 12.5 M | 60M | 32M | 375M | 45M | Dynamic |
+| Per-Tx Gas Cap | 12.5 M | ~16.7 M | 32 M | ~25 M | 45 M | Dynamic |
+| Native Token | SEI | ETH | ETH | ETH | POL (MATIC) | AVAX |
+| Parallel Execution | Yes | No | No | No | No | No |
+| Base Fee Burn | No (100% to validators) | Yes (EIP-1559) | Yes | Yes | Yes | Yes |
+| EVM Version | Pectra (w/o blobs) | Fusaka | Fusaka | Pectra | Pectra | Cancun |
+
+
+## Chain-Specific Migration Guides
+
+Select your source chain to see specific migration considerations:
+
+<Tabs>
+  <Tab title="Ethereum">
+
+### Migrating from Ethereum Mainnet
+
+**Key Differences:**
+
+| Aspect | Ethereum | Sei | Migration Impact |
+| --- | --- | --- | --- |
+| Block time | ~12 seconds | 400 ms | Reduce `deadline` buffers in DEX swaps by 30× |
+| Finality | ~15 min for finalized | Instant | Remove confirmation polling logic |
+| Gas limit | ~16.7M per TX (EIP-7825) | 12.5 M per block/TX | Split large batch deployments |
+| Fee model | EIP-1559 with burn | EIP-1559 different params | Update fee estimation UIs |
+| Pending state | Yes | No | Remove pending transaction logic |
+
+
+**What to Update:**
+
+1. **Time-based logic:** If your contracts use block timestamps for deadlines, reduce timeouts proportionally. A 30-minute deadline on Ethereum (~150 blocks) should be ~45 seconds on Sei (~112 blocks).
+
+2. **Confirmation requirements:** Remove any logic that waits for multiple confirmations or checks "safe" vs "finalized" states—Sei has instant finality.
+
+3. **Gas estimation:** Sei's parallelized execution can slightly vary gas estimates. Add a modest buffer (10-15%) to your `gasLimit` calculations.
+
+4. **Fee UI:** Simplify your frontend—you can use a single `gasPrice` input instead of `maxFeePerGas` / `maxPriorityFeePerGas`.
+
+```ts
+// Before (Ethereum EIP-1559)
+const tx = await contract.method({
+  maxFeePerGas: ethers.parseUnits('50', 'gwei'),
+  maxPriorityFeePerGas: ethers.parseUnits('2', 'gwei')
+});
+
+// After (Sei - simplified)
+const tx = await contract.method({
+  gasPrice: ethers.parseUnits('0.1', 'gwei') // Sei has much lower fees
+});
+```
+
+5. **PREVRANDAO/DIFFICULTY:** If you use these for any randomness, integrate a VRF oracle instead—Sei's values are derived from block time, not true randomness.
+
+  </Tab>
+  <Tab title="Arbitrum">
+
+### Migrating from Arbitrum
+
+**Key Differences:**
+
+| Aspect | Arbitrum | Sei | Migration Impact |
+| --- | --- | --- | --- |
+| Architecture | Optimistic Rollup (L2) | L1 | No L1 data availability concerns |
+| Finality | ~7 days for L1 settlement | Instant | Simplify withdrawal flows |
+| Sequencer | Centralized sequencer | Decentralized validators | No sequencer downtime risk |
+| Block time | ~250 ms | 400 ms | Slightly slower, but with true finality |
+| L1 gas | Pays L1 data costs | No L1 dependency | Simpler fee structure |
+
+
+**What to Update:**
+
+1. **Remove L1 interactions:** Any logic that posts data to or reads from Ethereum L1 should be removed or replaced with Sei-native alternatives.
+
+2. **Sequencer assumptions:** Remove any sequencer uptime checks or fallback logic—Sei uses decentralized consensus.
+
+3. **Withdrawal delays:** If your protocol has 7-day withdrawal windows for "L1 finality," you can remove these—Sei settles instantly.
+
+4. **ArbOS precompiles:** Replace any Arbitrum-specific precompiles:
+
+```solidity
+// Arbitrum-specific (remove)
+// import { ArbSys } from "@arbitrum/nitro-contracts/src/precompiles/ArbSys.sol";
+// uint256 blockNum = ArbSys(0x64).arbBlockNumber();
+
+// Sei equivalent
+uint256 blockNum = block.number; // Standard EVM
+```
+
+5. **Cross-chain messaging:** Replace Arbitrum's native bridge with [LayerZero V2](/evm/bridging/layerzero) for omnichain connectivity.
+
+  </Tab>
+  <Tab title="Base">
+
+### Migrating from Base
+
+**Key Differences:**
+
+| Aspect | Base | Sei | Migration Impact |
+| --- | --- | --- | --- |
+| Architecture | OP Stack Rollup (L2) | L1 | No L1 data availability concerns |
+| Finality | ~7 days for L1 settlement | Instant | Simplify withdrawal flows |
+| Block time | ~2 seconds | 400 ms | 5× faster block production |
+| Sequencer | Coinbase-operated | Decentralized validators | No single point of failure |
+| EIP-4844 blobs | Supported | Not supported | Remove blob transaction logic |
+
+
+**What to Update:**
+
+1. **Remove blob transactions:** Sei doesn't support EIP-4844 blob transactions. If you're using them for data availability, store data differently or use Sei's native mechanisms.
+
+2. **OP Stack precompiles:** Remove any Optimism/Base-specific precompile calls:
+
+```solidity
+// Base-specific (remove)
+// L1Block(0x4200000000000000000000000000000000000015).number();
+
+// Use standard EVM on Sei
+uint256 blockNum = block.number;
+```
+
+3. **Fault proof assumptions:** Remove any logic that accounts for the 7-day challenge period—Sei has instant finality.
+
+4. **Sequencer fee logic:** Base has a separate L1 data fee component. On Sei, fees are simpler: `Gas Used × Gas Price`.
+
+5. **Coinbase Wallet integrations:** Update wallet connection logic to use Sei network parameters:
+
+```ts
+// Update network config
+const seiMainnet = {
+  chainId: '0x531', // 1329 in hex
+  chainName: 'Sei',
+  nativeCurrency: { name: 'Sei', symbol: 'SEI', decimals: 18 },
+  rpcUrls: ['https://evm-rpc.sei-apis.com'],
+  blockExplorerUrls: ['https://seiscan.io']
+};
+```
+
+  </Tab>
+  <Tab title="Polygon">
+
+### Migrating from Polygon PoS
+
+**Key Differences:**
+
+| Aspect | Polygon PoS | Sei | Migration Impact |
+| --- | --- | --- | --- |
+| Native token | POL (MATIC) | SEI | Update all token references |
+| Block time | ~2 seconds | 400 ms | 5× faster blocks |
+| Finality | ~5 s (Heimdall v2) | Instant | Remove finality delay handling |
+| Checkpoints | Periodic to Ethereum | None | Simpler architecture |
+| Reorgs | Possible (rare) | Never | Remove reorg handling |
+
+
+**What to Update:**
+
+1. **Token references:** Replace all MATIC/POL references with SEI:
+
+```solidity
+// Before (Polygon)
+// IERC20(0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270).transfer(...); // WMATIC
+
+// After (Sei) - use native SEI or wrapped version
+// Check ecosystem contracts for canonical WSEI address
+```
+
+2. **Checkpoint logic:** Remove any logic that waits for Polygon checkpoints to Ethereum—Sei has instant finality.
+
+3. **Heimdall/Bor assumptions:** Remove any Polygon-specific validator or sidechain logic.
+
+4. **Reorg handling:** You can safely remove block reorganization handling code—Sei's consensus prevents reorgs.
+
+5. **Gas price oracles:** Polygon's gas prices can spike significantly. Sei's fees are more stable due to higher throughput:
+
+```ts
+// Polygon - needed aggressive gas price management
+const gasPrice = await provider.getGasPrice();
+const boostedPrice = gasPrice.mul(120).div(100); // 20% buffer
+
+// Sei - simpler approach works
+const gasPrice = await provider.getGasPrice(); // Usually sufficient as-is
+```
+
+6. **Bridge integrations:** Replace Polygon Bridge with [LayerZero](/evm/bridging/layerzero) or other Sei-supported bridges.
+
+  </Tab>
+  <Tab title="Avalanche">
+
+### Migrating from Avalanche C-Chain
+
+**Key Differences:**
+
+| Aspect | Avalanche C-Chain | Sei | Migration Impact |
+| --- | --- | --- | --- |
+| Native token | AVAX | SEI | Update all token references |
+| Block time | ~2 seconds | 400 ms | 5× faster blocks |
+| Finality | ~1 second | Instant (~400 ms) | Similar, slightly faster |
+| Subnets | Supported | N/A | Remove subnet logic |
+| Gas limit | Dynamic (post-Octane) | 12.5 M | Large tx headroom varies; benchmark deployments |
+
+
+**What to Update:**
+
+1. **Token references:** Replace AVAX with SEI:
+
+```solidity
+// Before (Avalanche)
+// IERC20(0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7).transfer(...); // WAVAX
+
+// After (Sei)
+// Use native SEI or check ecosystem contracts for WSEI
+```
+
+2. **Subnet interactions:** If your dApp uses Avalanche Subnets, you'll need to redesign that architecture for Sei's single-chain model or use cross-chain messaging.
+
+3. **Avalanche-specific precompiles:** Remove C-Chain precompile calls:
+
+```solidity
+// Avalanche-specific (remove)
+// INativeMinter(0x0200000000000000000000000000000000000001).mintNativeCoin(...)
+
+// Use standard EVM patterns on Sei
+```
+
+4. **Gas limit adjustments:** Avalanche now uses a dynamic gas model after Octane, while Sei has a fixed `12.5M` block/tx cap. If you have large transactions, benchmark them on Sei and split them when needed:
+
+```ts
+// If deploying large contracts, batch by gas
+const MAX_GAS_PER_BATCH = 11_500_000; // Leave buffer under 12.5M
+```
+
+5. **TWAP calculations:** Both chains have fast blocks, but adjust your observation windows if migrating oracle logic:
+
+```solidity
+// Avalanche: 1 hour = ~1800 blocks
+// Sei: 1 hour = ~9000 blocks
+uint32 constant TWAP_PERIOD = 9000; // Adjust for Sei's block time
+```
+
+  </Tab>
+</Tabs>
+
+## Step 1: Evaluate Compatibility
+
+Revisit the [Divergence from Ethereum](/evm/differences-with-ethereum) doc and confirm every assumption your contracts/frontends make still holds.
+
+| Dimension | Sei EVM | Practical Effect |
+| --- | --- | --- |
+| Block time | 400 ms | Faster TX inclusion → smaller `deadline` buffers and quicker price oracles |
+| Finality | Instant | No separate "safe/latest" commitment levels to poll |
+| Gas limit | 12.5M gas + 21 MB byte limit | Batch contract deployments by 12.5M gas blocks |
+| Base fee | Dynamic but never burned | Validators receive 100% of fees |
+| Execution | Parallelized EVM | No changes to your Solidity code are necessary |
+| Address format | Dual (0x + sei1...) | Same private key derives both addresses |
+
+
+<Warning>
+
+**Features Requiring Attention:**
+
+- **Pending state:** Sei doesn't have pending state — transactions are either included or not
+- **Blob opcodes:** EIP-4844 blob transactions are not supported
+- **PREVRANDAO entropy:** Returns block-time-derived value, not true randomness — use VRF oracles here
+- **SELFDESTRUCT:** Deprecated; refactor to "soft close" patterns
+
+</Warning>
+
+## Step 2: Prepare Your Development Environment
+
+### Add Sei Network Configuration
+
+**Hardhat Configuration:**
+
+```ts filename="hardhat.config.ts"
+import '@nomicfoundation/hardhat-verify';
+
+const config = {
+  networks: {
+    seiMainnet: {
+      url: process.env.SEI_MAINNET_RPC ?? 'https://evm-rpc.sei-apis.com',
+      chainId: 1329,
+      accounts: process.env.DEPLOYER_KEYS?.split(',') ?? []
+    },
+    seiTestnet: {
+      url: process.env.SEI_TESTNET_RPC ?? 'https://evm-rpc-testnet.sei-apis.com',
+      chainId: 1328,
+      accounts: process.env.DEPLOYER_KEYS?.split(',') ?? []
+    }
+  },
+  sourcify: {
+    enabled: true
+  }
+};
+
+export default config;
+```
+
+**Foundry Configuration:**
+
+```toml filename="foundry.toml"
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+
+[rpc_endpoints]
+sei_mainnet = "https://evm-rpc.sei-apis.com"
+sei_testnet = "https://evm-rpc-testnet.sei-apis.com"
+
+# Verification uses Sourcify (no API key needed)
+# Run: forge verify-contract --verifier sourcify --chain-id <CHAIN_ID> <ADDRESS> <PATH:CONTRACT>
+```
+
+See the [Hardhat tutorial](/evm/evm-hardhat) and [Foundry guide](/evm/evm-foundry) for complete setup instructions.
+
+### Wallet Configuration
+
+Pre-configure MetaMask or other wallets with Sei chain params:
+
+```ts
+const seiMainnet = {
+  chainId: '0x531', // 1329
+  chainName: 'Sei',
+  nativeCurrency: { name: 'Sei', symbol: 'SEI', decimals: 18 },
+  rpcUrls: ['https://evm-rpc.sei-apis.com'],
+  blockExplorerUrls: ['https://seiscan.io']
+};
+
+await window.ethereum.request({
+  method: 'wallet_addEthereumChain',
+  params: [seiMainnet]
+});
+```
+
+## Step 3: Bootstrap Common Infrastructure
+
+Sei already exposes canonical helper contracts—reference them instead of redeploying:
+
+| Component | Address | Notes |
+| --- | --- | --- |
+| Permit2 | `0xB952578f3520EE8Ea45b7914994dcf4702cEe578` | Shared allowance manager for DEX and wallet flows |
+| Multicall3 | `0xcA11bde05977b3631167028862bE2a173976CA11` | Enables batching and view aggregation |
+| ImmutableCreate2Factory | `0x0000000000FFe8B47B3e2130213B802212439497` | Deterministic deployments with `CREATE2` |
+| SingletonFactory | `0xce0042B868300000d44A59004Da54A005ffdcf9f` | EIP-2470 singleton factory |
+
+
+For third-party contracts (LayerZero, Safe, etc.), consult the full [Ecosystem Contracts page](/evm/ecosystem-contracts).
+
+## Step 4: Port Contracts and Configuration
+
+### Parameterize Chain-Specific Constants
+
+```solidity
+// Example: Chain-aware deadline calculation
+function getDeadline(uint256 secondsFromNow) internal view returns (uint256) {
+    if (block.chainid == 1329) { // Sei mainnet
+        // ~2.5 blocks per second on Sei
+        return block.timestamp + secondsFromNow;
+    } else if (block.chainid == 1) { // Ethereum
+        // ~1 block per 12 seconds on Ethereum
+        return block.timestamp + secondsFromNow;
+    }
+    return block.timestamp + secondsFromNow;
+}
+```
+
+### Adjust Gas and Size Assumptions
+
+- Keep `gasLimit` buffers modest but ensure calldata stays under 21 MB
+- Sei's 12.5M gas limit per block means large deployments may need batching
+
+### Refactor Deprecated Patterns
+
+```solidity
+// Before: SELFDESTRUCT (deprecated)
+function destroy() external onlyOwner {
+    selfdestruct(payable(owner));
+}
+
+// After: Soft close pattern
+bool public closed;
+
+function close() external onlyOwner {
+    closed = true;
+    // Transfer remaining funds
+    payable(owner).transfer(address(this).balance);
+}
+
+modifier notClosed() {
+    require(!closed, "Contract is closed");
+    _;
+}
+```
+
+## Step 5: Plan Bridging and Cross-Chain Connectivity
+
+### LayerZero V2
+
+Sei's LayerZero Endpoint ID is `30280`. See the complete [LayerZero integration guide](/evm/bridging/layerzero).
+
+```ts filename="layerzero.config.ts"
+import { EndpointId } from '@layerzerolabs/lz-definitions';
+
+const seiContract = {
+  eid: EndpointId.SEI_V2_MAINNET, // 30280
+  contractName: 'MyOFT'
+};
+```
+
+### Other Bridge Options
+
+- **Circle CCTP:** For USDC bridging (check availability)
+- **IBC:** For Cosmos ecosystem assets
+- **Pointer contracts:** For bridging non-EVM assets—see [Pointer Contracts](/learn/pointers)
+
+## Step 6: Handle Assets and Oracles
+
+### Oracle Integration
+
+Sei supports multiple oracle solutions:
+
+| Provider | Use Case | Documentation |
+| --- | --- | --- |
+| Pyth Network | High-frequency price feeds | [Pyth Network](https://docs.pyth.network/) |
+| Chainlink | Industry-standard data feeds | [Chainlink on Sei](/evm/oracles/chainlink) |
+| RedStone | Modular oracle with push model | [RedStone on Sei](/evm/oracles/redstone) |
+| API3 | First-party oracle data | [API3 on Sei](/evm/oracles/api3) |
+
+
+<Info>**TWAP Adjustments:** Because Sei blocks arrive ~30× faster than Ethereum, shorten your TWAP observation windows to maintain comparable time-weighted calculations.</Info>
+
+## Step 7: Launch Checklist
+
+### Testnet Deployment (atlantic-2)
+
+- [ ] Deploy all contracts to testnet (chain ID: `1328`)
+- [ ] Run full integration test suite
+- [ ] Verify contracts via [Sourcify](/evm/evm-verify-contracts)
+- [ ] Test wallet connections and transaction flows
+- [ ] Validate oracle integrations
+- [ ] Test cross-chain messaging if applicable
+
+### Mainnet Deployment (pacific-1)
+
+- [ ] Deploy contracts to mainnet (chain ID: `1329`)
+- [ ] Re-run smoke tests
+- [ ] Verify all contracts on Sourcify
+- [ ] Update frontend configurations
+- [ ] Prepare user migration documentation
+
+<Warning>**Fee Redistribution Warning:** Fees on Sei are not burned. If your protocol redistributes "burn rebates" to users, redesign that logic so it does not expect a base-fee burn component.</Warning>
+
+## Step 8: Operational Readiness
+
+### Contract Verification
+
+Automate verification through CI using [Sourcify](/evm/evm-verify-contracts):
+
+```bash
+# Foundry verification
+forge verify-contract --watch \
+  --verifier sourcify \
+  --chain-id 1329 \
+  <CONTRACT_ADDRESS> \
+  <CONTRACT_NAME>
+```
+
+### RPC and Indexer Health
+
+- **Primary RPC:** `https://evm-rpc.sei-apis.com`
+- **Testnet RPC:** `https://evm-rpc-testnet.sei-apis.com`
+- For mission-critical paths, consider self-hosted nodes or [premium RPC providers](/learn/rpc-providers)
+
+### Monitoring Gas Parameters
+
+Periodically query fee data to keep dashboards aligned:
+
+```ts
+// Monitor current gas prices
+const feeHistory = await provider.send('eth_feeHistory', ['0x5', 'latest', []]);
+const gasPrice = await provider.getGasPrice();
+```
+
+## Example: Uniswap V3-Style Deployment
+
+Here's how to mirror a Uniswap V3 experience on Sei:
+
+1. **Routers & Factories:** Deploy your own or fork the existing DragonSwap stack:
+   - Router: `0xdD489C75be1039ec7d843A6aC2Fd658350B067Cf`
+   - V3 Factory: `0x75FC67473A91335B5b8F8821277262a13B38c9b3`
+   - Position Manager: `0x8B3c541c30f9b29560f56B9E44b59718916B69EF`
+
+2. **Permit and Multicall:** Point your frontend SDK to the shared `Permit2` and `Multicall3` addresses above.
+
+3. **Liquidity Migration Script:** Build a helper that:
+   - Withdraws LP on source chain
+   - Bridges underlying tokens to Sei
+   - Mints new Sei LP positions
+   - Include gas estimations tuned for Sei's 12.5M block cap
+
+4. **Price Oracles:** Reuse TWAP/Chainlink logic but shorten observation windows for Sei's faster blocks.
+
+5. **Verification:** Submit to [Sourcify](/evm/evm-verify-contracts) and the [Ecosystem Contracts registry](/evm/ecosystem-contracts).
+
+## Helpful References
+
+- [Divergence from Ethereum](/evm/differences-with-ethereum) – Opcode, gas, and state nuances
+- [EVM Networks](/evm/networks) – RPCs, explorers, and MetaMask payloads
+- [Precompiles](/evm/precompiles/example-usage) – Interoperability patterns
+- [Ecosystem Contracts](/evm/ecosystem-contracts) – Canonical addresses
+- [LayerZero Integration](/evm/bridging/layerzero) – Cross-chain messaging
+- [Contract Verification](/evm/evm-verify-contracts) – Contract verification guide

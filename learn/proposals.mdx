@@ -1,0 +1,155 @@
+---
+title: 'Proposals'
+description: 'Complete guide to Sei governance proposals. Learn about different proposal types and how to submit them.'
+keywords: ['sei governance', 'proposals', 'governance submission', 'blockchain governance', 'proposal commands']
+---
+
+# Proposals
+
+Complete guide to creating and submitting governance proposals on Sei. Learn about different proposal types, requirements, and submission commands.
+
+<Info>For governance parameters and voting requirements, see the [Overview](/learn/general-governance) section.</Info>
+
+## Proposal Types & Submission
+
+### Text Proposals
+
+**Community Discussion** — Non-binding proposals for community input and consensus building on important topics.
+
+**Common Uses**
+- Strategic direction
+- Policy agreements
+- Network guidelines
+
+**Examples**
+- Community input and consensus building
+- Non-binding governance decisions
+- Foundation for policy discussions
+- Protocol direction and priorities
+
+```bash seid tx gov submit-proposal \
+  --title "Community Initiative Proposal" \
+  --description "Detailed description of the initiative..." \
+  --type Text \
+  --deposit 3500000000usei \
+  --from mykey \
+  --chain-id pacific-1
+```
+
+### Parameter Change Proposals
+
+**Network Configuration** — Modify network parameters without requiring a software upgrade.
+
+**Common Changes**
+- Governance parameters
+- Staking parameters
+- Fee structures
+
+**Prerequisites**
+- Valid JSON format
+- Comprehensive change documentation
+- Impact assessment
+- Testing results
+
+```bash seid tx gov submit-proposal param-change proposal.json \
+  --deposit 3500000000usei \
+  --from mykey \
+  --chain-id pacific-1
+```
+
+<Info>**Example `proposal.json`:**</Info>
+
+```json {
+  "title": "Update Staking Parameters",
+  "description": "This proposal updates the maximum number of validators from 100 to 125.",
+  "changes": [
+    {
+      "subspace": "staking",
+      "key": "MaxValidators",
+      "value": 125
+    }
+  ]
+}
+```
+
+### Software Upgrade Proposals
+
+**Network Upgrades** — Coordinate network-wide software upgrades with automatic execution at specified block height.
+
+**Common Uses**
+- Protocol upgrades
+- Security patches
+- New features
+- Performance improvements
+
+**Prerequisites**
+- Upgrade height specification
+- Binary release info
+- Migration documentation
+- Validator coordination
+
+```bash seid tx gov submit-proposal software-upgrade v2.1.0 \
+  --upgrade-height 15000000 \
+  --upgrade-info "https://github.com/sei-protocol/sei-chain/releases/v2.1.0" \
+  --title "Sei v2.1.0 Upgrade" \
+  --description "Network upgrade to v2.1.0 with enhanced performance" \
+  --deposit 3500000000usei \
+  --from mykey \
+  --chain-id pacific-1
+```
+
+## Expedited Proposals
+
+**Fast-Track Process** — For urgent network changes requiring immediate attention. Higher deposit and approval requirements with accelerated timeline.
+
+- Security patches and critical fixes
+- Emergency parameter adjustments
+- Time-sensitive network upgrades
+
+```bash seid tx gov submit-proposal software-upgrade emergency-patch \
+  --upgrade-height 15100000 \
+  --upgrade-info "https://github.com/sei-protocol/sei-chain/releases/emergency-patch" \
+  --title "Emergency Security Patch" \
+  --description "Critical security fix requiring immediate deployment" \
+  --deposit 7000000000usei \
+  --expedited \
+  --from mykey \
+  --chain-id pacific-1
+```
+
+## Proposal Management
+
+### Query & Monitor
+
+| Command | Purpose | Example |
+| --- | --- | --- |
+| `seid q gov proposals` | List all proposals | `--status voting_period` |
+| `seid q gov proposal [id]` | Get specific proposal | `seid q gov proposal 42` |
+| `seid q gov votes [id]` | Check voting results | `seid q gov votes 42` |
+| `seid q gov tally [id]` | View vote tally | `seid q gov tally 42` |
+
+### Voting
+
+```bash # Vote on a proposal
+seid tx gov vote [proposal-id] [vote-option] \
+  --from mykey \
+  --chain-id pacific-1
+
+# Vote options: yes, no, abstain, no_with_veto
+seid tx gov vote 42 yes \
+  --from mykey \
+  --chain-id pacific-1
+```
+
+### Deposit Management
+
+```bash # Add deposit to proposal
+seid tx gov deposit [proposal-id] [amount] \
+  --from mykey \
+  --chain-id pacific-1
+
+# Example: Add 1000 SEI to proposal 42
+seid tx gov deposit 42 1000000000usei \
+  --from mykey \
+  --chain-id pacific-1
+```

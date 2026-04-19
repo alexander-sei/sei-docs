@@ -1,0 +1,58 @@
+---
+title: 'Enable Onramps, Swapping & Bridging on Any EVM Chain'
+description: 'Comprehensive guide on enabling onramps, swapping & bridging on Any EVM Chain on Sei. Learn key concepts, commands, and best practices.'
+keywords: ['thirdweb', 'onramps', 'swapping', 'bridging', 'cross-chain', 'payments', 'sei']
+---
+
+# Enable Onramps, Swapping & Bridging on Any EVM Chain
+
+[**Payments**](https://thirdweb.com/payments?utm_source=sei&utm_medium=documentation&utm_campaign=chain_docs) is a comprehensive Web3 payment solution to help you monetize any app or game.
+
+With Payments, your users can **onramp, bridge, and swap** on any EVM chain — with any EVM token or fiat — thanks to its **automatic cross-chain routing**.
+
+Plus, developers can **earn from day one** using the **fee-sharing mechanism** and **easy implementation**.
+
+## Payments Features
+
+- Let users pay for assets in any EVM token on any EVM chain
+- Automatic cross-chain routing for seamless transactions
+- Earn from day one with fee-sharing mechanism
+- Access ready-made UI component for easy implementation
+
+[Learn more in the full documentation on thirdweb’s Payments](https://portal.thirdweb.com/payments?utm_source=sei&utm_medium=documentation&utm_campaign=chain_docs)
+
+## Get Started
+
+[How to get started with Payments](https://portal.thirdweb.com/payments?utm_source=sei&utm_medium=documentation&utm_campaign=chain_docs)
+
+## See Payments in Action
+
+Want to see how Payments works? Check it out under the hood
+
+```jsx import { createThirdwebClient } from 'thirdweb';
+import { PayEmbed } from 'thirdweb/react';
+
+import { createWallet } from 'thirdweb/wallets';
+import { sei } from 'thirdweb/chains';
+
+const client = createThirdwebClient({
+  clientId: '....'
+});
+
+function Example() {
+  return (
+    <PayEmbed
+      client={client}
+      payOptions={{
+        mode: 'fund_wallet',
+        prefillBuy: {
+          chain: sei,
+          amount: '0.01'
+        }
+      }}
+    />
+  );
+}
+```
+
+[**See how Payments works in the playground**](https://playground.thirdweb.com/payments?utm_source=sei&utm_medium=documentation&utm_campaign=chain_docs)

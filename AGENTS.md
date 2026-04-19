@@ -1,33 +1,53 @@
-> **First-time setup**: Customize this file for your project. Prompt the user to customize this file for their project.
-> For Mintlify product knowledge (components, configuration, writing standards),
-> install the Mintlify skill: `npx skills add https://mintlify.com/docs`
-
-# Documentation project instructions
+# Sei Docs — agent instructions
 
 ## About this project
 
-- This is a documentation site built on [Mintlify](https://mintlify.com)
-- Pages are MDX files with YAML frontmatter
-- Configuration lives in `docs.json`
-- Run `mint dev` to preview locally
-- Run `mint broken-links` to check links
+- Official Sei Network documentation, built on [Mintlify](https://mintlify.com)
+- Pages are MDX with YAML frontmatter; config lives in `docs.json`
+- Run `mint dev` to preview locally, `mint broken-links` to check links
+- Hosted at `docs.sei.io`
 
 ## Terminology
 
-{/* Add product-specific terms and preferred usage */}
-{/* Example: Use "workspace" not "project", "member" not "user" */}
+- **Sei** (not "the Sei blockchain" or "Sei chain") — just "Sei"
+- **Sei EVM** when specifically referring to the EVM execution layer
+- **Sei Giga** is the next-generation architecture upgrade
+- **seid** is the CLI binary; always lowercase and code-formatted
+- **sei-js** (lowercase, hyphenated) for the JS/TS SDK
+- **Pacific-1** (mainnet chain ID `1329`), **Atlantic-2** (testnet chain ID `1328`)
+- Precompiles live at specific addresses — always reference exact address when mentioning
+- **Twin Turbo Consensus** and **parallelization engine** are proper nouns
+- Prefer "dApp" over "app" when the context is blockchain
+- Avoid "gas fees" — say "gas" or "transaction fees"
 
 ## Style preferences
 
-{/* Add any project-specific style rules below */}
-
-- Use active voice and second person ("you")
-- Keep sentences concise — one idea per sentence
-- Use sentence case for headings
+- Active voice, second person ("you")
+- Sentence case for headings
+- One idea per sentence
 - Bold for UI elements: Click **Settings**
-- Code formatting for file names, commands, paths, and code references
+- Inline code for file names, commands, paths, RPC methods
+- Prefer `<Card>` / `<CardGroup>` / `<Columns>` over heavy `<div>` layouts
+- Prefer `<Info>`, `<Warning>`, `<Note>`, `<Tip>`, `<Check>`, `<Danger>` over custom callouts
+- Use `<Steps>` / `<Step>` for ordered procedures
+- Use `<Tabs>` / `<Tab>` for parallel code samples (hardhat vs. foundry, ethers vs. viem, etc.)
+- Always give `<CodeGroup>` blocks explicit language tags
 
 ## Content boundaries
 
-{/* Define what should and shouldn't be documented */}
-{/* Example: Don't document internal admin features */}
+- Cosmos-SDK content is deprecated (see SIP-3) — keep the deprecation notice visible on `cosmos-sdk/index.mdx`
+- New content should target EVM unless it's infrastructure (nodes, validators)
+- No speculation about unreleased features or timelines
+- No trading advice, price targets, or investment framing
+- Link to authoritative external docs (OpenZeppelin, Ethereum.org, Hardhat, Foundry) instead of re-explaining them
+- Link to live status/dashboards rather than hard-coding network stats that change
+
+## Redirects
+
+All legacy paths from the Nextra site are preserved in `docs.json` under `redirects`. When renaming or moving a page, always add a matching redirect entry so external links and search results continue to resolve.
+
+## Brand assets
+
+- Logos and brand guidelines live in `assets/sei-brand-assets/`
+- Docs OG banner is `assets/docs-banner.png`
+- Primary brand color is Sei Maroon `#600014` — configured in `docs.json`

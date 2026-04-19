@@ -1,0 +1,606 @@
+---
+title: 'Sei EVM Development with Hardhat'
+description: 'Learn how to set up Hardhat for Sei EVM development, create and deploy smart contracts, and leverage OpenZeppelin components for secure, standardized implementations.'
+keywords: ['hardhat', 'smart contracts', 'sei development', 'evm deployment', 'openzeppelin']
+---
+
+
+# Sei EVM Smart Contract Development with Hardhat
+
+This tutorial will guide you through setting up Hardhat for Sei EVM development and using OpenZeppelin contracts to build secure, standardized smart contracts. We'll cover environment setup, contract creation, deployment, and show how to leverage OpenZeppelin's pre-built components.
+
+<Info>Watch the video walkthrough for this topic in the [Video Tutorials](/evm/videos) section.</Info>
+
+<Tip>
+
+**Deploy to Testnet First**
+
+It is <strong>highly recommended</strong> that you deploy to <em>testnet (atlantic-2)</em> first and verify everything works as expected before committing to mainnet. Doing so helps you catch bugs early, avoid unnecessary gas costs, and keep your users safe.
+
+</Tip>
+
+## Table of Contents
+
+- [Prerequisites](#prerequisites)
+- [Setting Up Your Development Environment](#setting-up-your-development-environment)
+- [Configuring Hardhat for Sei EVM](#configuring-hardhat-for-sei-evm)
+- [Using OpenZeppelin Contracts](#using-openzeppelin-contracts)
+- [Creating and Deploying an ERC20 Token, ERC721 NFT or an Upgradeable UUPS Token ](#creating-and-deploying-an-erc20-token)
+- [Testing Your Smart Contracts](#testing-your-smart-contracts)
+- [Deploying to Sei Testnet and Mainnet](#deploying-to-sei-testnet-and-mainnet)
+
+## Prerequisites
+
+Before we begin, ensure you have the following installed:
+
+- [Node.js](https://nodejs.org/) (v18.0.0 or later)
+- [npm](https://www.npmjs.com/) (v7.0.0 or later) or [yarn](https://yarnpkg.com/)
+- A code editor (VS Code recommended)
+
+## Setting Up Your Development Environment
+
+Let's create a new project and set up Hardhat:
+
+```bash # Create a new directory for your project
+mkdir sei-hardhat-project
+cd sei-hardhat-project
+
+# Initialize a new npm project
+npm init -y
+
+# Install Hardhat and necessary dependencies
+npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox @openzeppelin/contracts dotenv
+```
+
+After installation, initialize a new Hardhat project:
+
+```bash npx hardhat --init
+```
+
+When prompted, select :
+
+- Hardhat3
+- A TypeScript Hardhat project using Mocha and Ethers.js
+
+and then follow the instructions to set up your project.
+
+If you encounter an error because of mismatch of versioning, you can try the following command with `--legacy-peer-deps` flag:
+
+```bash npm install --save-dev "@nomicfoundation/hardhat-toolbox-mocha-ethers@^3.0.2" "@nomicfoundation/hardhat-ethers@^4.0.4" "@nomicfoundation/hardhat-ignition@^3.0.7" "@types/chai@^4.2.0" "@types/chai-as-promised@^8.0.1" "@types/mocha@>=10.0.10" "@types/node@^22.8.5" "chai@^5.1.2" "ethers@^6.14.0" "forge-std@foundry-rs/forge-std#v1.9.4" "mocha@^11.0.0" "typescript@~5.8.0" --legacy-peer-deps
+```
+
+Post that, it is recommended to install some hardhat based dependencies as well for supporting Hardhat3:
+
+```bash npm i @nomicfoundation/hardhat-ethers-chai-matchers  @nomicfoundation/hardhat-ignition-ethers  @nomicfoundation/hardhat-keystore  @nomicfoundation/hardhat-mocha  @nomicfoundation/hardhat-network-helpers  @nomicfoundation/hardhat-typechain  @nomicfoundation/hardhat-verify
+```
+
+## Configuring Hardhat for Sei EVM
+
+Next, we'll need to configure Hardhat to work with the Sei EVM. Update your `hardhat.config.ts` file:
+
+```typescript copy filename="hardhat.config.ts"
+import { HardhatUserConfig } from 'hardhat/config';
+import '@nomicfoundation/hardhat-toolbox';
+import 'dotenv/config';
+
+// Load environment variables
+const PRIVATE_KEY = process.env.PRIVATE_KEY || '0x0000000000000000000000000000000000000000000000000000000000000000';
+
+const config: HardhatUserConfig = {
+  solidity: {
+    version: '0.8.28',
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200
+      }
+    }
+  },
+  networks: {
+    // Sei testnet configuration
+    seitestnet: {
+      url: 'https://evm-rpc-testnet.sei-apis.com',
+      accounts: [PRIVATE_KEY],
+      chainId: 1328 // Sei testnet chain ID
+    },
+    // Sei mainnet configuration
+    seimainnet: {
+      url: 'https://evm-rpc.sei-apis.com',
+      accounts: [PRIVATE_KEY],
+      chainId: 1329 // Sei mainnet chain ID
+    },
+    // Local development with Hardhat Network
+    hardhat: {
+      chainId: 31337
+    }
+  },
+  paths: {
+    sources: './contracts',
+    tests: './test',
+    cache: './cache',
+    artifacts: './artifacts'
+  },
+  mocha: {
+    timeout: 40000
+  }
+};
+```
+
+Create a `.env` file in your project root to store your private key:
+
+```bash PRIVATE_KEY=your_private_key_here
+```
+
+<Warning>Add `.env` to your `.gitignore` file to prevent committing sensitive information such as your `PRIVATE_KEY` and potentially lose funds.</Warning>
+
+## Using OpenZeppelin Contracts
+
+OpenZeppelin provides a library of secure, tested smart contract components that you can use to build your applications. First, let's install the OpenZeppelin Contracts package:
+
+```bash npm install @openzeppelin/contracts
+```
+
+## Creating and Deploying an ERC20 Token, ERC721 NFT or an Upgradeable UUPS Token
+
+<Tabs>
+  <Tab title="ERC20">
+Let's create a simple ERC20 token using OpenZeppelin contracts. Create a new file in the `contracts` directory called `SeiToken.sol`:
+
+```solidity copy filename="contracts/SeiToken.sol"
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.22;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract SeiToken is ERC20, Ownable {
+    constructor(address initialOwner)
+        ERC20("Sei Token", "SEI")
+        Ownable(initialOwner)
+    {
+        // Mint 1 million tokens to the contract deployer (with 18 decimals)
+        _mint(msg.sender, 1000000 * 10 ** decimals());
+    }
+
+    // Function to mint new tokens (only owner)
+    function mint(address to, uint256 amount) public onlyOwner {
+        _mint(to, amount);
+    }
+
+    // Function to burn tokens
+    function burn(uint256 amount) public {
+        _burn(msg.sender, amount);
+    }
+}
+```
+
+Now, create a deployment script in the `ignition/modules` directory called `deploy-sei-token.ts`:
+
+```typescript copy filename="scripts/deploy-sei-token.ts"
+import { buildModule } from '@nomicfoundation/hardhat-ignition/modules';
+
+export default buildModule('SeiTokenModule', (m) => {
+  const deployer = m.getAccount(0);
+
+  const seiToken = m.contract('SeiToken', [deployer]);
+
+  return { seiToken };
+});
+```
+
+To deploy the token to the Sei testnet:
+
+```bash npx hardhat ignition deploy ignition/modules/deploy-sei-token.ts --network seitestnet
+```
+
+</Tab>
+
+<Tab title="ERC721">
+Now, let's create an ERC721 NFT contract. Create a new file `SeiNFT.sol` in the `contracts` directory:
+
+```solidity copy filename="contracts/SeiNFT.sol"
+// SPDX-License-Identifier: MIT
+// Compatible with OpenZeppelin Contracts ^5.0.0
+pragma solidity ^0.8.22;
+
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {ERC721Burnable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
+import {ERC721Enumerable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import {ERC721Pausable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Pausable.sol";
+import {ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+
+contract SeiNFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausable, Ownable, ERC721Burnable {
+    uint256 private _nextTokenId;
+
+     // Base URI for metadata
+    string private _baseTokenURI;
+
+    constructor(address initialOwner, string memory baseTokenURI)
+        ERC721("Sei NFT Collection", "SEINFT")
+        Ownable(initialOwner)
+    {
+        _baseTokenURI = baseTokenURI;
+    }
+
+    // Function to update the base URI (only owner)
+    function setBaseURI(string memory baseTokenURI) public onlyOwner {
+        _baseTokenURI = baseTokenURI;
+    }
+
+    // Override the baseURI function
+    function _baseURI() internal view override returns (string memory) {
+        return _baseTokenURI;
+    }
+
+    function pause() public onlyOwner {
+        _pause();
+    }
+
+    function unpause() public onlyOwner {
+        _unpause();
+    }
+
+    function safeMint(address to, string memory uri)
+        public
+        onlyOwner
+        returns (uint256)
+    {
+        uint256 tokenId = _nextTokenId++;
+        _safeMint(to, tokenId);
+        _setTokenURI(tokenId, uri);
+        return tokenId;
+    }
+
+    // The following functions are overrides required by Solidity.
+
+    function _update(address to, uint256 tokenId, address auth)
+        internal
+        override(ERC721, ERC721Enumerable, ERC721Pausable)
+        returns (address)
+    {
+        return super._update(to, tokenId, auth);
+    }
+
+    function _increaseBalance(address account, uint128 value)
+        internal
+        override(ERC721, ERC721Enumerable)
+    {
+        super._increaseBalance(account, value);
+    }
+
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        override(ERC721, ERC721URIStorage)
+        returns (string memory)
+    {
+        return super.tokenURI(tokenId);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721, ERC721Enumerable, ERC721URIStorage)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
+}
+```
+
+Create a deployment script `deploy-sei-nft.ts`:
+
+```typescript copy filename="scripts/deploy-sei-nft.ts"
+import { ethers } from 'hardhat';
+
+async function main() {
+  const [deployer] = await ethers.getSigners();
+  console.log('Deploying contracts with the account:', deployer.address);
+
+  // Base URI for your NFT metadata
+  const baseURI = 'https://your-metadata-server.com/metadata/';
+
+  // Get the contract factory
+  const SeiNFT = await ethers.getContractFactory('SeiNFT');
+
+  // Deploy the contract
+  const seiNFT = await SeiNFT.deploy(deployer.address, baseURI);
+  await seiNFT.waitForDeployment();
+
+  console.log('SeiNFT deployed to:', await seiNFT.getAddress());
+
+  // Mint an example NFT
+  console.log('Minting an example NFT...');
+  const mintTx = await seiNFT.safeMint(deployer.address, '1.json');
+  await mintTx.wait();
+  console.log('NFT minted with ID: 1');
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+```
+
+Deploy the NFT contract to the Sei testnet:
+
+```bash npx hardhat run scripts/deploy-sei-nft.ts --network seitestnet
+```
+
+</Tab>
+<Tab title="Upgradeable UUPS Token">
+Upgradeable contracts allow you to modify the contract's logic after deployment without changing the contract address, which is crucial for fixing bugs or adding new features. The UUPS (Universal Upgradeable Proxy Standard) pattern is a popular way to implement upgradeability.
+
+First, ensure you have installed the necessary upgrade plugins as mentioned in the [Using OpenZeppelin Contracts](#using-openzeppelin-contracts) section:
+
+```bash npm install @openzeppelin/contracts-upgradeable @openzeppelin/hardhat-upgrades
+```
+
+And make sure your `hardhat.config.ts` includes the upgrades plugin:
+
+```typescript copy filename="hardhat.config.ts"
+import { HardhatUserConfig } from 'hardhat/config';
+import '@nomicfoundation/hardhat-toolbox';
+import '@openzeppelin/hardhat-upgrades';
+import 'dotenv/config';
+
+// ... rest of your config
+```
+
+Now, let's create an upgradeable ERC20 token. Create `contracts/UpgradeableSeiToken.sol`:
+
+```solidity copy filename="contracts/UpgradeableSeiToken.sol"
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.22;
+
+import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+
+contract UpgradeableSeiToken is Initializable, ERC20Upgradeable, OwnableUpgradeable, UUPSUpgradeable {
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(address initialOwner) initializer public {
+        __ERC20_init("Upgradeable Sei Token", "uSEI");
+        __Ownable_init(initialOwner);
+        __UUPSUpgradeable_init();
+
+        // Mint 1 million tokens to the initializer (deployer)
+        _mint(initialOwner, 1000000 * 10 ** decimals());
+    }
+
+    // Function to mint new tokens (only owner)
+    function mint(address to, uint256 amount) virtual public onlyOwner {
+        _mint(to, amount);
+    }
+
+    // Required for UUPS upgradeability
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        onlyOwner
+        override
+    {}
+
+    // OPTIONAL: Add a version identifier (useful for tracking upgrades)
+    function version() public virtual pure returns (string memory) {
+        return "V1";
+    }
+}
+```
+
+Note the use of `Initializable`, `initializer` modifier, `__ERC20_init`, `__Ownable_init`, `__UUPSUpgradeable_init`, and the `_authorizeUpgrade` function override. These are crucial for upgradeable contracts.
+
+Create a deployment script `scripts/deploy-upgradeable-token.ts`:
+
+```typescript copy filename="scripts/deploy-upgradeable-token.ts"
+import { ethers, upgrades } from 'hardhat';
+
+async function main() {
+  const [deployer] = await ethers.getSigners();
+  console.log('Deploying contracts with the account:', deployer.address);
+
+  const UpgradeableSeiToken = await ethers.getContractFactory('UpgradeableSeiToken');
+
+  // Deploy the upgradeable contract using the proxy pattern
+  const upgradeableToken = await upgrades.deployProxy(UpgradeableSeiToken, [deployer.address], {
+    initializer: 'initialize',
+    kind: 'uups' // Specify UUPS kind
+  });
+  await upgradeableToken.waitForDeployment();
+
+  console.log('UpgradeableSeiToken proxy deployed to:', await upgradeableToken.getAddress());
+  console.log('Implementation contract address:', await upgrades.erc1967.getImplementationAddress(await upgradeableToken.getAddress()));
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+```
+
+Deploy this to the testnet:
+
+```bash npx hardhat run scripts/deploy-upgradeable-token.ts --network seitestnet
+```
+
+**Upgrading the Contract**
+
+Let's say you want to add a new feature or fix a bug. Create a new version of the contract, `contracts/UpgradeableSeiTokenV2.sol`:
+
+```solidity copy filename="contracts/UpgradeableSeiTokenV2.sol"
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.22;
+
+import "./UpgradeableSeiToken.sol"; // Import the V1 contract
+
+contract UpgradeableSeiTokenV2 is UpgradeableSeiToken {
+    // Add a new state variable (ensure it doesn't clash with V1 storage layout)
+    uint256 public totalMintedSinceV2;
+
+    // Override the mint function to track new mints
+    function mint(address to, uint256 amount) public override onlyOwner {
+        super.mint(to, amount);
+        totalMintedSinceV2 += amount; // Add V2 logic
+    }
+
+    // Override the version function
+    function version() public pure override returns (string memory) {
+        return "V2";
+    }
+
+    // IMPORTANT: V2 does not need its own initializer or constructor for upgrades.
+    // The state from V1 is preserved.
+}
+```
+
+Now, create an upgrade script `scripts/upgrade-token.ts`. **Replace `PROXY_ADDRESS` with the address printed when you deployed the proxy.**
+
+```typescript copy filename="scripts/upgrade-token.ts"
+import { ethers, upgrades } from 'hardhat';
+
+// !! REPLACE WITH YOUR PROXY ADDRESS !!
+const PROXY_ADDRESS = '0xYOUR_PROXY_CONTRACT_ADDRESS_HERE';
+
+async function main() {
+  const [deployer] = await ethers.getSigners();
+  console.log('Upgrading contract with the account:', deployer.address);
+
+  const UpgradeableSeiTokenV2 = await ethers.getContractFactory('UpgradeableSeiTokenV2');
+
+  console.log('Preparing upgrade...');
+  const upgradeableTokenV2 = await upgrades.upgradeProxy(PROXY_ADDRESS, UpgradeableSeiTokenV2);
+  await upgradeableTokenV2.waitForDeployment();
+
+  console.log('UpgradeableSeiToken upgraded successfully!');
+  console.log('Proxy remains at:', await upgradeableTokenV2.getAddress()); // Should be the same as PROXY_ADDRESS
+  console.log('New implementation contract address:', await upgrades.erc1967.getImplementationAddress(await upgradeableTokenV2.getAddress()));
+
+  // Optional: Verify the upgrade by calling the new version function
+  const attached = UpgradeableSeiTokenV2.attach(await upgradeableTokenV2.getAddress());
+  console.log('Contract version:', await attached.version());
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+```
+
+Run the upgrade script:
+
+```bash npx hardhat run scripts/upgrade-token.ts --network seitestnet
+```
+
+You have now successfully deployed and upgraded a UUPS contract on the Sei network using Hardhat and OpenZeppelin!
+
+</Tab>
+</Tabs>
+
+## Testing Your Smart Contracts
+
+Hardhat makes it easy to test your contracts before deploying them. Create a test file `test/sei-token-test.ts`:
+
+```typescript copy filename="test/sei-token-test.ts"
+import { expect } from 'chai';
+import { ethers } from 'hardhat';
+
+describe('SeiToken', function () {
+  let SeiToken;
+  let seiToken;
+  let owner;
+  let addr1;
+  let addr2;
+
+  beforeEach(async function () {
+    // Get signers
+    [owner, addr1, addr2] = await ethers.getSigners();
+
+    // Deploy the token
+    SeiToken = await ethers.getContractFactory('SeiToken');
+    seiToken = await SeiToken.deploy(owner.address);
+  });
+
+  describe('Deployment', function () {
+    it('Should set the right owner', async function () {
+      expect(await seiToken.owner()).to.equal(owner.address);
+    });
+
+    it('Should assign the total supply of tokens to the owner', async function () {
+      const ownerBalance = await seiToken.balanceOf(owner.address);
+      const totalSupply = await seiToken.totalSupply();
+      expect(totalSupply).to.equal(ownerBalance);
+    });
+
+    it('Should have correct name and symbol', async function () {
+      expect(await seiToken.name()).to.equal('Sei Token');
+      expect(await seiToken.symbol()).to.equal('SEI');
+    });
+  });
+
+  describe('Transactions', function () {
+    it('Should transfer tokens between accounts', async function () {
+      // Transfer 50 tokens from owner to addr1
+      await seiToken.transfer(addr1.address, 50);
+      expect(await seiToken.balanceOf(addr1.address)).to.equal(50);
+
+      // Transfer 50 tokens from addr1 to addr2
+      await seiToken.connect(addr1).transfer(addr2.address, 50);
+      expect(await seiToken.balanceOf(addr2.address)).to.equal(50);
+    });
+
+    it("Should fail if sender doesn't have enough tokens", async function () {
+      const initialOwnerBalance = await seiToken.balanceOf(owner.address);
+
+      // Try to send 1 token from addr1 (0 tokens) to owner
+      await expect(seiToken.connect(addr1).transfer(owner.address, 1)).to.be.reverted;
+
+      // Owner balance shouldn't change
+      expect(await seiToken.balanceOf(owner.address)).to.equal(initialOwnerBalance);
+    });
+  });
+
+  describe('Minting', function () {
+    it('Should allow owner to mint new tokens', async function () {
+      await seiToken.mint(addr1.address, 1000);
+      expect(await seiToken.balanceOf(addr1.address)).to.equal(1000);
+    });
+
+    it('Should not allow non-owners to mint', async function () {
+      await expect(seiToken.connect(addr1).mint(addr1.address, 1000)).to.be.reverted;
+    });
+  });
+});
+```
+
+Run your tests with:
+
+```bash npx hardhat test
+```
+
+## Deploying to Sei Testnet and Mainnet
+
+Once you've tested your contracts, you can deploy them to the Sei testnet or mainnet. To deploy, you'll need:
+
+1. SEI tokens in your wallet for gas fees
+2. Your private key in the `.env` file
+
+Deploy to the testnet:
+
+```bash npx hardhat ignition deploy ignition/modules/deploy-sei-token.ts --network seitestnet
+```
+
+Deploy to the mainnet (only when you're ready for production):
+
+```bash npx hardhat ignition deploy ignition/modules/deploy-sei-token.ts --network seimainnet
+```

@@ -1,0 +1,526 @@
+---
+title: 'Sei Node Operations Guide'
+description: 'Complete guide for setting up, running, and maintaining Sei nodes. Covers hardware requirements, installation, configuration management, database maintenance, service management, and operational best practices.'
+keywords: ['sei node', 'blockchain node', 'node setup', 'node configuration', 'seidb', 'node maintenance', 'system operations', 'validator', 'RPC node']
+---
+
+# Sei Node Operations
+
+This guide covers everything you need to set up a Sei node from scratch,
+configure it for your use case, and maintain it for stable, performant
+operations.
+
+---
+
+## Hardware Requirements
+
+| Component | Required |
+| --- | --- |
+| CPU | 16 cores (Intel Xeon/Core i7/i9 or AMD Epyc/Ryzen) |
+| RAM | 256 GB DDR5 or better |
+| Storage | 2 TB NVMe SSD (high IOPS required) |
+| Network | 2 Gbps with low latency |
+
+
+---
+
+## Network Versions
+
+Check the [sei-chain releases page](https://github.com/sei-protocol/sei-chain/releases) for the latest binary versions and the [network status dashboard](https://www.sei.io/status) for the version currently running on mainnet (Pacific-1) and testnet (Atlantic-2).
+
+---
+
+## Installation & Setup
+
+<Steps>
+
+### Environment Setup
+
+Update and upgrade your system:
+
+```bash sudo apt update && sudo apt upgrade -y
+```
+
+Install essential packages:
+
+```bash sudo apt install make gcc git jq chrony curl lz4 wget tar build-essential -y
+```
+
+Synchronize system time:
+
+```bash sudo timedatectl set-timezone UTC
+sudo systemctl enable --now chronyd
+timedatectl
+```
+
+Install Go 1.24.x (required for seid v6.3+):
+
+```bash # Check for existing Go installation
+go version
+
+# Download and install Go 1.24.x
+wget https://go.dev/dl/go1.24.5.linux-amd64.tar.gz
+sudo tar -C /usr/local -xzf go1.24.5.linux-amd64.tar.gz
+
+# Add Go to your environment variables
+echo 'export PATH=$PATH:/usr/local/go/bin' >> $HOME/.bashrc
+source $HOME/.bashrc
+
+# Verify installation
+go version
+```
+
+### Install Sei
+
+Clone the repository and build the binary. See the [Network Versions](#network-versions) table above for the current recommended version:
+
+```bash # Clone repository and install
+git clone https://github.com/sei-protocol/sei-chain.git
+cd sei-chain
+git checkout <version-tag>  # Replace with specific version
+make install
+
+# Verify installation
+seid version
+```
+
+<details className="group border border-neutral-200 dark:border-neutral-800">
+  <summary className="flex items-center justify-between cursor-pointer p-4 bg-neutral-50 dark:bg-neutral-900/50 rounded-t-lg">
+    <span className="text-base font-medium text-neutral-800 dark:text-neutral-200">Alternative: Docker Image</span>
+  </summary>
+  <div className="p-5 pt-4 border-t border-neutral-200 dark:border-neutral-800">
+    Official Docker images are available at the [GitHub Container Registry](https://github.com/sei-protocol/sei-chain/pkgs/container/sei).
+
+```bash # Pull the latest version
+docker pull ghcr.io/sei-protocol/sei:latest
+
+# Or pull a specific version (recommended)
+docker pull ghcr.io/sei-protocol/sei:v6.3.1
+```
+
+    Available architectures: `linux/amd64` and `linux/arm64`.
+  </div>
+</details>
+
+<Info>
+If you encounter an error like `command not found: seid`, you may need to set your GOPATH environment variable.
+
+Add the following to your `~/.bashrc` or `~/.zshrc`:
+
+```bash export GOPATH=$(go env GOPATH)
+export PATH=$PATH:$GOPATH/bin
+```
+
+Then reload your shell with `source ~/.bashrc` or `source ~/.zshrc`. For more information see [the Go docs](https://pkg.go.dev/cmd/go#hdr-GOPATH_environment_variable).
+</Info>
+
+### Configure & Initialize
+
+<Info>Default init mode is **full** (RPC/P2P bind to all interfaces). For **validator** or **seed** nodes, use `--mode validator` or `--mode seed` so RPC and P2P bind to localhost only. See the [Validator Operations Guide](/node/validators) for the full validator init example.</Info>
+
+Initialize chain files. Genesis is written automatically for known networks (mainnet and testnets); no download needed:
+
+```bash # Initialize node (default mode is full: RPC/P2P bind to all interfaces)
+# For validator nodes, use: seid init <your-moniker> --chain-id <chain-id> --mode validator
+seid init <your-moniker> --chain-id <chain-id>
+```
+
+Configure peers. The Sei Foundation maintains up-to-date peer lists on GitHub:
+
+- **Mainnet (Pacific-1):** [`sei-protocol/testnet/pacific-1/peers`](https://github.com/sei-protocol/testnet/blob/main/pacific-1/peers.txt)
+- **Testnet (Atlantic-2):** [`sei-protocol/testnet/atlantic-2/peers`](https://github.com/sei-protocol/testnet/blob/main/atlantic-2/peers.txt)
+
+Pick a random subset (10–20 peers) and set them as persistent peers:
+
+```bash # Configure peers in config.toml
+PEERS="<comma-separated-peer-list>"
+
+# Set persistent peers in config.toml
+sed -i 's/persistent-peers = .*/persistent-peers = "'$PEERS'"/' ~/.sei/config/config.toml
+```
+
+Tune app settings:
+
+```bash # Set Concurrent Workers to 500
+sed -i -e "s/^concurrency-workers *=.*/concurrency-workers = 500/" $HOME/.sei/config/app.toml
+```
+
+<Info>
+For archive nodes, set your state-store settings to `ss-keep-recent = 0`:
+
+```bash sed -i 's/^ss-keep-recent = [0-9]*/ss-keep-recent = 0/' ~/.sei/config/app.toml
+```
+</Info>
+
+<details className="group border border-neutral-200 dark:border-neutral-800">
+  <summary className="flex items-center justify-between cursor-pointer p-4 bg-neutral-50 dark:bg-neutral-900/50 rounded-t-lg">
+    <span className="text-base font-medium text-neutral-800 dark:text-neutral-200">Advanced Configuration</span>
+  </summary>
+  <div className="p-5 pt-4 border-t border-neutral-200 dark:border-neutral-800">
+
+#### Archive Node Setup
+
+An archive node maintains the complete historical record of the chain. This requires disabling state sync and starting with a pre-existing database ("snapshot").
+
+**1. Disable State Sync** — in `$HOME/.sei/config/config.toml`, modify the `[statesync]` section:
+
+```toml # State sync configuration
+[statesync]
+enable = false
+```
+
+**2. Configure Archive Node Peers** — to sync from the height your snapshot was created at, you need peers retaining a large amount of historical blocks. The node will require specific peers during initial sync, which can be changed at a later time.
+
+#### Mempool Configuration
+
+For optimal transaction handling and resource management, update the mempool settings in your `config.toml` file.
+
+<Info>Adjust these parameters if you encounter performance or resource issues on your specific hardware.</Info>
+
+```toml # Mempool configuration overrides (values that differ from defaults)
+[mempool]
+
+# Increase total mempool size from default 1GB to 10GB
+max-txs-bytes = 10737418240
+
+# Enable error blacklisting (default: false)
+check-tx-error-blacklist-enabled = true
+
+# Error threshold before blacklisting (default: 0)
+check-tx-error-threshold = 50
+
+# Enable pending transaction expiry (defaults are 0s / 0 blocks)
+pending-ttl-duration = "3s"
+pending-ttl-num-blocks = 5
+```
+
+  </div>
+</details>
+
+### Run Node
+
+<Danger>If you see an error such as `panic: recovered: runtime error: integer divide by zero` it means you can't start nodes straight from the genesis file. Instead, sync to the block tip via [state sync](/node/statesync) or using a [snapshot](/node/snapshot).</Danger>
+
+For production deployments, configure a systemd service so the node restarts automatically:
+
+```bash # Create the systemd service file
+sudo tee /etc/systemd/system/seid.service > /dev/null << EOF
+[Unit]
+Description=Sei Node
+After=network-online.target
+
+[Service]
+User=$USER
+ExecStart=$(which seid) start
+Restart=always
+RestartSec=3
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Reload systemd, enable and start the service
+sudo systemctl daemon-reload
+sudo systemctl enable seid
+sudo systemctl start seid
+```
+
+Check your node's status:
+
+```bash # Check sync status
+seid status | jq .SyncInfo
+
+# Monitor logs in real-time
+journalctl -u seid -f -o cat
+
+# Check validator status (if running a validator)
+seid query staking validator $(seid keys show <your_key> --bech val -a)
+```
+
+**Common Issues & Solutions**
+
+- **Sync issues** — verify sufficient disk space, ensure stable network connectivity, confirm system time is synchronized, or consider using state sync for initial setup.
+- **Performance problems** — monitor system resources (CPU, RAM, I/O), evaluate disk performance and network bandwidth, and adjust mempool or peer settings if needed.
+
+</Steps>
+
+---
+
+## Configuration Management
+
+### Directory Structure
+
+The Sei node configuration is stored in `$HOME/.sei/config/`:
+
+```bash $HOME/.sei/config/
+├── app.toml          # Application configuration (gas fees, API settings, pruning, etc.)
+├── config.toml       # Core Tendermint settings (network, consensus, and RPC)
+├── client.toml       # CLI and client-related settings
+├── genesis.json      # Chain genesis file, defines initial state
+├── node_key.json     # Unique node identity key for peer-to-peer (P2P) networking
+└── priv_validator_key.json  # Validator private signing key (if running as a validator)
+```
+
+### Essential Configuration Parameters
+
+#### Network Settings (config.toml)
+
+```toml [p2p]
+# Public IP for other nodes to reach you
+external-address = "your-public-ip:26656"
+# Local address to listen for incoming P2P connections (default is localhost only)
+laddr = "tcp://0.0.0.0:26656"
+# Number of peers allowed
+max-num-inbound-peers = 40
+max-num-outbound-peers = 20
+# Network bandwidth limits (default is ~20MB/s; increase for better sync performance)
+send-rate = 204800000  # 200MB/s
+recv-rate = 204800000  # 200MB/s
+
+[rpc]
+# RPC listen address (default is localhost only)
+laddr = "tcp://0.0.0.0:26657"
+```
+
+The default `app.toml` ships with sensible values for `minimum-gas-prices` (`0.01usei`),
+API settings, and SeiDB (`sc-enable = true`, `ss-enable = true`, `ss-keep-recent = 100000`).
+These do not need to be changed for most setups.
+
+---
+
+## Database Management
+
+### Database Types
+
+Sei supports two database backends:
+
+1. **SeiDB (Recommended)**
+
+   - Optimized for performance and sync times
+   - Reduces resource usage
+   - Best for all nodes
+
+2. **Legacy IAVL DB**
+   - Standard Cosmos SDK database
+   - More widely tested
+
+### Sei-DB Configuration
+
+The default SeiDB settings are already well-tuned. The only value you may want
+to adjust is `sc-keep-recent` in the `[state-commit]` section:
+
+```toml [state-commit]
+# Default is 0 (keep only the latest snapshot).
+# Set to 1 to retain one additional snapshot for safer rollback.
+sc-keep-recent = 1
+```
+
+Setting very small [more frequent] pruning intervals may cause issues with automated
+snapshotting in the event those events collide. Too large [less frequent]
+pruning intervals means it will take a longer overall time to prune which may
+cause missed blocks and excessive resync time.
+
+### Database Maintenance
+
+The database is typically stable and can be left alone, although some attention
+may be required:
+
+```bash # Check database size
+du -sh $HOME/.sei/data/
+
+# Confirm correct file paths as per your own setup before proceeding
+# Before performing a database wipe, ensure you back up essential files:
+# - `node_key.json`: Preserves node identity to maintain peer connections.
+# - `priv_validator_key.json`: Critical for validators; losing this key results in double signing risks.
+# - `config.toml` & `app.toml`: Retains node-specific configuration.
+# - `genesis.json`: Required for correct chain initialization.
+
+# Compact database to optimize storage (only if needed)
+find $HOME/.sei/data/ -mindepth 1 ! -name 'priv_validator_state.json' -delete && rm -rf $HOME/.sei/wasm
+
+
+# Backup database
+cp -r $HOME/.sei/data/ $HOME/sei-backup-$(date +%Y%m%d)/
+```
+
+---
+
+## Service Management
+
+### Systemd Commands
+
+```bash # Check service status
+systemctl status seid
+
+# Start service
+systemctl start seid
+
+# Stop service
+systemctl stop seid
+
+# Restart service
+systemctl restart seid
+
+# View logs in real time
+journalctl -fu seid -o cat
+```
+
+### Log Management
+
+Prevent logs from consuming excessive disk space by enabling rotation:
+
+```bash sudo tee /etc/logrotate.d/sei > /dev/null << EOF
+/var/log/sei/*.log {
+    daily
+    rotate 14
+    compress
+    delaycompress
+    notifempty
+    create 0640 sei sei
+    sharedscripts
+    postrotate
+        systemctl reload seid
+    endscript
+}
+EOF
+```
+
+---
+
+## Update Procedures
+
+### Minor Updates
+
+For minor updates that are non-consensus-breaking:
+
+```bash # Stop node
+sudo systemctl stop seid
+
+# Update binary
+cd sei-chain
+git fetch --all
+git checkout [new-version]
+make install
+
+# Restart node
+sudo systemctl restart seid
+```
+
+### Major Updates
+
+For major upgrades that introduce state-breaking changes:
+
+1. Wait for the designated upgrade block height [this can be seen in the upgrade
+   proposal under 'plan']
+2. The node will halt automatically.
+3. Update/replace the binary
+4. Restart the node.
+
+```bash # After node halts
+cd sei-chain
+git pull
+git checkout [new-version]
+make install
+sudo systemctl restart seid
+```
+
+_Tip - build the upgrade before the halt-height so you can quickly replace it
+with minimal downtime_
+
+---
+
+## Performance Optimization
+
+Performance optimizations can yield different results depending on your system's
+hardware, workload, and network conditions. Before implementing any changes,
+research and test them in a controlled environment to ensure they align with
+your specific configuration and requirements. Always back up important data
+before making modifications.
+
+### Memory Management (sysctl tuning)
+
+Optimizing memory management settings can help improve performance and
+stability, particularly for high-load nodes. These settings control swap usage
+and the handling of dirty (unwritten) pages in RAM.
+
+```bash vm.swappiness = 1  # Reduce swapping to disk, ensuring RAM is used efficiently before relying on slower swap space
+vm.dirty_background_ratio = 3  # The percentage of system memory that can be filled with "dirty" pages before background writing begins
+vm.dirty_ratio = 10  # The maximum percentage of system memory that can be filled with "dirty" pages before a full flush is triggered
+vm.dirty_expire_centisecs = 300  # Time (in hundredths of a second) before dirty data is written to disk
+vm.dirty_writeback_centisecs = 100  # Frequency (in hundredths of a second) at which the system writes "dirty" pages to disk
+```
+
+### Network Stack Optimization
+
+Tuning the network stack can enhance packet processing efficiency and
+throughput, particularly for nodes handling a large number of peers and high
+transaction volume.
+
+```bash net.core.somaxconn = 32768  # max connections in queued
+net.core.netdev_max_backlog = 32768  # packets allowed in queue before dropping incoming packets
+net.ipv4.tcp_max_syn_backlog = 16384  # outstanding SYN requests (half-open connections) allowed before dropping new connections
+net.core.rmem_max = 16777216  # receive buffer size for network sockets
+net.core.wmem_max = 16777216  # send buffer size for network sockets
+```
+
+### Storage Optimization
+
+Optimizing storage settings can significantly reduce write latency and improve
+database performance, especially for nodes using NVMe SSDs.
+
+```bash echo "none" > /sys/block/nvme0n1/queue/scheduler  # disable I/O scheduler to reduce latency
+blockdev --setra 4096 /dev/nvme0n1  # readahead value to optimize sequential reads
+```
+
+---
+
+## Backup and Recovery
+
+### Regular Backups
+
+Automate backups to avoid data loss:
+
+```bash #!/bin/bash
+BACKUP_DIR="/backup/sei"
+DATE=$(date +%Y%m%d)
+
+# Stop service
+systemctl stop seid
+
+# Create backup
+tar czf $BACKUP_DIR/sei-backup-$DATE.tar.gz $HOME/.sei/
+
+# Restart service
+systemctl start seid
+```
+
+### Recovery Procedure
+
+Restoring from backup in case of corruption or accidental deletion:
+
+```bash # Stop node
+systemctl stop seid
+
+# Remove corrupted data
+rm -rf $HOME/.sei/data/
+
+# Restore from backup
+tar xzf sei-backup-[date].tar.gz -C /
+
+# Restart node
+systemctl start seid
+```
+
+---
+
+## Security Considerations
+
+- Use firewalls and rate-limiting to prevent attacks
+- Keep your system and node software updated
+- Secure SSH access with key-based authentication
+- Protect validator keys with offline storage or hardware security modules
+  (HSMs)
+
+For more in-depth system and configuration guidelines, refer to the [Advanced
+Configuration and Monitoring Guide](/node/advanced-config-monitoring).

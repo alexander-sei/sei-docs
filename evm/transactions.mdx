@@ -1,0 +1,291 @@
+---
+title: "Transactions"
+description: "Comprehensive guide to EVM transactions on Sei — lifecycle, gas mechanics, transaction types, and best practices."
+keywords: ["transactions", "EVM transactions", "gas", "EIP-1559", "nonce", "transaction lifecycle", "sei"]
+---
+
+Sei supports EVM transactions, enabling compatibility with Ethereum-based tools and contracts. Transactions are signed messages originating from an externally owned account (EOA) that trigger state changes on the blockchain.
+
+## Transaction lifecycle
+
+| Stage             | Description                                                                                                          |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------- |
+| 1. Creation       | A transaction is created by an EOA, specifying the recipient, value, gas parameters, and other fields.               |
+| 2. Signing        | The transaction is signed with the sender's private key to create a valid signature.                                 |
+| 3. Submission     | The signed transaction is submitted to the network through an RPC endpoint.                                          |
+| 4. Mempool        | The transaction enters the mempool where it awaits inclusion in a block.                                             |
+| 5. Execution      | When selected by a validator, the transaction is executed in the EVM, causing state changes.                         |
+| 6. Validation     | The transaction and its state changes are validated by the consensus mechanism.                                      |
+| 7. Confirmation   | Once validated, the transaction is included in a block and confirmed on-chain.                                       |
+| 8. Finality       | On Sei, transactions achieve immediate finality once included in a block.                                             |
+
+<Info>
+  Unlike other EVM chains where you need to wait for multiple confirmations, Sei's consensus mechanism provides immediate transaction finality. Once a transaction is included in a block, it cannot be reversed.
+</Info>
+
+## Gas mechanics
+
+Gas is a unit of computational work in the EVM that helps prevent spam and allocate resources efficiently.
+
+| Term                 | Description                                                                                                                 |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Gas Limit            | The maximum amount of gas the transaction may consume, set by the sender.                                                   |
+| Base Fee             | The minimum gas price required to be included in a block. On Sei, the base fee is not burned — all fees go to validators.  |
+| Priority Fee         | An additional fee (tip) paid to validators for faster inclusion.                                                            |
+| Gas Price            | In legacy transactions, the price per unit of gas the sender is willing to pay.                                             |
+| Effective Gas Price  | The actual price paid per unit of gas (base fee + priority fee in EIP-1559).                                                |
+
+<Warning>
+  **Gas requirements for common operations:**
+  - Simple SEI transfer: 21,000 gas
+  - ERC-20 transfer: ~45,000 gas
+  - Contract deployment: varies based on contract size and complexity
+  - Always estimate gas before sending transactions using `eth_estimateGas`
+</Warning>
+
+## Transaction structure
+
+EVM transactions on Sei follow the Ethereum transaction format with standard properties.
+
+<Tabs>
+  <Tab title="Transaction Properties">
+    | Property               | Description                                                                                                                                |
+    | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+    | `from`                 | The sender's address (must be an EOA — contracts cannot originate transactions).                                                            |
+    | `to`                   | Receiving address. EOA → value transfer. Contract → execution. Empty → contract deployment.                                                  |
+    | `signature`            | The cryptographic signature (v, r, s) proving the sender authorized the transaction.                                                         |
+    | `nonce`                | A sequentially incrementing counter per account. Prevents replay and enforces ordering.                                                      |
+    | `data`                 | Input data (a.k.a. `input` / calldata). Empty for simple transfers; contains function selector and args for contract calls.                  |
+    | `value`                | Amount of SEI to transfer in wei (1 SEI = 1e18 wei).                                                                                        |
+    | `gasLimit`             | The maximum gas units consumable by the transaction. Often just `gas` in request objects.                                                    |
+    | `maxPriorityFeePerGas` | Maximum tip paid to the validator, in wei. EIP-1559 only.                                                                                   |
+    | `maxFeePerGas`         | Maximum total fee per gas unit (base fee + priority fee), in wei. EIP-1559 only.                                                             |
+    | `gasPrice`             | Price per unit of gas the sender is willing to pay, in wei. Legacy only.                                                                    |
+    | `chainId`              | Chain identifier. Prevents cross-chain replay.                                                                                              |
+    | `accessList`           | Pre-declared addresses/storage keys for gas savings. EIP-2930 / EIP-1559.                                                                    |
+    | `type`                 | `0` (legacy), `1` (EIP-2930 access list), `2` (EIP-1559 fee market).                                                                        |
+    | `hash`                 | Unique transaction identifier computed after signing.                                                                                        |
+  </Tab>
+
+  <Tab title="Transaction Types">
+    ### Legacy (Type 0)
+
+    Pre-EIP-1559 transaction format that specifies a single `gasPrice`.
+
+    ```json
+    {
+      "from": "0x1923f626bb8dc025849e00f99c25fe2b2f7fb0db",
+      "to": "0x07a565b7ed7d7a678680a4c162885bedbb695fe0",
+      "gas": "0x55555",
+      "gasPrice": "0x1234",
+      "value": "0x1234",
+      "data": "0xabcd",
+      "nonce": "0x0"
+    }
+    ```
+
+    ### Access List (Type 1, EIP-2930)
+
+    Transactions with an optional access list of addresses and storage keys to reduce gas costs.
+
+    ```json
+    {
+      "type": "0x1",
+      "from": "0x1923f626bb8dc025849e00f99c25fe2b2f7fb0db",
+      "to": "0x07a565b7ed7d7a678680a4c162885bedbb695fe0",
+      "gas": "0x55555",
+      "gasPrice": "0x1234",
+      "value": "0x1234",
+      "data": "0xabcd",
+      "nonce": "0x0",
+      "accessList": [
+        {
+          "address": "0x07a565b7ed7d7a678680a4c162885bedbb695fe0",
+          "storageKeys": [
+            "0x0000000000000000000000000000000000000000000000000000000000000000"
+          ]
+        }
+      ]
+    }
+    ```
+
+    ### Fee Market (Type 2, EIP-1559)
+
+    Transaction format that supports dynamic base fees with a priority fee tip to validators.
+
+    ```json
+    {
+      "type": "0x2",
+      "from": "0x1923f626bb8dc025849e00f99c25fe2b2f7fb0db",
+      "to": "0x07a565b7ed7d7a678680a4c162885bedbb695fe0",
+      "gas": "0x55555",
+      "maxFeePerGas": "0x1234",
+      "maxPriorityFeePerGas": "0x1234",
+      "value": "0x1234",
+      "data": "0xabcd",
+      "nonce": "0x0",
+      "accessList": []
+    }
+    ```
+  </Tab>
+
+  <Tab title="Example Request">
+    ### Sending an EIP-1559 transaction
+
+    ```json
+    {
+      "jsonrpc": "2.0",
+      "method": "eth_sendTransaction",
+      "params": [
+        {
+          "from": "0x1923f626bb8dc025849e00f99c25fe2b2f7fb0db",
+          "to": "0x07a565b7ed7d7a678680a4c162885bedbb695fe0",
+          "gas": "0x55555",
+          "maxFeePerGas": "0x1234",
+          "maxPriorityFeePerGas": "0x1234",
+          "value": "0x1234",
+          "data": "0xabcd",
+          "nonce": "0x0"
+        }
+      ],
+      "id": 2
+    }
+    ```
+
+    ### JavaScript example with web3.js
+
+    ```javascript
+    const Web3 = require('web3');
+    const web3 = new Web3('https://evm-rpc.sei-apis.com');
+
+    async function sendTransaction() {
+      const accounts = await web3.eth.getAccounts();
+      const sender = accounts[0];
+
+      const nonce = await web3.eth.getTransactionCount(sender);
+      const block = await web3.eth.getBlock('latest');
+      const baseFeePerGas = block.baseFeePerGas;
+
+      const maxPriorityFeePerGas = web3.utils.toWei('1', 'gwei');
+      const maxFeePerGas = web3.utils
+        .toBN(baseFeePerGas)
+        .add(web3.utils.toBN(maxPriorityFeePerGas));
+
+      const tx = {
+        from: sender,
+        to: '0x07a565b7ed7d7a678680a4c162885bedbb695fe0',
+        value: web3.utils.toWei('0.1', 'ether'),
+        gas: 21000,
+        maxFeePerGas: maxFeePerGas.toString(),
+        maxPriorityFeePerGas,
+        nonce,
+        data: '0x',
+      };
+
+      const receipt = await web3.eth.sendTransaction(tx);
+      console.log('Transaction receipt:', receipt);
+    }
+
+    sendTransaction().catch(console.error);
+    ```
+  </Tab>
+
+  <Tab title="Example Response">
+    ### `eth_sendTransaction`
+
+    ```json
+    {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "result": "0xeba2df809e7a612a0a0d444ccfa5c839624bdc00dd29e3340d46df3870f8a30e"
+    }
+    ```
+
+    ### `eth_getTransactionByHash`
+
+    ```json
+    {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "result": {
+        "blockHash": "0x5d15649e25d8e7c60b5a1cb3612b6b45dceaa3c774f438d4d5b4e1e1b2db634a",
+        "blockNumber": "0x92a",
+        "from": "0x1923f626bb8dc025849e00f99c25fe2b2f7fb0db",
+        "gas": "0x55555",
+        "gasPrice": "0x1234",
+        "hash": "0xeba2df809e7a612a0a0d444ccfa5c839624bdc00dd29e3340d46df3870f8a30e",
+        "input": "0xabcd",
+        "nonce": "0x0",
+        "to": "0x07a565b7ed7d7a678680a4c162885bedbb695fe0",
+        "transactionIndex": "0x1",
+        "value": "0x1234",
+        "type": "0x2",
+        "accessList": [],
+        "chainId": "0x1",
+        "maxFeePerGas": "0x1234",
+        "maxPriorityFeePerGas": "0x1234",
+        "v": "0x0",
+        "r": "0x223a7c9bcf5531c99be5ea7082183816eb20cfe0bbc322e97cc5c7f71ab8b20e",
+        "s": "0x2aadee6b34b45bb15bc42d9c09de4a6754e7000908da72d48cc7704971491663"
+      }
+    }
+    ```
+
+    ### Transaction receipt
+
+    ```json
+    {
+      "jsonrpc": "2.0",
+      "id": 4,
+      "result": {
+        "transactionHash": "0xeba2df809e7a612a0a0d444ccfa5c839624bdc00dd29e3340d46df3870f8a30e",
+        "transactionIndex": "0x1",
+        "blockHash": "0x5d15649e25d8e7c60b5a1cb3612b6b45dceaa3c774f438d4d5b4e1e1b2db634a",
+        "blockNumber": "0x92a",
+        "from": "0x1923f626bb8dc025849e00f99c25fe2b2f7fb0db",
+        "to": "0x07a565b7ed7d7a678680a4c162885bedbb695fe0",
+        "cumulativeGasUsed": "0xd190",
+        "gasUsed": "0x5208",
+        "contractAddress": null,
+        "logs": [],
+        "status": "0x1",
+        "effectiveGasPrice": "0x1234",
+        "type": "0x2"
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Transaction guidelines
+
+<Info>
+  **Transaction best practices:**
+
+  - **Set appropriate gas parameters.** Use network conditions to estimate optimal values for `maxFeePerGas` and `maxPriorityFeePerGas`.
+  - **Manage nonces carefully.** Track and increment nonces correctly to avoid transaction failures.
+  - **Use typed transactions.** Prefer EIP-1559 (type 2) for predictable fees.
+  - **Implement proper error handling.** Account for potential failures and revert reasons.
+  - **Verify recipient addresses.** Double-check destinations — transactions are not reversible.
+</Info>
+
+| Common issue              | Cause                                     | Solution                                                |
+| ------------------------- | ----------------------------------------- | ------------------------------------------------------- |
+| Transaction underpriced   | Gas price or priority fee too low         | Increase `maxFeePerGas` and `maxPriorityFeePerGas`      |
+| Nonce too low             | Using a nonce that's already been used    | Query current nonce with `getTransactionCount`          |
+| Out of gas                | Gas limit too low for the operation       | Use `eth_estimateGas` to set an appropriate limit       |
+| Contract execution failed | Contract function reverted                | Test with `eth_call` before broadcasting                |
+
+## Additional resources
+
+<CardGroup cols={3}>
+  <Card title="RPC Reference" icon="circle-info" href="/evm/reference">
+    Complete documentation of Sei's EVM RPC endpoints for transaction creation and monitoring.
+  </Card>
+  <Card title="Gas & Fees" icon="coins" href="/learn/dev-gas">
+    How gas is calculated, estimated, and optimized on Sei.
+  </Card>
+  <Card title="Accounts" icon="user" href="/learn/accounts">
+    EOAs and contract accounts on Sei's unified dual-VM model.
+  </Card>
+</CardGroup>

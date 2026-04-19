@@ -1,0 +1,825 @@
+---
+title: 'Migrate from Solana to Sei EVM'
+description: 'A comprehensive guide for Solana developers transitioning to Sei EVM, covering architectural differences, concept mapping, code translation patterns, and step-by-step migration strategies.'
+keywords: ['solana migration', 'rust to solidity', 'anchor to hardhat', 'EVM migration', 'parallel execution', 'sei']
+---
+
+
+# How to Migrate from Solana to Sei EVM
+
+Sei offers a unique value proposition for Solana developers: the parallelized execution model you're familiar with, combined with full EVM compatibility and the extensive Ethereum tooling ecosystem. This guide helps Rust/Anchor developers translate their mental models and codebases to Solidity on Sei.
+
+<Info>
+**Why Solana Developers Choose Sei**
+
+- **Familiar parallelization** – Sei uses optimistic parallel execution similar to Solana's Sealevel
+- **400ms block times** – Comparable to Solana's speed, with instant finality
+- **~100 MGas/s throughput** – High performance without sacrificing EVM compatibility
+- **EVM ecosystem access** – Leverage Ethereum's mature tooling, audited contracts, and developer resources
+- **No dependency declarations** – Unlike Solana, Sei handles parallelization automatically
+
+</Info>
+
+## Understanding the Paradigm Shift
+
+Before diving into code, it's essential to understand the fundamental architectural differences between Solana and EVM-based chains like Sei.
+
+### Execution Model Comparison
+
+| Aspect | Solana | Sei EVM |
+| --- | --- | --- |
+| Language | Rust (with Anchor framework) | Solidity |
+| Account Model | Programs + Accounts (separated code and data) | Contracts (code and storage unified) |
+| State Storage | Flat account data with owner programs | Contract storage slots (key-value) |
+| Parallelization | Explicit (declare accounts upfront) | Optimistic (automatic conflict detection) |
+| Block Time | ~400ms | 400ms |
+| Finality | ~2.5-4.5 seconds (32 confirmations) | Instant (single block) |
+| Fee Model | Compute units + priority fees + rent | Gas × Gas Price (no rent) |
+| Cross-Contract Calls | CPI (Cross-Program Invocation) | Internal/External function calls |
+| Deterministic Addresses | PDAs (Program Derived Addresses) | CREATE2 / ImmutableCreate2Factory |
+| Token Standard | SPL Token | ERC-20 / ERC-721 / ERC-1155 |
+| Dev Tooling | Anchor, Solana CLI, solana-web3.js | Hardhat, Foundry, ethers.js, viem |
+
+## Core Concept Mapping
+
+### Programs → Smart Contracts
+
+On Solana, you write **programs** that are stateless executables. Data lives in separate **accounts** that programs can read and modify. On Sei EVM, **smart contracts** combine code and state in a single entity.
+
+<Tabs>
+  <Tab title="Solana (Anchor)">
+
+```rust
+// Solana: Program is stateless, data in accounts
+#[program]
+pub mod counter {
+    use super::*;
+
+    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
+        let counter = &mut ctx.accounts.counter;
+        counter.count = 0;
+        counter.authority = ctx.accounts.authority.key();
+        Ok(())
+    }
+
+    pub fn increment(ctx: Context<Increment>) -> Result<()> {
+        let counter = &mut ctx.accounts.counter;
+        counter.count += 1;
+        Ok(())
+    }
+}
+
+#[account]
+pub struct Counter {
+    pub count: u64,
+    pub authority: Pubkey,
+}
+
+#[derive(Accounts)]
+pub struct Initialize<'info> {
+    #[account(init, payer = authority, space = 8 + 8 + 32)]
+    pub counter: Account<'info, Counter>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+```
+
+  </Tab>
+  <Tab title="Sei EVM (Solidity)">
+
+```solidity
+// Sei EVM: Contract holds both code and state
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.22;
+
+contract Counter {
+    uint256 public count;
+    address public authority;
+
+    constructor() {
+        count = 0;
+        authority = msg.sender;
+    }
+
+    function increment() external {
+        count += 1;
+    }
+}
+```
+
+  </Tab>
+</Tabs>
+
+**Key differences:**
+
+- No account space allocation needed—storage grows dynamically
+- No explicit `Signer` validation—`msg.sender` is always authenticated
+- No system program imports—native operations are built into the EVM
+
+### PDAs → CREATE2 Deterministic Addresses
+
+Solana's **Program Derived Addresses (PDAs)** let you create deterministic addresses from seeds. On EVM, you achieve similar functionality with `CREATE2`.
+
+<Tabs>
+  <Tab title="Solana PDA">
+
+```rust
+// Solana: PDA derivation
+let (pda, bump) = Pubkey::find_program_address(
+    &[
+        b"vault",
+        user.key().as_ref(),
+    ],
+    &program_id,
+);
+
+// In Anchor account validation
+#[account(
+    seeds = [b"vault", user.key().as_ref()],
+    bump,
+)]
+pub vault: Account<'info, Vault>,
+```
+
+  </Tab>
+  <Tab title="Sei EVM CREATE2">
+
+```solidity
+// Sei EVM: CREATE2 for deterministic addresses
+// Using ImmutableCreate2Factory at 0x0000000000FFe8B47B3e2130213B802212439497
+
+function computeAddress(
+    bytes32 salt,
+    bytes32 bytecodeHash
+) public view returns (address) {
+    return address(uint160(uint256(keccak256(abi.encodePacked(
+        bytes1(0xff),
+        address(this),
+        salt,
+        bytecodeHash
+    )))));
+}
+
+// Or use a mapping pattern for user-specific data
+mapping(address => Vault) public vaults;
+```
+
+  </Tab>
+</Tabs>
+
+### CPI → Contract Calls
+
+Solana's **Cross-Program Invocation (CPI)** becomes simple function calls in Solidity:
+
+<Tabs>
+  <Tab title="Solana CPI">
+
+```rust
+// Solana: CPI to token program
+use anchor_spl::token::{self, Transfer};
+
+let cpi_accounts = Transfer {
+    from: ctx.accounts.from_token_account.to_account_info(),
+    to: ctx.accounts.to_token_account.to_account_info(),
+    authority: ctx.accounts.authority.to_account_info(),
+};
+let cpi_program = ctx.accounts.token_program.to_account_info();
+let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+
+token::transfer(cpi_ctx, amount)?;
+```
+
+  </Tab>
+  <Tab title="Sei EVM Contract Call">
+
+```solidity
+// Sei EVM: Direct contract call
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+function transferTokens(
+    address token,
+    address to,
+    uint256 amount
+) external {
+    // Direct interface call - no account setup needed
+    IERC20(token).transferFrom(msg.sender, to, amount);
+}
+```
+
+  </Tab>
+</Tabs>
+
+### SPL Token → ERC-20
+
+<Tabs>
+  <Tab title="SPL Token (Rust)">
+
+```rust
+// Solana SPL Token - requires token accounts
+#[derive(Accounts)]
+pub struct TransferTokens<'info> {
+    #[account(mut)]
+    pub from: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub to: Account<'info, TokenAccount>,
+    pub authority: Signer<'info>,
+    pub token_program: Program<'info, Token>,
+}
+```
+
+  </Tab>
+  <Tab title="ERC-20 (Solidity)">
+
+```solidity
+// Sei EVM ERC-20 - balances stored in contract
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.22;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract MyToken is ERC20 {
+    constructor() ERC20("MyToken", "MTK") {
+        _mint(msg.sender, 1000000 * 10**18);
+    }
+}
+```
+
+  </Tab>
+</Tabs>
+
+**Key ERC-20 differences from SPL:**
+
+- No Associated Token Accounts (ATAs)—balances are stored directly in the contract
+- Approvals use `approve()` / `transferFrom()` pattern
+- No mint/freeze authorities in basic implementation (add via `Ownable`)
+
+## Fee Model Translation
+
+Understanding the fee differences is crucial for accurate cost estimation:
+
+| Solana Concept     | Sei EVM Equivalent | Notes                                 |
+| ------------------ | ------------------ | ------------------------------------- |
+| Compute Units (CU) | Gas                | Both measure computational work       |
+| Priority Fee       | Gas Price          | Higher price = faster inclusion       |
+| Rent               | None               | Sei has no rent; storage is permanent |
+| Rent Exemption     | N/A                | No minimum balance requirements       |
+| Base Fee           | Dynamic Base Fee   | Sei doesn't burn base fee             |
+
+```ts
+// Solana fee estimation
+const computeUnits = 200_000;
+const priorityFee = 1_000; // microlamports per CU
+const rentExempt = await connection.getMinimumBalanceForRentExemption(accountSize);
+
+// Sei EVM fee estimation
+const gasLimit = 200_000n;
+const gasPrice = await provider.getGasPrice(); // ~0.1 gwei on Sei
+const fee = gasLimit * gasPrice; // No rent to consider
+```
+
+<Info>
+**No Rent on Sei!**
+
+Unlike Solana where accounts can be garbage collected if rent isn't paid, Sei EVM storage is permanent. This simplifies your application logic—no need to track rent-exempt minimums or worry about account closure.
+
+</Info>
+
+## Parallelization: Automatic vs Explicit
+
+One of the biggest advantages of Sei for Solana developers is that parallelization is **automatic**.
+
+### Solana: Explicit Account Declaration
+
+On Solana, you must declare all accounts a transaction will touch upfront:
+
+```rust
+// Solana: Must declare all accounts for parallelization
+#[derive(Accounts)]
+pub struct Swap<'info> {
+    #[account(mut)]
+    pub user_token_a: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub user_token_b: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub pool_token_a: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub pool_token_b: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub pool_state: Account<'info, PoolState>,
+    // ... more accounts
+}
+```
+
+### Sei: Optimistic Parallelization
+
+On Sei, you write normal Solidity—the runtime handles parallelization:
+
+```solidity
+// Sei EVM: Just write normal code
+function swap(
+    address tokenIn,
+    address tokenOut,
+    uint256 amountIn
+) external returns (uint256 amountOut) {
+    // Sei's parallelization engine automatically:
+    // 1. Estimates which storage slots will be accessed
+    // 2. Runs non-conflicting transactions in parallel
+    // 3. Re-executes conflicts sequentially
+
+    IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn);
+    amountOut = calculateOutput(amountIn);
+    IERC20(tokenOut).transfer(msg.sender, amountOut);
+}
+```
+
+<Warning>
+**Optimizing for Parallelization**
+
+While Sei handles parallelization automatically, you can still optimize your contracts for better parallel performance. Avoid global counters updated on every transaction—use user-partitioned storage instead. See [Optimizing for Parallelization](/evm/best-practices/optimizing-for-parallelization) for detailed patterns.
+
+</Warning>
+
+## Step 1: Set Up Your Development Environment
+
+### Install Required Tools
+
+```bash
+# Install Node.js (if not already installed)
+# https://nodejs.org/
+
+# Install Hardhat (recommended for Solana devs transitioning)
+npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox
+
+# Or install Foundry (Rust-based, may feel more familiar)
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
+```
+
+### Configure for Sei
+
+<Tabs>
+  <Tab title="Hardhat">
+
+```ts filename="hardhat.config.ts"
+import { HardhatUserConfig } from 'hardhat/config';
+import '@nomicfoundation/hardhat-toolbox';
+
+const config: HardhatUserConfig = {
+  solidity: '0.8.22',
+  networks: {
+    seiMainnet: {
+      url: 'https://evm-rpc.sei-apis.com',
+      chainId: 1329,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : []
+    },
+    seiTestnet: {
+      url: 'https://evm-rpc-testnet.sei-apis.com',
+      chainId: 1328,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : []
+    }
+  },
+  sourcify: {
+    enabled: true
+  }
+};
+
+export default config;
+```
+
+  </Tab>
+  <Tab title="Foundry">
+
+```toml filename="foundry.toml"
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.22"
+
+[rpc_endpoints]
+sei_mainnet = "https://evm-rpc.sei-apis.com"
+sei_testnet = "https://evm-rpc-testnet.sei-apis.com"
+
+# Verification uses Sourcify (no API key needed)
+# Run: forge verify-contract --verifier sourcify --chain-id <CHAIN_ID> <ADDRESS> <PATH:CONTRACT>
+```
+
+  </Tab>
+</Tabs>
+
+### Wallet Setup
+
+Configure MetaMask or any EVM wallet with Sei:
+
+```ts
+const seiMainnet = {
+  chainId: '0x531', // 1329 in hex
+  chainName: 'Sei',
+  nativeCurrency: { name: 'Sei', symbol: 'SEI', decimals: 18 },
+  rpcUrls: ['https://evm-rpc.sei-apis.com'],
+  blockExplorerUrls: ['https://seiscan.io']
+};
+```
+
+## Step 2: Translate Your Solana Program
+
+### Common Pattern Translations
+
+#### Initializing State
+
+<Tabs>
+  <Tab title="Solana">
+
+```rust
+pub fn initialize(ctx: Context<Initialize>, initial_value: u64) -> Result<()> {
+    let state = &mut ctx.accounts.state;
+    state.value = initial_value;
+    state.authority = ctx.accounts.authority.key();
+    state.bump = ctx.bumps.state;
+    Ok(())
+}
+
+#[account]
+pub struct State {
+    pub value: u64,
+    pub authority: Pubkey,
+    pub bump: u8,
+}
+```
+
+  </Tab>
+  <Tab title="Sei EVM">
+
+```solidity
+contract MyContract {
+    uint256 public value;
+    address public authority;
+
+    constructor(uint256 initialValue) {
+        value = initialValue;
+        authority = msg.sender;
+    }
+}
+```
+
+  </Tab>
+</Tabs>
+
+#### Access Control
+
+<Tabs>
+  <Tab title="Solana">
+
+```rust
+// Solana: Check signer matches authority
+pub fn restricted_action(ctx: Context<RestrictedAction>) -> Result<()> {
+    require!(
+        ctx.accounts.authority.key() == ctx.accounts.state.authority,
+        ErrorCode::Unauthorized
+    );
+    // ... action
+    Ok(())
+}
+
+#[derive(Accounts)]
+pub struct RestrictedAction<'info> {
+    #[account(mut)]
+    pub state: Account<'info, State>,
+    pub authority: Signer<'info>,
+}
+```
+
+  </Tab>
+  <Tab title="Sei EVM">
+
+```solidity
+// Sei EVM: Use modifier pattern
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract MyContract is Ownable {
+    constructor() Ownable(msg.sender) {}
+
+    function restrictedAction() external onlyOwner {
+        // ... action
+    }
+}
+
+// Or manual check
+contract MyContract {
+    address public authority;
+
+    modifier onlyAuthority() {
+        require(msg.sender == authority, "Unauthorized");
+        _;
+    }
+
+    function restrictedAction() external onlyAuthority {
+        // ... action
+    }
+}
+```
+
+  </Tab>
+</Tabs>
+
+#### Error Handling
+
+<Tabs>
+  <Tab title="Solana">
+
+```rust
+// Solana: Custom error enum
+#[error_code]
+pub enum ErrorCode {
+    #[msg("Insufficient balance")]
+    InsufficientBalance,
+    #[msg("Invalid amount")]
+    InvalidAmount,
+    #[msg("Unauthorized")]
+    Unauthorized,
+}
+
+// Usage
+require!(amount > 0, ErrorCode::InvalidAmount);
+```
+
+  </Tab>
+  <Tab title="Sei EVM">
+
+```solidity
+// Sei EVM: Custom errors (gas efficient)
+error InsufficientBalance(uint256 available, uint256 required);
+error InvalidAmount();
+error Unauthorized();
+
+// Usage
+if (amount == 0) revert InvalidAmount();
+if (balance < required) revert InsufficientBalance(balance, required);
+```
+
+  </Tab>
+</Tabs>
+
+#### Events/Logs
+
+<Tabs>
+  <Tab title="Solana">
+
+```rust
+// Solana: Emit event macro
+use anchor_lang::prelude::*;
+
+#[event]
+pub struct TransferEvent {
+    pub from: Pubkey,
+    pub to: Pubkey,
+    pub amount: u64,
+}
+
+// Emit
+emit!(TransferEvent {
+    from: ctx.accounts.from.key(),
+    to: ctx.accounts.to.key(),
+    amount,
+});
+```
+
+  </Tab>
+  <Tab title="Sei EVM">
+
+```solidity
+// Sei EVM: Event declaration and emission
+event Transfer(
+    address indexed from,
+    address indexed to,
+    uint256 amount
+);
+
+// Emit
+emit Transfer(from, to, amount);
+```
+
+  </Tab>
+</Tabs>
+
+## Step 3: Frontend Migration
+
+### SDK Comparison
+
+| Solana                   | Sei EVM                  | Notes                          |
+| ------------------------ | ------------------------ | ------------------------------ |
+| `@solana/web3.js`        | `ethers.js` / `viem`     | Core blockchain interaction    |
+| `@coral-xyz/anchor`      | `typechain`              | Type-safe contract interaction |
+| `@solana/wallet-adapter` | `wagmi` / `RainbowKit`   | Wallet connection              |
+| Phantom, Solflare        | MetaMask, Rabby, Compass | Popular wallets                |
+
+### Code Translation
+
+<Tabs>
+  <Tab title="Solana (web3.js)">
+
+```ts
+import { Connection, PublicKey } from '@solana/web3.js';
+import { Program, AnchorProvider } from '@coral-xyz/anchor';
+
+// Connect
+const connection = new Connection('https://api.mainnet-beta.solana.com');
+const provider = new AnchorProvider(connection, wallet, {});
+const program = new Program(idl, programId, provider);
+
+// Read state
+const state = await program.account.state.fetch(stateAddress);
+
+// Send transaction
+const tx = await program.methods
+  .increment()
+  .accounts({
+    state: stateAddress,
+    authority: wallet.publicKey
+  })
+  .rpc();
+```
+
+  </Tab>
+  <Tab title="Sei EVM (ethers.js)">
+
+```ts
+import { ethers } from 'ethers';
+
+// Connect
+const provider = new ethers.JsonRpcProvider('https://evm-rpc.sei-apis.com');
+const signer = new ethers.Wallet(privateKey, provider);
+const contract = new ethers.Contract(contractAddress, abi, signer);
+
+// Read state
+const value = await contract.value();
+
+// Send transaction
+const tx = await contract.increment();
+await tx.wait();
+```
+
+  </Tab>
+</Tabs>
+
+## Step 4: Testing Your Migrated Code
+
+### Test Framework Comparison
+
+<Tabs>
+  <Tab title="Anchor Tests">
+
+```ts
+import * as anchor from '@coral-xyz/anchor';
+import { Program } from '@coral-xyz/anchor';
+import { Counter } from '../target/types/counter';
+
+describe('counter', () => {
+  const provider = anchor.AnchorProvider.env();
+  anchor.setProvider(provider);
+  const program = anchor.workspace.Counter as Program<Counter>;
+
+  it('Initializes', async () => {
+    const counter = anchor.web3.Keypair.generate();
+    await program.methods.initialize().accounts({ counter: counter.publicKey }).signers([counter]).rpc();
+
+    const account = await program.account.counter.fetch(counter.publicKey);
+    expect(account.count.toNumber()).to.equal(0);
+  });
+});
+```
+
+  </Tab>
+  <Tab title="Hardhat Tests">
+
+```ts
+import { expect } from 'chai';
+import { ethers } from 'hardhat';
+
+describe('Counter', function () {
+  it('Initializes', async function () {
+    const Counter = await ethers.getContractFactory('Counter');
+    const counter = await Counter.deploy();
+
+    expect(await counter.count()).to.equal(0);
+  });
+
+  it('Increments', async function () {
+    const Counter = await ethers.getContractFactory('Counter');
+    const counter = await Counter.deploy();
+
+    await counter.increment();
+    expect(await counter.count()).to.equal(1);
+  });
+});
+```
+
+  </Tab>
+</Tabs>
+
+## Step 5: Deploy and Verify
+
+### Deploy to Testnet
+
+```bash
+# Hardhat
+npx hardhat run scripts/deploy.ts --network seiTestnet
+
+# Foundry
+forge create --rpc-url https://evm-rpc-testnet.sei-apis.com \
+  --private-key $PRIVATE_KEY \
+  src/Counter.sol:Counter
+```
+
+### Verify Contract
+
+```bash
+# Hardhat
+npx hardhat verify --network seiTestnet <CONTRACT_ADDRESS>
+
+# Foundry
+forge verify-contract \
+  --chain-id 1328 \
+  --verifier sourcify \
+  <CONTRACT_ADDRESS> \
+  src/Counter.sol:Counter
+```
+
+## Common Migration Pitfalls
+
+### 1. Expecting Rent
+
+```solidity
+// ❌ Wrong: No need to check rent exemption
+require(address(this).balance >= rentExempt, "Not rent exempt");
+
+// ✅ Correct: Just use the contract normally
+// Storage persists without rent payments
+```
+
+### 2. Manual Account Validation
+
+```solidity
+// ❌ Wrong: Over-engineering account checks (Solana habit)
+require(accountOwner == expectedOwner, "Invalid account owner");
+
+// ✅ Correct: EVM handles this via contract addresses
+// msg.sender is already authenticated
+```
+
+### 3. Expecting Explicit Parallelization
+
+```solidity
+// ❌ Wrong: Trying to declare "accounts" for parallelization
+function swap(address[] memory accounts) external { ... }
+
+// ✅ Correct: Write normal code, Sei handles parallelization
+function swap(address tokenIn, address tokenOut, uint256 amount) external { ... }
+```
+
+### 4. Using Lamports Mental Model
+
+```solidity
+// ❌ Wrong: Solana-style lamports
+uint256 amount = 1_000_000_000; // 1 SOL in lamports
+
+// ✅ Correct: Use wei (18 decimals for SEI)
+uint256 amount = 1 ether; // 1 SEI = 1e18 wei
+uint256 amount = 1e18;    // Same thing
+```
+
+## Ecosystem Infrastructure
+
+### Available on Sei
+
+| Component       | Solana Equivalent         | Sei Address/Info                                                                                 |
+| --------------- | ------------------------- | ------------------------------------------------------------------------------------------------ |
+| Multicall3      | N/A                       | `0xcA11bde05977b3631167028862bE2a173976CA11`                                                     |
+| Permit2         | N/A                       | `0xB952578f3520EE8Ea45b7914994dcf4702cEe578`                                                     |
+| CREATE2 Factory | N/A                       | `0x0000000000FFe8B47B3e2130213B802212439497`                                                     |
+| Oracle          | Pyth Network, Switchboard | [Pyth](/evm/oracles/pyth-network), [Redstone](/evm/oracles/redstone), [Chainlink](/evm/oracles/chainlink) |
+| Bridge          | Wormhole                  | [LayerZero](/evm/bridging/layerzero), Wormhole, many more..                                         |
+
+## Helpful Resources
+
+### Learning Solidity
+
+- [EVM with Foundry](/evm/evm-foundry) – Foundry setup guide and starter tutorial
+- [EVM with Hardhat](/evm/evm-hardhat) – Hardhat setup guide and starter tutorial
+- [Solidity Resources](/evm/solidity-resources) – Curated solidity learning resources
+- [CryptoZombies](https://cryptozombies.io) – Interactive Solidity tutorial
+- [Solidity by Example](https://solidity-by-example.org) – Pattern reference
+
+### Sei-Specific
+
+- [Divergence from Ethereum](/evm/differences-with-ethereum) – Technical differences
+- [Optimizing for Parallelization](/evm/best-practices/optimizing-for-parallelization) – Performance patterns
+- [Ecosystem Contracts](/evm/ecosystem-contracts) – Canonical addresses
+
+<Info>
+**Need Help?**
+
+Join the [Sei Tech Chat](https://t.me/+KZdhZ1eE-G01NmZk) on Telegram for developer support. The community is active and helpful for migration questions.
+
+</Info>
