@@ -101,7 +101,8 @@ Before getting started, ensure you have:
 
 Install the required packages for interacting with Sei precompiles:
 
-```bash # Intitate a hardhat project
+```bash
+# Intitate a hardhat project
 npx hardhat init
 
 # Install ethers.js for smart contract interactions
@@ -115,7 +116,8 @@ npm install @sei-js/precompiles@2.1.2
 
 Create a `hardhat.config.js` file with the following content:
 
-```javascript require('@nomicfoundation/hardhat-toolbox');
+```javascript
+require('@nomicfoundation/hardhat-toolbox');
 require('dotenv').config();
 
 /** @type import('hardhat/config').HardhatUserConfig */
@@ -133,7 +135,8 @@ module.exports = {
 
 Create a `.env` file in the root directory with your private key and RPC URL:
 
-```plaintext PRIVATE_KEY=your_private_key_here
+```plaintext
+PRIVATE_KEY=your_private_key_here
 RPC_URL=https://evm-rpc.sei-apis.com
 ```
 
@@ -141,7 +144,8 @@ RPC_URL=https://evm-rpc.sei-apis.com
 
 <Tabs>
 <Tab title="JavaScript">
-```typescript // Import Address precompile address and ABI
+```typescript
+// Import Address precompile address and ABI
 // View the entire ABI here: https://github.com/sei-protocol/sei-chain/tree/main/precompiles/addr
 import { ADDRESS_PRECOMPILE_ABI, ADDRESS_PRECOMPILE_ADDRESS } from '@sei-js/precompiles';
 import { ethers } from 'ethers';
@@ -149,7 +153,8 @@ import { ethers } from 'ethers';
 
 </Tab>
 <Tab title="Solidity">
-```solidity // SPDX-License-Identifier: MIT
+```solidity
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 interface IAddrPrecompile {
@@ -182,7 +187,8 @@ function getEvmAddr(string memory addr) external view returns (address response)
 <Tab title="JavaScript">
 Set up your provider, signer, and contract instance:
 
-```typescript // Using EVM-compatible wallet as the signer and provider
+```typescript
+// Using EVM-compatible wallet as the signer and provider
 const provider = new ethers.BrowserProvider(window.ethereum);
 await provider.send('eth_requestAccounts', []);
 const signer = await provider.getSigner();
@@ -193,7 +199,8 @@ const addr = new ethers.Contract(ADDRESS_PRECOMPILE_ADDRESS, ADDRESS_PRECOMPILE_
 
 </Tab>
 <Tab title="Solidity">
-```solidity // Initialize the contract instance in your Solidity code
+```solidity
+// Initialize the contract instance in your Solidity code
 contract CrossChainAddressManager {
   IAddrPrecompile constant ADDR = IAddrPrecompile(0x0000000000000000000000000000000000001004);
 }
@@ -246,7 +253,8 @@ Address association between EVM and Cosmos addresses occurs automatically in mos
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Associate addresses using a custom message signature
+```typescript
+// Associate addresses using a custom message signature
 const message = `Associate my addresses - ${Date.now()}`;
 
 try {
@@ -276,7 +284,8 @@ try {
 </Tab>
 <Tab title="Solidity">
 
-```solidity contract AddressManager {
+```solidity
+contract AddressManager {
     IAddrPrecompile constant ADDR = IAddrPrecompile(0x0000000000000000000000000000000000001004);
 
     event AddressAssociated(address indexed evmAddr, string seiAddr);
@@ -305,7 +314,8 @@ try {
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Associate addresses using a public key
+```typescript
+// Associate addresses using a public key
 try {
   // Create or get a wallet's public key
   const wallet = ethers.Wallet.createRandom();
@@ -324,7 +334,8 @@ try {
 </Tab>
 <Tab title="Solidity">
 
-```solidity contract AddressManager {
+```solidity
+contract AddressManager {
     IAddrPrecompile constant ADDR = IAddrPrecompile(0x0000000000000000000000000000000000001004);
 
     event AddressAssociated(address indexed evmAddr, string seiAddr);
@@ -346,7 +357,8 @@ try {
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Query the Sei address for a given EVM address
+```typescript
+// Query the Sei address for a given EVM address
 const evmAddress = '0x1234567890123456789012345678901234567890';
 
 try {
@@ -364,7 +376,8 @@ try {
 </Tab>
 <Tab title="Solidity">
 
-```solidity contract AddressManager {
+```solidity
+contract AddressManager {
     IAddrPrecompile constant ADDR = IAddrPrecompile(0x0000000000000000000000000000000000001004);
 
     function getUserSeiAddress(address evmAddr) external view returns (string memory) {
@@ -390,7 +403,8 @@ try {
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Query the EVM address for a given Sei address
+```typescript
+// Query the EVM address for a given Sei address
 const seiAddress = 'sei1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6s8dpw';
 
 try {
@@ -408,7 +422,8 @@ try {
 </Tab>
 <Tab title="Solidity">
 
-```solidity contract AddressManager {
+```solidity
+contract AddressManager {
     IAddrPrecompile constant ADDR = IAddrPrecompile(0x0000000000000000000000000000000000001004);
 
     function getEvmFromSei(string memory seiAddr) external view returns (address) {
@@ -434,7 +449,8 @@ try {
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript import { ADDRESS_PRECOMPILE_ABI, ADDRESS_PRECOMPILE_ADDRESS } from '@sei-js/precompiles';
+```typescript
+import { ADDRESS_PRECOMPILE_ABI, ADDRESS_PRECOMPILE_ADDRESS } from '@sei-js/precompiles';
 import { ethers } from 'ethers';
 
 async function addrExample() {
@@ -497,7 +513,8 @@ async function addrExample() {
 
 **Contract Example**
 
-```solidity // SPDX-License-Identifier: MIT
+```solidity
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 interface IAddrPrecompile {
@@ -593,7 +610,8 @@ contract CrossChainAddressManager {
 
 Deploy the contract:
 
-```javascript const { ethers } = require('hardhat');
+```javascript
+const { ethers } = require('hardhat');
 
 const dotenv = require('dotenv');
 dotenv.config();
@@ -624,10 +642,12 @@ main().catch((error) => {
 
 Then run:
 
-```bash npx hardhat run scripts/deploy.js --network sei
+```bash
+npx hardhat run scripts/deploy.js --network sei
 ```
 
-```javascript const { ethers } = require('hardhat');
+```javascript
+const { ethers } = require('hardhat');
 const addressManagerAbi = require('./artifacts/contracts/CrossChainAddressManager.sol/CrossChainAddressManager.json');
 
 async function main() {
@@ -684,7 +704,8 @@ main().catch((error) => {
 
 #### Gas-Related Issues
 
-```typescript // Set appropriate gas limits for different operations
+```typescript
+// Set appropriate gas limits for different operations
 const associateTx = await addr.associate(v, r, s, customMessage, {
   gasLimit: 200000 // Association operations
 });

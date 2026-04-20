@@ -78,7 +78,8 @@ Before getting started, ensure you have:
 
 Install the required packages for interacting with Sei precompiles:
 
-```bash # Install ethers.js for smart contract interactions
+```bash
+# Install ethers.js for smart contract interactions
 npm install ethers
 
 # Install Sei EVM bindings for precompile addresses and ABIs
@@ -90,7 +91,8 @@ npm install dotenv
 
 #### Import Precompile Components
 
-```typescript // Import JSON precompile address and ABI
+```typescript
+// Import JSON precompile address and ABI
 // View the entire ABI here: https://github.com/sei-protocol/sei-chain/tree/main/precompiles/json
 import { JSON_PRECOMPILE_ABI, JSON_PRECOMPILE_ADDRESS } from '@sei-js/precompiles';
 import { ethers } from 'ethers';
@@ -102,7 +104,8 @@ import { ethers } from 'ethers';
 
 Set up your provider, signer, and contract instance:
 
-```typescript // Using MetaMask as the signer and provider (browser environment)
+```typescript
+// Using MetaMask as the signer and provider (browser environment)
 const provider = new ethers.BrowserProvider(window.ethereum);
 await provider.send('eth_requestAccounts', []);
 const signer = await provider.getSigner();
@@ -130,7 +133,8 @@ The JSON precompile has specific limitations for different data types:
 
 ### Data Type Conversion Strategies
 
-```typescript // For decimal numbers - store as integers with known precision
+```typescript
+// For decimal numbers - store as integers with known precision
 const priceData = { price: 250 }; // Represents 2.50 with 2 decimal places
 const price = await jsonPrecompile.extractAsUint256(inputData, 'price');
 const actualPrice = parseFloat(price.toString()) / 100; // Convert back to 2.50
@@ -151,7 +155,8 @@ const userObject = JSON.parse(userString);
 
 Create comprehensive error handling for all extraction functions:
 
-```typescript // Safe extraction for bytes data
+```typescript
+// Safe extraction for bytes data
 async function safeExtractBytes(jsonPrecompile: ethers.Contract, data: any, key: string, defaultValue: string = ''): Promise<string> {
   try {
     const inputData = ethers.toUtf8Bytes(JSON.stringify(data));
@@ -192,7 +197,8 @@ async function safeExtractBytesList(jsonPrecompile: ethers.Contract, data: any, 
 
 ### Extract String Data
 
-```typescript // JSON data with string values
+```typescript
+// JSON data with string values
 const data = { name: 'Sei Token', symbol: 'SEI' };
 const inputData = ethers.toUtf8Bytes(JSON.stringify(data));
 
@@ -212,7 +218,8 @@ try {
 
 ### Extract Numeric Data
 
-```typescript // JSON data with numbers (integers only)
+```typescript
+// JSON data with numbers (integers only)
 const data = { price: 42, volume: 1000000 };
 const inputData = ethers.toUtf8Bytes(JSON.stringify(data));
 
@@ -229,7 +236,8 @@ console.log('Rate:', actualRate);
 
 ### Extract Array Data
 
-```typescript // JSON data with array
+```typescript
+// JSON data with array
 const data = { tokens: ['SEI', 'USDC', 'USDT'] };
 const inputData = ethers.toUtf8Bytes(JSON.stringify(data));
 
@@ -249,7 +257,8 @@ console.log('Mixed values:', valuesArray); // Output: [42, "test", 100]
 
 <Warning>**Important:** The JSON precompile does not support dot notation for nested objects. Instead, extract the parent object and parse it manually.</Warning>
 
-```typescript // For nested data, extract the parent object first
+```typescript
+// For nested data, extract the parent object first
 const data = {
   user: {
     wallet: {
@@ -281,7 +290,7 @@ console.log('Wallet data:', walletData); // Output: { balance: 1000, currency: "
 
 Create a comprehensive JSON parsing application for mainnet:
 
-```javascript copy filename="json-precompile-mainnet.js"
+```javascript title="json-precompile-mainnet.js"
 // json-precompile-mainnet.js
 const { ethers } = require('ethers');
 const { JSON_PRECOMPILE_ABI, JSON_PRECOMPILE_ADDRESS } = require('@sei-js/precompiles');
@@ -484,19 +493,22 @@ main().catch(console.error);
 
 1. **Create a new directory and initialize npm:**
 
-```bash mkdir sei-json-mainnet
+```bash
+mkdir sei-json-mainnet
 cd sei-json-mainnet
 npm init -y
 ```
 
 2. **Install dependencies:**
 
-```bash npm install ethers @sei-js/precompiles@^2.1.2 dotenv
+```bash
+npm install ethers @sei-js/precompiles@^2.1.2 dotenv
 ```
 
 3. **Create a `.env` file:**
 
-```bash PRIVATE_KEY=your_private_key_here
+```bash
+PRIVATE_KEY=your_private_key_here
 ```
 
 <Warning>**Security Note:** Never commit private keys to version control! The `.env` file should be added to your `.gitignore`.</Warning>
@@ -510,7 +522,8 @@ npm init -y
 
 6. **Run the script:**
 
-```bash node json-precompile-mainnet.js
+```bash
+node json-precompile-mainnet.js
 ```
 
 ### Expected Output
@@ -592,7 +605,8 @@ npm init -y
 
 ### Oracle Price Feed Integration
 
-```typescript // Advanced oracle integration with comprehensive error handling
+```typescript
+// Advanced oracle integration with comprehensive error handling
 class SeiPriceOracle {
   private jsonPrecompile: ethers.Contract;
 
@@ -642,7 +656,8 @@ class SeiPriceOracle {
 
 #### Key Not Found
 
-```typescript // Comprehensive error handling for missing keys
+```typescript
+// Comprehensive error handling for missing keys
 async function handleMissingKeys(jsonPrecompile: ethers.Contract, data: any) {
   const keys = ['required.key', 'optional.key', 'deeply.nested.key'];
 

@@ -26,7 +26,8 @@ This guide covers connecting a Ledger hardware wallet to Sei's EVM for signing t
 
 ## Connecting Your Ledger
 
-```tsx import { LedgerSigner } from '@ethers-ext/signer-ledger';
+```tsx
+import { LedgerSigner } from '@ethers-ext/signer-ledger';
 import TransportNodeHid from '@ledgerhq/hw-transport-node-hid';
 import { ethers } from 'ethers';
 
@@ -44,7 +45,8 @@ Every transaction sent through this signer will require physical confirmation on
 
 A simple example sending SEI from your Ledger to another address:
 
-```tsx import { LedgerSigner } from '@ethers-ext/signer-ledger';
+```tsx
+import { LedgerSigner } from '@ethers-ext/signer-ledger';
 import TransportNodeHid from '@ledgerhq/hw-transport-node-hid';
 import { ethers } from 'ethers';
 

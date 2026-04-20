@@ -31,7 +31,8 @@ this example, we're going to be using the [wasmd precompile](/evm/precompiles/co
 
 Next, we'll set up a provider and contract to interact with the blockchain:
 
-```typescript import { ethers, toUtf8Bytes, toUtf8String } from 'ethers';
+```typescript
+import { ethers, toUtf8Bytes, toUtf8String } from 'ethers';
 
 // Using MetaMask as the signer and provider
 const provider = new ethers.BrowserProvider(window.ethereum);
@@ -46,7 +47,8 @@ const contract = new ethers.Contract(WASM_PRECOMPILE_ADDRESS, WASM_PRECOMPILE_AB
 Once you have the contract, you can query and execute messages to any CosmWasm
 smart contract. In the below example we assume there is a counter contract with a `get_count` function
 
-```typescript // Replace with your contract
+```typescript
+// Replace with your contract
 const COUNTER_CONTRACT_ADDRESS = 'sei1eyf...xff';
 
 // Query to get the count on the counter contract (replace with function from your ABI)
@@ -74,7 +76,8 @@ In this example, we execute the 'donate' method on our contract. This is similar
 to the `increment` method, but also receives funds from the user and stores it
 in the contract.
 
-```typescript // Execute a message to donate to the contract.
+```typescript
+// Execute a message to donate to the contract.
 const executeMsg = { donate: {} };
 
 // Funds are attached via overrides. This example is specific to ethers.js

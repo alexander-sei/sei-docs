@@ -89,7 +89,8 @@ Before getting started, ensure you have:
 
 Install the required packages for interacting with Sei precompiles:
 
-```bash # Install ethers.js for smart contract interactions
+```bash
+# Install ethers.js for smart contract interactions
 npm install ethers
 
 # Install Sei EVM bindings for precompile addresses and ABIs
@@ -100,7 +101,8 @@ npm install @sei-js/precompiles@2.1.2
 
 <Tabs>
 <Tab title="JavaScript">
-```typescript // Import ethers for contract interactions
+```typescript
+// Import ethers for contract interactions
 import { ethers } from 'ethers';
 
 // PointerView precompile constants
@@ -115,7 +117,8 @@ const POINTERVIEW_PRECOMPILE_ABI = [
 ````
 </Tab>
 <Tab title="Solidity">
-```solidity // SPDX-License-Identifier: MIT
+```solidity
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 interface IPointerViewPrecompile {
@@ -144,7 +147,8 @@ interface IPointerViewPrecompile {
 <Tab title="JavaScript">
 Set up your provider and contract instance (no signer required for read-only operations):
 
-```typescript // Using any provider for read-only operations
+```typescript
+// Using any provider for read-only operations
 const provider = new ethers.JsonRpcProvider('https://evm-rpc.sei-apis.com');
 // Or use wallet provider: const provider = new ethers.BrowserProvider(window.ethereum);
 
@@ -154,7 +158,8 @@ const pointerView = new ethers.Contract(POINTERVIEW_PRECOMPILE_ADDRESS, POINTERV
 
 </Tab>
 <Tab title="Solidity">
-```solidity // Initialize the contract instance in your Solidity code
+```solidity
+// Initialize the contract instance in your Solidity code
 contract PointerRegistry {
     IPointerViewPrecompile constant POINTER_VIEW = IPointerViewPrecompile(0x000000000000000000000000000000000000100A);
 }
@@ -180,7 +185,8 @@ Each query function returns three values:
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Query native token pointer information
+```typescript
+// Query native token pointer information
 async function queryNativePointer() {
   const tokenDenom = 'usei'; // Native SEI denomination
 
@@ -263,7 +269,8 @@ async function queryMultipleNativePointers() {
 </Tab>
 <Tab title="Solidity">
 
-```solidity contract NativePointerRegistry {
+```solidity
+contract NativePointerRegistry {
     IPointerViewPrecompile constant POINTER_VIEW = IPointerViewPrecompile(0x000000000000000000000000000000000000100A);
 
     struct NativePointerInfo {
@@ -341,7 +348,8 @@ async function queryMultipleNativePointers() {
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Query CW20 token pointer information
+```typescript
+// Query CW20 token pointer information
 async function queryCW20Pointer() {
   // Example CW20 contract address (use actual contract address)
   const cw20Address = 'sei1hrpna9v7vs3stzyd4z3xf00676kf78zpe2u5ksvljswn2vnjp3yqtxqz3t';
@@ -438,7 +446,8 @@ async function discoverCW20Pointers() {
 </Tab>
 <Tab title="Solidity">
 
-```solidity contract CW20PointerRegistry {
+```solidity
+contract CW20PointerRegistry {
     IPointerViewPrecompile constant POINTER_VIEW = IPointerViewPrecompile(0x000000000000000000000000000000000000100A);
 
     struct CW20PointerInfo {
@@ -547,7 +556,8 @@ async function discoverCW20Pointers() {
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Query CW721 NFT collection pointer information
+```typescript
+// Query CW721 NFT collection pointer information
 async function queryCW721Pointer() {
   // Example CW721 contract address (use actual contract address)
   const cw721Address = 'sei1nft789abcdef123456789abcdef123456789abcdef123456789abcdef12';
@@ -653,7 +663,8 @@ async function buildNFTCollectionRegistry() {
 </Tab>
 <Tab title="Solidity">
 
-```solidity contract CW721PointerRegistry {
+```solidity
+contract CW721PointerRegistry {
     IPointerViewPrecompile constant POINTER_VIEW = IPointerViewPrecompile(0x000000000000000000000000000000000000100A);
 
     struct CW721PointerInfo {
@@ -800,7 +811,8 @@ async function buildNFTCollectionRegistry() {
 
 Before building applications that depend on specific pointers, always validate their existence:
 
-```typescript async function validateRequiredPointers(requiredAssets) {
+```typescript
+async function validateRequiredPointers(requiredAssets) {
   const validation = {
     validated: [],
     missing: [],
@@ -858,7 +870,8 @@ Before building applications that depend on specific pointers, always validate t
 
 Always implement robust error handling for queries:
 
-```typescript async function safePointerQuery(queryType, asset) {
+```typescript
+async function safePointerQuery(queryType, asset) {
   try {
     let result;
     switch (queryType) {
@@ -903,7 +916,8 @@ Always implement robust error handling for queries:
 
 #### RPC Connection Issues
 
-```typescript // Handle RPC connectivity issues
+```typescript
+// Handle RPC connectivity issues
 async function queryWithRetry(queryFunction, maxRetries = 3) {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
@@ -924,7 +938,8 @@ async function queryWithRetry(queryFunction, maxRetries = 3) {
 
 #### Invalid Asset Formats
 
-```typescript // Validate asset formats before querying
+```typescript
+// Validate asset formats before querying
 function validateAssetFormat(assetType, asset) {
   switch (assetType) {
     case 'native':

@@ -39,12 +39,11 @@ The Sei MCP Server leverages this protocol to bring blockchain functionality dir
 
 <Steps>
 
-### Open Settings
-
+<Step title="Open Settings">
 Navigate to `Cursor → Settings → Cursor Settings → MCP`
+</Step>
 
-### Configure Server
-
+<Step title="Configure Server">
 Click **"Add new Global MCP server"** and add this configuration to `mcp.json`:
 
 ```json
@@ -60,10 +59,11 @@ Click **"Add new Global MCP server"** and add this configuration to `mcp.json`:
   }
 }
 ```
+</Step>
 
-### Restart
-
+<Step title="Restart">
 Restart Cursor to activate the MCP server. You'll see a notification when it's ready.
+</Step>
 
 </Steps>
 
@@ -74,12 +74,11 @@ Restart Cursor to activate the MCP server. You'll see a notification when it's r
 
 <Steps>
 
-### Open Settings
-
+<Step title="Open Settings">
 Navigate to `Windsurf → Settings → Windsurf Settings → Cascade`
+</Step>
 
-### Add Configuration
-
+<Step title="Add Configuration">
 Add the Sei MCP Server to your configuration:
 
 ```json
@@ -95,10 +94,11 @@ Add the Sei MCP Server to your configuration:
   }
 }
 ```
+</Step>
 
-### Activate
-
+<Step title="Activate">
 Save and restart Windsurf. The server loads automatically.
+</Step>
 
 </Steps>
 
@@ -109,12 +109,11 @@ Save and restart Windsurf. The server loads automatically.
 
 <Steps>
 
-### Install Claude
-
+<Step title="Install Claude">
 Download [Claude Desktop](https://claude.ai/download) from Anthropic.
+</Step>
 
-### Edit Configuration
-
+<Step title="Edit Configuration">
 Open **Settings** → **Developer** → **Edit Config** and add:
 
 ```json
@@ -130,10 +129,11 @@ Open **Settings** → **Developer** → **Edit Config** and add:
   }
 }
 ```
+</Step>
 
-### Restart
-
+<Step title="Restart">
 Save and restart Claude Desktop to enable Sei tools.
+</Step>
 
 </Steps>
 
@@ -144,25 +144,25 @@ Save and restart Claude Desktop to enable Sei tools.
 
 <Steps>
 
-### Install CLI
-
+<Step title="Install CLI">
 ```bash
 npm install -g @anthropic-ai/claude-code
 ```
+</Step>
 
-### Add Server
-
+<Step title="Add Server">
 ```bash
 claude mcp add sei-mcp-server npx @sei-js/mcp-server
 ```
+</Step>
 
-### Start Session
-
+<Step title="Start Session">
 ```bash
 claude
 ```
 
 The Sei MCP Server activates automatically in your session.
+</Step>
 
 </Steps>
 

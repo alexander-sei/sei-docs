@@ -54,7 +54,7 @@ Before integrating the SDK, deploy a simple Storage contract on SEI. This contra
 
 #### Storage Contract (Solidity)
 
-```solidity filename="Storage.sol"
+```solidity title="Storage.sol"
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
@@ -93,7 +93,7 @@ npm install thirdweb@^5
 
 Create a `.env` file in your project root:
 
-```env filename=".env"
+```env title=".env"
 VITE_TEMPLATE_CLIENT_ID=your_thirdweb_client_id_here
 ```
 
@@ -111,7 +111,7 @@ If you want to sponsor gas on mainnet:
 
 Create `src/client.ts`:
 
-```typescript filename="src/client.ts"
+```typescript title="src/client.ts"
 import { createThirdwebClient } from 'thirdweb';
 
 export const client = createThirdwebClient({
@@ -123,7 +123,7 @@ export const client = createThirdwebClient({
 
 Replace `src/App.tsx`:
 
-```typescript filename="src/App.tsx" showLineNumbers
+```typescript title="src/App.tsx" lines
 import {
   ConnectButton,
   TransactionButton,
@@ -328,7 +328,7 @@ export default App;
 
 Ensure your `package.json` includes:
 
-```json filename="package.json"
+```json title="package.json"
 {
   "name": "sei-thirdweb-app",
   "private": true,

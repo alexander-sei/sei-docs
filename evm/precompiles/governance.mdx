@@ -118,7 +118,8 @@ Before getting started, ensure you have:
 
 Install the required packages for interacting with Sei precompiles:
 
-```bash # Install ethers.js for smart contract interactions
+```bash
+# Install ethers.js for smart contract interactions
 npm install ethers
 
 # Install Sei EVM bindings for precompile addresses and ABIs
@@ -130,7 +131,8 @@ npm install dotenv
 
 #### Import Precompile Components
 
-```typescript // Import Governance precompile address and ABI
+```typescript
+// Import Governance precompile address and ABI
 // View the entire ABI here: https://github.com/sei-protocol/sei-chain/tree/main/precompiles/gov
 import { GOVERNANCE_PRECOMPILE_ABI, GOVERNANCE_PRECOMPILE_ADDRESS } from '@sei-js/precompiles';
 import { ethers } from 'ethers';
@@ -152,7 +154,8 @@ Purchase SEI tokens from supported exchanges:
 
 Set up your provider, signer, and contract instance:
 
-```typescript // Using MetaMask as the signer and provider (browser environment)
+```typescript
+// Using MetaMask as the signer and provider (browser environment)
 const provider = new ethers.BrowserProvider(window.ethereum);
 await provider.send('eth_requestAccounts', []);
 const signer = await provider.getSigner();
@@ -191,7 +194,8 @@ Your voting power is determined by:
 
 Before making governance transactions, use these helper functions to validate inputs:
 
-```typescript // Validate vote option
+```typescript
+// Validate vote option
 function isValidVoteOption(option: number): boolean {
   return option >= 1 && option <= 4;
 }
@@ -256,7 +260,8 @@ async function checkVotingPower(userAddress: string): Promise<bigint> {
 
 </Info>
 
-```typescript async function submitGovernanceProposal(title: string, description: string, depositAmount: bigint, isExpedited: boolean = false): Promise<bigint> {
+```typescript
+async function submitGovernanceProposal(title: string, description: string, depositAmount: bigint, isExpedited: boolean = false): Promise<bigint> {
   // Validate inputs
   if (!title || !description) {
     throw new Error('Title and description are required');
@@ -380,7 +385,8 @@ await submitGovernanceProposal(proposalTitle, proposalDescription, depositAmount
 
 ### Vote on a Proposal
 
-```typescript // Simple voting with comprehensive validation
+```typescript
+// Simple voting with comprehensive validation
 async function voteOnProposal(proposalID: bigint, voteOption: number): Promise<void> {
   // Validate vote option
   if (!isValidVoteOption(voteOption)) {
@@ -446,7 +452,8 @@ await voteOnProposal(proposalID, 4);
 
 <Danger>**Critical Requirement:** Weighted vote options MUST sum to exactly 1.0 or the transaction will fail. The Sei governance module enforces this strictly - even small rounding errors will cause rejection.</Danger>
 
-```typescript // Weighted voting with comprehensive validation
+```typescript
+// Weighted voting with comprehensive validation
 async function castWeightedVote(proposalID: bigint, weightedOptions: Array<{ option: number; weight: string }>): Promise<void> {
   // Comprehensive validation
   if (weightedOptions.length === 0) {
@@ -557,7 +564,8 @@ const badVote = [
 
 ### Deposit to a Proposal
 
-```typescript // Add deposit to help proposal reach minimum threshold
+```typescript
+// Add deposit to help proposal reach minimum threshold
 async function addDepositToProposal(proposalID: bigint, depositAmount: bigint): Promise<void> {
   if (depositAmount <= 0) {
     throw new Error('Deposit amount must be greater than 0');
@@ -613,7 +621,7 @@ await addDepositToProposal(proposalID, additionalDeposit);
 
 Create a comprehensive governance interaction script:
 
-```javascript copy filename="governance-mainnet-demo.js"
+```javascript title="governance-mainnet-demo.js"
 const { ethers } = require('ethers');
 const { GOVERNANCE_PRECOMPILE_ABI, GOVERNANCE_PRECOMPILE_ADDRESS } = require('@sei-js/evm');
 require('dotenv').config();
@@ -868,19 +876,22 @@ main().catch(console.error);
 
 1. **Create a new directory and initialize npm:**
 
-```bash mkdir sei-governance-mainnet
+```bash
+mkdir sei-governance-mainnet
 cd sei-governance-mainnet
 npm init -y
 ```
 
 2. **Install dependencies:**
 
-```bash npm install ethers @sei-js/precompiles@^2.1.2 dotenv
+```bash
+npm install ethers @sei-js/precompiles@^2.1.2 dotenv
 ```
 
 3. **Create a `.env` file:**
 
-```bash PRIVATE_KEY=your_private_key_here
+```bash
+PRIVATE_KEY=your_private_key_here
 ```
 
 4. **Create the demo file:**
@@ -894,7 +905,8 @@ npm init -y
 
 6. **Run the script:**
 
-```bash node governance-mainnet-demo.js
+```bash
+node governance-mainnet-demo.js
 ```
 
 ### Expected Output
@@ -952,7 +964,8 @@ npm init -y
 
 #### Insufficient Deposit
 
-```typescript // Check minimum deposit requirement based on proposal type
+```typescript
+// Check minimum deposit requirement based on proposal type
 const MINIMUM_DEPOSIT = ethers.parseUnits('3500', 18); // 3,500 SEI minimum
 const EXPEDITED_DEPOSIT = ethers.parseUnits('7000', 18); // 7,000 SEI for expedited
 
@@ -970,7 +983,8 @@ function checkDepositRequirement(depositAmount: bigint, isExpedited: boolean = f
 
 #### No Voting Power
 
-```typescript // Check if user has staked SEI for voting power
+```typescript
+// Check if user has staked SEI for voting power
 async function checkVotingEligibility(userAddress: string): Promise<void> {
   console.log('Checking voting eligibility...');
 
@@ -986,7 +1000,8 @@ async function checkVotingEligibility(userAddress: string): Promise<void> {
 
 #### Invalid Vote Option
 
-```typescript // Validate vote option with descriptive error
+```typescript
+// Validate vote option with descriptive error
 function validateVoteOptionWithDescription(option: number): void {
   const voteOptions = {
     1: 'Yes - Vote in favor of the proposal',
@@ -1007,7 +1022,8 @@ function validateVoteOptionWithDescription(option: number): void {
 
 #### Weighted Vote Validation
 
-```typescript // Comprehensive weighted vote validation with helpful errors
+```typescript
+// Comprehensive weighted vote validation with helpful errors
 function validateWeightedVoteComprehensive(options: Array<{ option: number; weight: string }>): void {
   if (options.length === 0) {
     throw new Error('At least one vote option is required');

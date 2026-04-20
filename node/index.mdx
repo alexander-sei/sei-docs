@@ -5,7 +5,9 @@ keywords: ["sei node", "node operations", "validator", "RPC node", "sei blockcha
 mode: "wide"
 ---
 
-Comprehensive guides for running, maintaining, and optimizing Sei network nodes. Whether you're setting up a validator, an RPC node, or a relayer, you'll find detailed instructions and best practices for optimal performance and security.
+**Power the Sei Network Infrastructure**
+
+Comprehensive guides for running, maintaining, and optimizing Sei network nodes. Whether you're setting up a validator, an RPC node, or a relayer, you'll find detailed instructions and best practices to ensure optimal performance and security.
 
 <CardGroup cols={4}>
   <Card title="RPC / API nodes" icon="network-wired" />
@@ -14,7 +16,18 @@ Comprehensive guides for running, maintaining, and optimizing Sei network nodes.
   <Card title="Archive nodes" icon="database" />
 </CardGroup>
 
-## Hardware requirements
+## Network Versions
+
+<iframe
+  src="https://widgets.sei.io/version-table"
+  style={{ width: "100%", minHeight: "320px", border: "0" }}
+  loading="lazy"
+  title="Sei network versions"
+/>
+
+_Live binary versions, genesis, and seed peers — see the [network versions widget](https://widgets.sei.io/version-table) or the [technical reference](/node/technical-reference)._
+
+## Hardware Requirements
 
 | Component | Required                                               |
 | --------- | ------------------------------------------------------ |
@@ -27,46 +40,129 @@ Comprehensive guides for running, maintaining, and optimizing Sei network nodes.
   Use a bare-metal or high-performance cloud instance. Commodity VMs will struggle with state I/O under load.
 </Info>
 
-## Node operations
+## Quick Start
+
+<Steps>
+
+<Step title="Environment Setup">
+Update the system and install essential packages:
+
+```bash
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install essentials
+sudo apt install make gcc git jq chrony curl lz4 wget tar build-essential -y
+
+# Synchronize system time
+sudo timedatectl set-timezone UTC
+sudo systemctl enable --now chronyd
+```
+
+Install Go 1.24.x (required for seid v6.3+):
+
+```bash
+wget https://go.dev/dl/go1.24.5.linux-amd64.tar.gz
+sudo tar -C /usr/local -xzf go1.24.5.linux-amd64.tar.gz
+echo 'export PATH=$PATH:/usr/local/go/bin' >> $HOME/.bashrc
+source $HOME/.bashrc
+go version
+```
+</Step>
+
+<Step title="Install & Initialize">
+Install the Sei binary. See the Network Versions table above for the current recommended version:
+
+```bash
+git clone https://github.com/sei-protocol/sei-chain.git
+cd sei-chain
+git checkout <version-tag>  # See Network Versions table above
+make install
+seid version
+```
+
+Initialize and apply recommended config. For peer lists, Docker installation, advanced mempool tuning, and archive node configuration, see the [full Node Operations Guide](/node/node-operators):
+
+```bash
+# Initialize node
+seid init <your-moniker> --chain-id <chain-id>
+
+# Set persistent peers (see full guide for peer lists)
+sed -i 's/persistent-peers = .*/persistent-peers = "'$PEERS'"/' ~/.sei/config/config.toml
+
+# Recommended config changes
+sed -i -e "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0usei\"/" $HOME/.sei/config/app.toml
+sed -i -e 's/^keep-invalid-txs-in-cache = .*/keep-invalid-txs-in-cache = true/' -e 's/^ttl-num-blocks = .*/ttl-num-blocks = 5/' $HOME/.sei/config/config.toml
+sed -i -e "s/^concurrency-workers *=.*/concurrency-workers = 500/" $HOME/.sei/config/app.toml
+```
+</Step>
+
+<Step title="Run Node">
+<Danger>If you see an error such as `panic: recovered: runtime error: integer divide by zero` it means you can't start nodes straight from the genesis file. Instead, sync to the block tip via [state sync](/node/statesync) or using a [snapshot](/node/snapshot).</Danger>
+
+Create a systemd service so the node restarts automatically:
+
+```bash
+sudo tee /etc/systemd/system/seid.service > /dev/null << EOF
+[Unit]
+Description=Sei Node
+After=network-online.target
+
+[Service]
+User=$USER
+ExecStart=$(which seid) start
+Restart=always
+RestartSec=3
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable seid
+sudo systemctl start seid
+```
+
+Verify sync status and tail the logs. For troubleshooting sync issues, performance tuning, database maintenance, and update procedures, see the [full Node Operations Guide](/node/node-operators):
+
+```bash
+# Check sync status
+seid status | jq .SyncInfo
+
+# Monitor logs
+journalctl -u seid -f -o cat
+```
+</Step>
+
+</Steps>
+
+[View Complete Node Setup Guide →](/node/node-operators)
+
+## Node Resources
+
+### Node Setup
 
 <CardGroup cols={2}>
-  <Card title="Node operator overview" icon="book-open" href="/node/node-operators">
-    Start here — prerequisites, setup, and the full lifecycle.
+  <Card title="Node Operations Guide" icon="server" href="/node/node-operators">
+    Complete guide to setting up and running a Sei node with hardware requirements and configuration steps.
   </Card>
-  <Card title="Seictl setup helper" icon="terminal" href="/node/seictl">
-    Automated installer and helper for provisioning a node.
-  </Card>
-  <Card title="Statesync" icon="rotate" href="/node/statesync">
-    Fastest way to bootstrap a node to the latest state.
-  </Card>
-  <Card title="Snapshot sync" icon="file-zipper" href="/node/snapshot">
-    Bootstrap via downloadable snapshot archives.
-  </Card>
-  <Card title="Node types" icon="sitemap" href="/node/node-types">
-    Compare RPC, validator, statesync, and archive node modes.
-  </Card>
-  <Card title="Troubleshooting" icon="wrench" href="/node/troubleshooting">
-    Common errors, fixes, and recovery procedures.
-  </Card>
-  <Card title="API configuration" icon="code" href="/node/swagger">
-    Enable and configure the REST/Swagger API surface.
-  </Card>
-  <Card title="Validator operations" icon="shield" href="/node/validators">
-    Register, sign, vote, and maintain a healthy validator.
+  <Card title="Validator Operations Guide" icon="shield" href="/node/validators">
+    Specialized instructions for validators, including staking, commission settings, and security best practices.
   </Card>
 </CardGroup>
 
-## Advanced operations
+### Advanced Operations
 
 <CardGroup cols={3}>
-  <Card title="Config & monitoring" icon="gauge-simple-high" href="/node/advanced-config-monitoring">
-    Prometheus, alerting, log aggregation, and tuning knobs.
+  <Card title="Configuration & Monitoring" icon="gauge-simple-high" href="/node/advanced-config-monitoring">
+    Optimize your node's performance with advanced settings and monitoring tools (Prometheus, alerting, log aggregation, tuning knobs).
   </Card>
-  <Card title="RocksDB backend" icon="database" href="/node/rocksdb-backend">
+  <Card title="RocksDB Backend" icon="database" href="/node/rocksdb-backend">
     Run with RocksDB instead of the default backend.
   </Card>
-  <Card title="Technical reference" icon="book" href="/node/technical-reference">
-    Parameter reference, directory layout, and upgrade paths.
+  <Card title="Technical Reference" icon="terminal" href="/node/technical-reference">
+    Detailed technical specifications, API endpoints, and commands for node operators.
   </Card>
 </CardGroup>
 

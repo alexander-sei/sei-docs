@@ -37,7 +37,8 @@ Sei EVM executes non-conflicting transactions in parallel. You can significantly
 
 Isolate per-user/per-asset data instead of centralizing writes.
 
-```solidity // Good: disjoint keys by user and id enable parallelism
+```solidity
+// Good: disjoint keys by user and id enable parallelism
 mapping(address => mapping(uint256 => Position)) public positions;
 
 function updatePosition(uint256 id, int256 delta) external {
@@ -60,7 +61,8 @@ Prefer computing aggregates off-chain from events, or update them periodically v
 
 Avoid writing to many recipients in a single transaction. Emit events and let recipients `withdraw()` when needed.
 
-```solidity // Better: users pull their own rewards, isolating writes to their key
+```solidity
+// Better: users pull their own rewards, isolating writes to their key
 mapping(address => uint256) public accrued;
 
 function accrue(address user, uint256 amount) internal {

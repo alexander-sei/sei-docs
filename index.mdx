@@ -8,9 +8,11 @@ mode: "wide"
 <Warning>
   **Action required: IBC assets on Sei will become inaccessible**
 
-  If you hold [USDC.n](https://seitrace.com/address/0x3894085Ef7Ff0f0aeDf52E2A2704928d1Ec074F1) (USDC via Noble), [USDT.kava](https://seitrace.com/address/0xb75d0b03c06a926e488e2659df1a861f860bd3d1), Wormhole-bridged tokens, or any other IBC asset on Sei, you **must** swap, migrate, or bridge out **before the governance proposal disables inbound/outbound IBC transfers** to avoid permanent loss of access.
+  If you hold [USDC.n](https://seitrace.com/address/0x3894085Ef7Ff0f0aeDf52E2A2704928d1Ec074F1) (USDC via Noble), [USDT.kava](https://seitrace.com/address/0xb75d0b03c06a926e488e2659df1a861f860bd3d1) (Kava USDT), Wormhole-bridged tokens, or any other IBC asset on Sei, you **must** swap, migrate, or bridge out **before the governance proposal to disable inbound/outbound IBC transfers passes and is activated** to avoid permanent loss of access. After this, Sei will no longer support IBC bridging of assets from Cosmos-based chains to and from Sei Network.
 
-  Consult the [SIP-03 Migration Guide](/learn/sip-03-migration) for affected assets, required actions, and supported routes.
+  Consult the [SIP-03 Migration Guide](/learn/sip-03-migration) for the full list of affected assets, required actions, and supported routes.
+
+  For USDC.n specifically, see: [Holders of USDC.n Need to Swap or Migrate](https://blog.sei.io/announcements/holders-of-usdcn-need-to-swap-or-migrate/).
 </Warning>
 
 ## Start building in minutes
@@ -67,6 +69,35 @@ mode: "wide"
   </Card>
   <Card title="Nodes" icon="server" href="/node">
     Run validator, RPC, archive, and statesync nodes — with hardware specs and tuning guides.
+  </Card>
+</CardGroup>
+
+## Ecosystem & integrations
+
+<CardGroup cols={2}>
+  <Card title="Sei Global Wallet" icon="wallet" href="/evm/sei-global-wallet">
+    Onboard users from any chain with a single wallet.
+  </Card>
+  <Card title="AI tooling" icon="robot" href="/evm/ai-tooling/cambrian-agent-kit">
+    Deploy AI agents that execute smart contract actions.
+  </Card>
+  <Card title="Tokens" icon="coins" href="/evm/tokens">
+    View and manage SEI and ERC-20/721 in wallets.
+  </Card>
+  <Card title="Indexers" icon="database" href="/learn/indexers">
+    Query on-chain data with Goldsky, The Graph, and more.
+  </Card>
+  <Card title="Oracles" icon="eye" href="/learn/oracles">
+    Chainlink, Pyth, Redstone, and API3 price feeds.
+  </Card>
+  <Card title="USDC & payments" icon="credit-card" href="/evm/usdc-on-sei">
+    Fast, low-fee payments with immediate finality.
+  </Card>
+  <Card title="x402 micropayments" icon="receipt" href="/evm/x402">
+    Monetize APIs with HTTP-native payments.
+  </Card>
+  <Card title="In-app swaps" icon="arrow-right-arrow-left" href="/evm/in-app-swaps">
+    Embed token swaps directly in your dApp.
   </Card>
 </CardGroup>
 

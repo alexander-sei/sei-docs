@@ -108,7 +108,8 @@ event ValidatorEdited(
 
 You can listen for these events in your dApp to track staking operations:
 
-```typescript // Listen for delegation events
+```typescript
+// Listen for delegation events
 staking.on('Delegate', (delegator, validator, amount) => {
   console.log(`${delegator} delegated ${amount} to ${validator}`);
 });
@@ -462,7 +463,8 @@ Before getting started, ensure you have:
 
 Install the required packages for interacting with Sei precompiles:
 
-```bash # Install ethers.js for smart contract interactions
+```bash
+# Install ethers.js for smart contract interactions
 npm install ethers
 
 # Install Sei EVM bindings for precompile addresses and ABIs
@@ -471,7 +473,8 @@ npm install @sei-js/precompiles@2.1.2
 
 #### Import Precompile Components
 
-```typescript // Import Staking precompile address and ABI
+```typescript
+// Import Staking precompile address and ABI
 // View the entire ABI here: https://github.com/sei-protocol/sei-chain/tree/evm/precompiles/staking
 import { STAKING_PRECOMPILE_ABI, STAKING_PRECOMPILE_ADDRESS } from '@sei-js/precompiles';
 import { ethers } from 'ethers';
@@ -483,7 +486,8 @@ import { ethers } from 'ethers';
 
 Set up your provider, signer, and contract instance:
 
-```typescript // Using EVM-compatible wallet as the signer and provider
+```typescript
+// Using EVM-compatible wallet as the signer and provider
 const provider = new ethers.BrowserProvider(window.ethereum);
 await provider.send('eth_requestAccounts', []);
 const signer = await provider.getSigner();
@@ -552,7 +556,8 @@ Examples:
 
 When working with user inputs, use the appropriate conversion for each function:
 
-```typescript // Best practice for handling user input amounts
+```typescript
+// Best practice for handling user input amounts
 function prepareAmountForDelegate(seiAmount: number): bigint {
   // For delegate() - convert to 18 decimals (wei)
   const fixedAmount = seiAmount.toFixed(6);
@@ -582,7 +587,8 @@ const undelegateAmount = prepareAmountForUndelegateRedelegate(userInputAmount); 
 - **Reconciling delegate vs. undelegate/redelegate/rewards:** convert delegate `msg.value` from wei to uSEI using integer division by `1e12` (floor), which matches the precompile’s internal truncation.
 - **Enforce granularity at source:** construct `msg.value` as a multiple of `1e12` wei by formatting user input to 6 decimals prior to `parseUnits`.
 
-```typescript // Convert delegate msg.value (wei) to uSEI (6 decimals) for reconciliation
+```typescript
+// Convert delegate msg.value (wei) to uSEI (6 decimals) for reconciliation
 function weiToUseiForDelegate(valueWei: bigint): bigint {
   return valueWei / 1_000_000_000_000n; // floor to 6-decimal granularity
 }
@@ -602,7 +608,8 @@ function normalizeWeiForDelegate(valueWei: bigint): bigint {
 
 Use these helper functions to avoid precision errors:
 
-```typescript // Helper functions for amount conversion
+```typescript
+// Helper functions for amount conversion
 class SeiAmountConverter {
   // Convert SEI to wei (18 decimals) - ONLY for delegate()
   static seiToWei(seiAmount: number): bigint {
@@ -638,7 +645,8 @@ const redelegateAmount = SeiAmountConverter.seiToUsei(2); // For redelegate() - 
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Sei validator address you want to delegate to (seivaloper... format)
+```typescript
+// Sei validator address you want to delegate to (seivaloper... format)
 const validatorAddress = 'seivaloper1xyz...';
 
 const amount = 1; // Amount in SEI to delegate
@@ -656,7 +664,8 @@ console.log('Delegation completed:', receipt);
 
 </Tab>
 <Tab title="Solidity">
-```typescript function delegateToValidator(string memory validatorAddress) external payable {
+```typescript
+function delegateToValidator(string memory validatorAddress) external payable {
         require(msg.value > 0, "Amount must be greater than 0");
         
         bool success = ISTAKING(0x0000000000000000000000000000000000001005).delegate{value: msg.value}(validatorAddress);
@@ -674,7 +683,8 @@ console.log('Delegation completed:', receipt);
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Undelegate 1 SEI from a validator - Uses 6 decimals for amount parameter
+```typescript
+// Undelegate 1 SEI from a validator - Uses 6 decimals for amount parameter
 const validatorAddress = 'seivaloper1xyz...';
 
 const amount = 1; // Amount in SEI to undelegate
@@ -689,7 +699,8 @@ console.log('Undelegation started:', receipt);
 
 </Tab>
 <Tab title="Solidity">
-```typescript     function undelegateFromValidator(
+```typescript
+function undelegateFromValidator(
         string memory validatorAddress, 
         uint256 amount
     ) external {
@@ -713,7 +724,8 @@ console.log('Undelegation started:', receipt);
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Redelegate 0.5 SEI from one validator to another - Uses 6 decimals for amount parameter
+```typescript
+// Redelegate 0.5 SEI from one validator to another - Uses 6 decimals for amount parameter
 const srcValidator = 'seivaloper1abc...';
 const dstValidator = 'seivaloper1xyz...';
 
@@ -729,7 +741,8 @@ console.log('Redelegation completed:', receipt);
 
 </Tab>
 <Tab title="Solidity">
-```typescript     function redelegateBetweenValidators(
+```typescript
+function redelegateBetweenValidators(
         string memory fromValidator,
         string memory toValidator,
         uint256 amount
@@ -762,7 +775,8 @@ console.log('Redelegation completed:', receipt);
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Get your EVM address as the delegator
+```typescript
+// Get your EVM address as the delegator
 const delegator = await signer.getAddress();
 
 try {
@@ -791,7 +805,8 @@ try {
 
 </Tab>
 <Tab title="Solidity">
-```typescript     function getDelegationInfo(
+```typescript
+function getDelegationInfo(
         address delegator,
         string memory validatorAddress
     ) external view returns (IStakingPrecompile.Delegation memory) {
@@ -809,7 +824,8 @@ try {
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Ed25519 public key in hex format (64 characters)
+```typescript
+// Ed25519 public key in hex format (64 characters)
 // This comes from your validator node's priv_validator_key.json
 const pubKeyHex = 'your_ed25519_public_key_hex_64_chars';
 const moniker = 'MyValidator';
@@ -834,7 +850,8 @@ console.log('Validator created:', receipt);
 </Tab>
 <Tab title="Solidity">
 
-```solidity function createNewValidator(
+```solidity
+function createNewValidator(
     string memory pubKeyHex,
     string memory moniker,
     string memory commissionRate,
@@ -861,7 +878,8 @@ console.log('Validator created:', receipt);
 
 ### Edit a Validator
 
-```typescript // Update validator parameters
+```typescript
+// Update validator parameters
 const newMoniker = 'MyUpdatedValidator';
 const newCommissionRate = '0.08'; // 8% commission (or "" to keep current)
 const newMinSelfDelegation = BigInt(2000000); // 2 SEI (or 0 to keep current)
@@ -876,7 +894,8 @@ console.log('Validator updated:', receipt);
 
 ### Query Validators
 
-```typescript // Get all bonded validators
+```typescript
+// Get all bonded validators
 const bondedValidators = await staking.validators('BOND_STATUS_BONDED', '0x');
 console.log('Bonded validators:', bondedValidators.validators);
 
@@ -893,7 +912,8 @@ if (allValidators.nextKey.length > 0) {
 
 ### Query a Specific Validator
 
-```typescript const validatorAddress = 'seivaloper1xyz...';
+```typescript
+const validatorAddress = 'seivaloper1xyz...';
 const validatorInfo = await staking.validator(validatorAddress);
 
 console.log('Validator details:', {
@@ -907,7 +927,8 @@ console.log('Validator details:', {
 
 ### Query All Delegations for an Address
 
-```typescript const delegator = await signer.getAddress();
+```typescript
+const delegator = await signer.getAddress();
 
 // Get all delegations for the connected wallet
 const myDelegations = await staking.delegatorDelegations(delegator, '0x');
@@ -921,7 +942,8 @@ for (const del of myDelegations.delegations) {
 
 ### Query Unbonding Delegations
 
-```typescript const delegator = await signer.getAddress();
+```typescript
+const delegator = await signer.getAddress();
 
 // Get all unbonding delegations
 const unbonding = await staking.delegatorUnbondingDelegations(delegator, '0x');
@@ -942,7 +964,8 @@ const specificUnbonding = await staking.unbondingDelegation(delegator, validator
 
 ### Query Redelegations
 
-```typescript // Get all redelegations for a specific delegator
+```typescript
+// Get all redelegations for a specific delegator
 const delegatorAddress = await signer.getAddress();
 const delegatorBech32 = 'sei1...'; // Convert EVM address to Bech32 format
 
@@ -965,7 +988,8 @@ for (const redel of redelegations.redelegations) {
 
 ### Query Staking Pool and Parameters
 
-```typescript // Get staking pool totals
+```typescript
+// Get staking pool totals
 const pool = await staking.pool();
 console.log('Staking Pool:', {
   bondedTokens: pool.bondedTokens,
@@ -984,7 +1008,8 @@ console.log('Staking Parameters:', {
 
 ### Query Historical Validator Info
 
-```typescript // Get validator set at a specific block height
+```typescript
+// Get validator set at a specific block height
 const blockHeight = 1000000n;
 const historicalInfo = await staking.historicalInfo(blockHeight);
 
@@ -998,7 +1023,8 @@ for (const val of historicalInfo.validators) {
 
 ### Portfolio Rebalancing
 
-```typescript async function rebalanceStaking(
+```typescript
+async function rebalanceStaking(
   fromValidator: string,
   toValidator: string,
   amount: number // Amount in SEI
@@ -1025,7 +1051,8 @@ for (const val of historicalInfo.validators) {
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript async function stakingExample() {
+```typescript
+async function stakingExample() {
   // Setup
   const provider = new ethers.BrowserProvider(window.ethereum);
   await provider.send('eth_requestAccounts', []);
@@ -1084,7 +1111,8 @@ for (const val of historicalInfo.validators) {
 
 **Contract Example**
 
-```solidity // SPDX-License-Identifier: MIT
+```solidity
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 interface IStakingPrecompile {
@@ -1268,7 +1296,8 @@ contract StakingManager {
 
 **Client Integration Example**
 
-```javascript const abi = require('./artifacts/contracts/Staking.sol/StakingManager.json');
+```javascript
+const abi = require('./artifacts/contracts/Staking.sol/StakingManager.json');
 const { ethers } = require('hardhat');
 const dotenv = require('dotenv');
 dotenv.config();
@@ -1352,7 +1381,8 @@ main().catch((error) => {
 
 #### Gas-Related Issues
 
-```typescript // Set appropriate gas limits for different operations
+```typescript
+// Set appropriate gas limits for different operations
 const delegateTx = await staking.delegate(validatorAddress, {
   value: amount,
   gasLimit: 300000

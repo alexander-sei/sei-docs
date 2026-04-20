@@ -32,12 +32,14 @@ Use this flag with all `seid q evm` commands.
 
 ### Get Sei Address from EVM Address
 
-```bash seid q evm sei-addr [evm address]
+```bash
+seid q evm sei-addr [evm address]
 ```
 
 **Example:**
 
-```bash seid q evm sei-addr 0x1234abcd5678ef...
+```bash
+seid q evm sei-addr 0x1234abcd5678ef...
 ```
 
 **Output:**
@@ -51,12 +53,14 @@ Use this flag with all `seid q evm` commands.
 
 ### Get EVM Address from Sei Address
 
-```bash seid q evm evm-addr [sei address]
+```bash
+seid q evm evm-addr [sei address]
 ```
 
 **Example:**
 
-```bash seid q evm evm-addr sei1xyz...
+```bash
+seid q evm evm-addr sei1xyz...
 ```
 
 **Output:**
@@ -72,12 +76,14 @@ Use this flag with all `seid q evm` commands.
 
 Query standard ERC20 contract methods using:
 
-```bash seid q evm erc20 [contract address] [method] [arguments...]
+```bash
+seid q evm erc20 [contract address] [method] [arguments...]
 ```
 
 **Example:**
 
-```bash seid q evm erc20 0xabc123... balanceOf 0xuser456...
+```bash
+seid q evm erc20 0xabc123... balanceOf 0xuser456...
 ```
 
 **Output:**
@@ -268,12 +274,14 @@ The pointer system enables interoperability between different token standards (E
 
 Retrieve pointer contracts that bridge tokens between EVM and other environments:
 
-```bash seid q evm pointer [type] [pointee]
+```bash
+seid q evm pointer [type] [pointee]
 ```
 
 **Example:**
 
-```bash seid q evm pointer NATIVE usei
+```bash
+seid q evm pointer NATIVE usei
 ```
 
 **Output:**
@@ -292,12 +300,14 @@ Retrieve pointer contracts that bridge tokens between EVM and other environments
 
 Get the original contract address from a pointer:
 
-```bash seid q evm pointee [type] [pointer]
+```bash
+seid q evm pointee [type] [pointer]
 ```
 
 **Example:**
 
-```bash seid q evm pointee ERC20 0xpointer123...
+```bash
+seid q evm pointee ERC20 0xpointer123...
 ```
 
 **Output:**
@@ -314,12 +324,14 @@ Get the original contract address from a pointer:
 
 Query the current pointer version and stored code ID:
 
-```bash seid q evm pointer-version [type]
+```bash
+seid q evm pointer-version [type]
 ```
 
 **Example:**
 
-```bash seid q evm pointer-version ERC20
+```bash
+seid q evm pointer-version ERC20
 ```
 
 **Output:**
@@ -339,12 +351,14 @@ Query the current pointer version and stored code ID:
 
 Query for a transaction by its hash (equivalent to `eth_getTransactionByHash`):
 
-```bash seid q evm tx [hash] --evm-rpc [EVM RPC endpoint]
+```bash
+seid q evm tx [hash] --evm-rpc [EVM RPC endpoint]
 ```
 
 **Example:**
 
-```bash seid q evm tx 0x1234567890abcdef... --evm-rpc http://127.0.0.1:8545
+```bash
+seid q evm tx 0x1234567890abcdef... --evm-rpc http://127.0.0.1:8545
 ```
 
 **Output:**
@@ -377,7 +391,8 @@ Note: This command is unique - it uses `--evm-rpc` flag with an **EVM RPC endpoi
 
 ### Check Token Balance and Info
 
-```bash # Get token info
+```bash
+# Get token info
 seid q evm erc20 0xtoken... symbol
 seid q evm erc20 0xtoken... decimals
 
@@ -387,7 +402,8 @@ seid q evm erc20 0xtoken... balanceOf 0xuser...
 
 ### Prepare Transaction Data
 
-```bash # Generate transfer payload
+```bash
+# Generate transfer payload
 seid q evm erc20-payload transfer 0xrecipient... 1000000000000000000
 
 # Use the output in a transaction
@@ -396,7 +412,8 @@ seid tx evm call-contract 0xtoken... [payload-from-above] --from mykey
 
 ### Bridge Token Information
 
-```bash # Find EVM pointer for a native token
+```bash
+# Find EVM pointer for a native token
 seid q evm pointer NATIVE usei
 
 # Find original contract from pointer

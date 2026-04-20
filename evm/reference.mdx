@@ -257,7 +257,8 @@ Gets the IAVL proof of the given keys for an account.
 
 Object Schema:
 
-```json {
+```json
+{
     address: // The requested address.
     hexValues: // An array of the hexdecimal form of the values at the given keys.
     storageProof: // An array of storage proofs.
@@ -735,7 +736,8 @@ The `enabled_legacy_sei_apis` setting in `app.toml` controls which `sei_*` and `
 
 **Default allowlist** (enabled on `seid init`):
 
-```toml [evm]
+```toml
+[evm]
 enabled_legacy_sei_apis = [
   "sei_getSeiAddress",
   "sei_getEVMAddress",
@@ -815,7 +817,8 @@ and EVM address on-chain.
 
 Object Schema:
 
-```json {
+```json
+{
     custom_message: // Any string message
     r: // The R-part of the signature over the Keccak256 hash of the custom message.
     s: // The S-part of the signature over the Keccak256 hash of the custom message.
@@ -849,7 +852,8 @@ Returns the Sei (bech32) address associated with an EVM address.
 
 **Example Request**
 
-```json {
+```json
+{
   "jsonrpc": "2.0",
   "method": "sei_getSeiAddress",
   "params": ["0x1234567890abcdef1234567890abcdef12345678"],
@@ -877,7 +881,8 @@ Returns the EVM address associated with a Sei (bech32) address.
 
 **Example Request**
 
-```json {
+```json
+{
   "jsonrpc": "2.0",
   "method": "sei_getEVMAddress",
   "params": ["sei1..."],
@@ -905,7 +910,8 @@ Returns the Cosmos transaction details for a given EVM transaction hash.
 
 **Example Request**
 
-```json {
+```json
+{
   "jsonrpc": "2.0",
   "method": "sei_getCosmosTx",
   "params": ["0xabc123..."],
@@ -920,7 +926,8 @@ Returns the Cosmos transaction details for a given EVM transaction hash.
 
 When a `sei_*` or `sei2_*` method is called but not listed in `enabled_legacy_sei_apis`, the node returns:
 
-```json {
+```json
+{
   "jsonrpc": "2.0",
   "id": 1,
   "error": {

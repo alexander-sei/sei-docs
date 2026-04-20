@@ -25,7 +25,8 @@ Complete guide to creating and submitting governance proposals on Sei. Learn abo
 - Foundation for policy discussions
 - Protocol direction and priorities
 
-```bash seid tx gov submit-proposal \
+```bash
+seid tx gov submit-proposal \
   --title "Community Initiative Proposal" \
   --description "Detailed description of the initiative..." \
   --type Text \
@@ -49,7 +50,8 @@ Complete guide to creating and submitting governance proposals on Sei. Learn abo
 - Impact assessment
 - Testing results
 
-```bash seid tx gov submit-proposal param-change proposal.json \
+```bash
+seid tx gov submit-proposal param-change proposal.json \
   --deposit 3500000000usei \
   --from mykey \
   --chain-id pacific-1
@@ -57,7 +59,8 @@ Complete guide to creating and submitting governance proposals on Sei. Learn abo
 
 <Info>**Example `proposal.json`:**</Info>
 
-```json {
+```json
+{
   "title": "Update Staking Parameters",
   "description": "This proposal updates the maximum number of validators from 100 to 125.",
   "changes": [
@@ -86,7 +89,8 @@ Complete guide to creating and submitting governance proposals on Sei. Learn abo
 - Migration documentation
 - Validator coordination
 
-```bash seid tx gov submit-proposal software-upgrade v2.1.0 \
+```bash
+seid tx gov submit-proposal software-upgrade v2.1.0 \
   --upgrade-height 15000000 \
   --upgrade-info "https://github.com/sei-protocol/sei-chain/releases/v2.1.0" \
   --title "Sei v2.1.0 Upgrade" \
@@ -104,7 +108,8 @@ Complete guide to creating and submitting governance proposals on Sei. Learn abo
 - Emergency parameter adjustments
 - Time-sensitive network upgrades
 
-```bash seid tx gov submit-proposal software-upgrade emergency-patch \
+```bash
+seid tx gov submit-proposal software-upgrade emergency-patch \
   --upgrade-height 15100000 \
   --upgrade-info "https://github.com/sei-protocol/sei-chain/releases/emergency-patch" \
   --title "Emergency Security Patch" \
@@ -128,7 +133,8 @@ Complete guide to creating and submitting governance proposals on Sei. Learn abo
 
 ### Voting
 
-```bash # Vote on a proposal
+```bash
+# Vote on a proposal
 seid tx gov vote [proposal-id] [vote-option] \
   --from mykey \
   --chain-id pacific-1
@@ -141,7 +147,8 @@ seid tx gov vote 42 yes \
 
 ### Deposit Management
 
-```bash # Add deposit to proposal
+```bash
+# Add deposit to proposal
 seid tx gov deposit [proposal-id] [amount] \
   --from mykey \
   --chain-id pacific-1

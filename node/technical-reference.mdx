@@ -23,7 +23,8 @@ These commands help you control and monitor your node's operation:
   If you see an error such as `panic: recovered: runtime error: integer divide by zero` it means you can’t start nodes straight from the genesis file. Instead, sync to the block tip via [state sync](/node/statesync) or using a [snapshot](/node/snapshot).
 </Danger>
 
-```bash # Start the node
+```bash
+# Start the node
 seid start [flags]
 
 # Show node status
@@ -41,7 +42,8 @@ seid query node info
 Proper key management is crucial for security. These commands help you manage
 your keys effectively:
 
-```bash # Create new key
+```bash
+# Create new key
 seid keys add <name> [flags]
 
 # List all keys
@@ -64,7 +66,8 @@ seid keys show <name> -a
 
 These commands allow you to interact with the blockchain:
 
-```bash # Send tokens
+```bash
+# Send tokens
 seid tx bank send <from-key> <to-address> <amount>usei [flags]
 
 # Delegate tokens
@@ -89,7 +92,8 @@ The app.toml file controls application-specific settings:
 <details>
 <summary>Complete app.toml Configuration</summary>
 
-```toml # Minimum gas prices for transaction acceptance
+```toml
+# Minimum gas prices for transaction acceptance
 minimum-gas-prices = "0.01usei"
 
 # API configuration
@@ -127,7 +131,8 @@ The config.toml file controls the core consensus engine and networking:
 <details>
 <summary>Complete config.toml Configuration</summary>
 
-```toml # P2P Configuration
+```toml
+# P2P Configuration
 [p2p]
 laddr = "tcp://0.0.0.0:26656"
 external-address = ""
@@ -173,7 +178,8 @@ Understanding network parameters helps you operate your node effectively.
 
 These parameters define the network's behavior:
 
-```text Block Time: 1 second target
+```text
+Block Time: 1 second target
 Max Validators: 100
 Unbonding Period: 21 days
 Slashing Conditions:
@@ -189,7 +195,8 @@ Maximum Commission Change Rate: 1% per day
 Understanding the purpose and location of important files helps with maintenance
 and troubleshooting:
 
-```text $HOME/.sei/
+```text
+$HOME/.sei/
 ├── config/
 │   ├── app.toml         # Application configuration
 │   ├── client.toml      # Client configuration

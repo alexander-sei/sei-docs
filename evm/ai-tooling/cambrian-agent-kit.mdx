@@ -55,7 +55,8 @@ This tutorial guides you through:
 
 ### 2. Project Setup
 
-```bash git clone https://github.com/CambrianAgents/sei-agent-kit.git
+```bash
+git clone https://github.com/CambrianAgents/sei-agent-kit.git
 cd sei-agent-kit
 cp .env.example .env   # Fill in your keys!
 npm install
@@ -63,7 +64,8 @@ npm install
 
 Edit `.env`:
 
-```env OPENAI_API_KEY=your_openai_api_key
+```env
+OPENAI_API_KEY=your_openai_api_key
 SEI_PRIVATE_KEY=your_wallet_private_key
 RPC_URL=https://evm-rpc.sei-apis.com
 ```
@@ -77,7 +79,8 @@ RPC_URL=https://evm-rpc.sei-apis.com
 
 ### 3. Running Your First Agent
 
-```bash npm run test
+```bash
+npm run test
 ```
 
 The following is the output and interaction with the Cambrian Agent:
@@ -168,7 +171,8 @@ You: bye
 
 #### a) Check Token Balance with Error Handling
 
-```typescript import { SeiAgentKit } from './src/agent';
+```typescript
+import { SeiAgentKit } from './src/agent';
 
 async function checkBalanceWithErrorHandling() {
   try {
@@ -197,7 +201,8 @@ async function checkBalanceWithErrorHandling() {
 
 #### b) Safe Token Swapping with Symphony
 
-```typescript async function safeSwap() {
+```typescript
+async function safeSwap() {
   try {
     const agent = new SeiAgentKit(process.env.SEI_PRIVATE_KEY, 'openai');
 
@@ -247,7 +252,8 @@ async function checkBalanceWithErrorHandling() {
 
 #### c) Liquid Staking with Silo Protocol
 
-```typescript async function stakingWithSilo() {
+```typescript
+async function stakingWithSilo() {
   try {
     const agent = new SeiAgentKit(process.env.SEI_PRIVATE_KEY, 'openai');
 
@@ -288,7 +294,8 @@ async function checkBalanceWithErrorHandling() {
 
 #### d) Lending/Borrowing with Takara Protocol
 
-```typescript async function takaraLending() {
+```typescript
+async function takaraLending() {
   try {
     const agent = new SeiAgentKit(process.env.SEI_PRIVATE_KEY, 'openai');
 
@@ -327,7 +334,8 @@ async function checkBalanceWithErrorHandling() {
 
 #### e) Perpetual Trading with Citrex Markets
 
-```typescript async function citrexTrading() {
+```typescript
+async function citrexTrading() {
   try {
     const agent = new SeiAgentKit(process.env.SEI_PRIVATE_KEY, 'openai');
 
@@ -369,7 +377,8 @@ async function checkBalanceWithErrorHandling() {
 <Info>
 **Comprehensive Error Handling Examples:**
 
-```typescript // Robust error handling for all operations
+```typescript
+// Robust error handling for all operations
 async function robustAgentOperation() {
   const agent = new SeiAgentKit(process.env.SEI_PRIVATE_KEY, 'openai');
 
@@ -409,7 +418,8 @@ async function robustAgentOperation() {
 
 ### Transaction Monitoring
 
-```typescript async function monitorTransaction(txHash: string) {
+```typescript
+async function monitorTransaction(txHash: string) {
   const maxRetries = 30; // 30 seconds max wait
   let retries = 0;
 
@@ -467,7 +477,8 @@ curl -X POST https://evm-rpc.sei-apis.com \
 
 #### Multi-Protocol Strategy Example
 
-```typescript async function deFiStrategy() {
+```typescript
+async function deFiStrategy() {
   const agent = new SeiAgentKit(process.env.SEI_PRIVATE_KEY, 'openai');
 
   try {
@@ -498,7 +509,8 @@ curl -X POST https://evm-rpc.sei-apis.com \
 
 #### Monitoring & Alerts:
 
-```typescript // Set up monitoring for your agent
+```typescript
+// Set up monitoring for your agent
 async function setupMonitoring() {
   const agent = new SeiAgentKit(process.env.SEI_PRIVATE_KEY, 'openai');
 

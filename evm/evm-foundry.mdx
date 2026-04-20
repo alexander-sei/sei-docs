@@ -41,13 +41,15 @@ Before we begin, ensure you have the following:
 
 First, let's install Foundry if you haven't already. Follow the [installation guide](https://book.getfoundry.sh/getting-started/installation) or use the quick install command:
 
-```bash curl -L https://foundry.paradigm.xyz | bash
+```bash
+curl -L https://foundry.paradigm.xyz | bash
 foundryup
 ```
 
 Create a new Foundry project:
 
-```bash # Create a new directory for your project
+```bash
+# Create a new directory for your project
 mkdir sei-foundry-project
 cd sei-foundry-project
 
@@ -64,7 +66,7 @@ This will create a standard Foundry project structure with `src/`, `test/`, and 
 
 Create a `foundry.toml` file in your project root to configure Foundry for Sei networks:
 
-```toml copy filename="foundry.toml"
+```toml title="foundry.toml"
 [profile.default]
 src = "src"
 out = "out"
@@ -81,7 +83,7 @@ sei_mainnet = "https://evm-rpc.sei-apis.com"
 
 Create a `.env` file to store your private key and other sensitive information:
 
-```bash copy filename=".env"
+```bash title=".env"
 PRIVATE_KEY=your_private_key_here
 SEI_TESTNET_RPC=https://evm-rpc-testnet.sei-apis.com
 SEI_MAINNET_RPC=https://evm-rpc.sei-apis.com
@@ -93,12 +95,14 @@ SEI_MAINNET_RPC=https://evm-rpc.sei-apis.com
 
 OpenZeppelin provides a library of secure, tested smart contract components. Let's install OpenZeppelin contracts:
 
-```bash forge install OpenZeppelin/openzeppelin-contracts
+```bash
+forge install OpenZeppelin/openzeppelin-contracts
 ```
 
 Create a `remappings.txt` file to properly map the imports:
 
-```bash forge remappings > remappings.txt
+```bash
+forge remappings > remappings.txt
 ```
 
 ## Creating and Deploying Smart Contracts
@@ -110,7 +114,7 @@ Let's create different types of smart contracts. Choose from the tabs below base
 
 Let's start with a simple counter contract. Update the default `src/Counter.sol` file:
 
-```solidity copy filename="src/Counter.sol"
+```solidity title="src/Counter.sol"
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.22;
 
@@ -152,7 +156,7 @@ contract Counter {
 
 Create a deployment script in `script/DeployCounter.s.sol`:
 
-```solidity copy filename="script/DeployCounter.s.sol"
+```solidity title="script/DeployCounter.s.sol"
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.22;
 
@@ -174,7 +178,7 @@ contract DeployCounter is Script {
 
 Create an ERC20 token using OpenZeppelin. Create `src/SeiToken.sol`:
 
-```solidity copy filename="src/SeiToken.sol"
+```solidity title="src/SeiToken.sol"
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
 
@@ -210,7 +214,7 @@ contract SeiToken is ERC20, Ownable {
 
 Create a deployment script in `script/DeploySeiToken.s.sol`:
 
-```solidity copy filename="script/DeploySeiToken.s.sol"
+```solidity title="script/DeploySeiToken.s.sol"
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
 
@@ -232,7 +236,7 @@ contract DeploySeiToken is Script {
 
 Create an ERC721 NFT contract using OpenZeppelin. Create `src/SeiNFT.sol`:
 
-```solidity copy filename="src/SeiNFT.sol"
+```solidity title="src/SeiNFT.sol"
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
 
@@ -323,7 +327,7 @@ contract SeiNFT is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
 
 Create a deployment script in `script/DeploySeiNFT.s.sol`:
 
-```solidity copy filename="script/DeploySeiNFT.s.sol"
+```solidity title="script/DeploySeiNFT.s.sol"
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
 
@@ -355,7 +359,7 @@ Foundry provides excellent testing capabilities. Let's create comprehensive test
 
 Update `test/Counter.t.sol`:
 
-```solidity copy filename="test/Counter.t.sol"
+```solidity title="test/Counter.t.sol"
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.22;
 
@@ -420,7 +424,7 @@ contract CounterTest is Test {
 
 Create `test/SeiToken.t.sol`:
 
-```solidity copy filename="test/SeiToken.t.sol"
+```solidity title="test/SeiToken.t.sol"
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
 
@@ -475,7 +479,7 @@ contract SeiTokenTest is Test {
 
 Create `test/SeiNFT.t.sol`:
 
-```solidity copy filename="test/SeiNFT.t.sol"
+```solidity title="test/SeiNFT.t.sol"
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
 
@@ -539,12 +543,14 @@ contract SeiNFTTest is Test {
 
 Run your tests with:
 
-```bash forge test
+```bash
+forge test
 ```
 
 For more verbose output:
 
-```bash forge test -vvv
+```bash
+forge test -vvv
 ```
 
 ## Deploying to Sei Testnet and Mainnet
@@ -555,19 +561,22 @@ Now let's deploy our contracts to the Sei networks. You can use either Forge scr
 
 Deploy to Sei testnet:
 
-```bash forge script script/DeployCounter.s.sol --rpc-url $SEI_TESTNET_RPC --private-key $PRIVATE_KEY --broadcast
+```bash
+forge script script/DeployCounter.s.sol --rpc-url $SEI_TESTNET_RPC --private-key $PRIVATE_KEY --broadcast
 ```
 
 Deploy to Sei mainnet:
 
-```bash forge script script/DeployCounter.s.sol --rpc-url $SEI_MAINNET_RPC --private-key $PRIVATE_KEY --broadcast
+```bash
+forge script script/DeployCounter.s.sol --rpc-url $SEI_MAINNET_RPC --private-key $PRIVATE_KEY --broadcast
 ```
 
 ### Using Direct Forge Create Commands
 
 Alternatively, you can deploy directly:
 
-```bash # Deploy Counter to testnet
+```bash
+# Deploy Counter to testnet
 forge create --rpc-url $SEI_TESTNET_RPC --private-key $PRIVATE_KEY src/Counter.sol:Counter
 
 # Deploy SeiToken to testnet
@@ -593,7 +602,8 @@ Once deployed, you can interact with your contracts using Foundry's `cast` tool 
 
 ### Using Cast Commands
 
-```bash # Query the counter value
+```bash
+# Query the counter value
 cast call $CONTRACT_ADDRESS "getCount()(uint256)" --rpc-url $SEI_TESTNET_RPC
 
 # Increment the counter
@@ -613,12 +623,13 @@ cast send $TOKEN_ADDRESS "transfer(address,uint256)" $RECIPIENT_ADDRESS 1000 --p
 
 Install ethers.js to interact with your contracts programmatically:
 
-```bash npm install ethers@latest
+```bash
+npm install ethers@latest
 ```
 
 Create a Node.js script to interact with your deployed contracts:
 
-```tsx copy filename="interact.js"
+```tsx title="interact.js"
 import { ethers } from 'ethers';
 
 const privateKey = process.env.PRIVATE_KEY;

@@ -94,7 +94,8 @@ To use Sim APIs, you'll need an API key from the Sim dashboard:
 
 ### 2. Project Setup
 
-```bash mkdir sei-sim-tutorial
+```bash
+mkdir sei-sim-tutorial
 cd sei-sim-tutorial
 npm init -y
 npm install axios dotenv
@@ -102,7 +103,8 @@ npm install axios dotenv
 
 Create `.env` file:
 
-```env SIM_API_KEY=your_sim_api_key_here
+```env
+SIM_API_KEY=your_sim_api_key_here
 SEI_RPC_URL=https://evm-rpc.sei-apis.com
 TEST_WALLET_ADDRESS=0x...your_test_address
 ```
@@ -111,7 +113,8 @@ TEST_WALLET_ADDRESS=0x...your_test_address
 
 Create `index.js`:
 
-```javascript require('dotenv').config();
+```javascript
+require('dotenv').config();
 const axios = require('axios');
 
 const SIM_API_BASE = 'https://api.sim.dune.com/v1';
@@ -145,7 +148,8 @@ getSeiBalances();
 
 Run your first query:
 
-```bash node index.js
+```bash
+node index.js
 ```
 
 **Expected Output:**
@@ -161,7 +165,8 @@ Run your first query:
 
 ### Balances API - Get Token Balances
 
-```javascript async function getSeiBalances() {
+```javascript
+async function getSeiBalances() {
   try {
     const response = await axios.get(`${SIM_API_BASE}/evm/balances/${process.env.TEST_WALLET_ADDRESS}?chain_ids=1329`, { headers });
 
@@ -179,7 +184,8 @@ Run your first query:
 
 ### Transactions API - Monitor Wallet Transactions
 
-```javascript async function monitorSeiTransactions(address) {
+```javascript
+async function monitorSeiTransactions(address) {
   try {
     console.log(`📡 Monitoring transactions for ${address}...`);
 
@@ -210,7 +216,8 @@ Run your first query:
 
 ### Token Info API - Get Token Metadata
 
-```javascript async function getTokenInfo(tokenAddress) {
+```javascript
+async function getTokenInfo(tokenAddress) {
   try {
     console.log('🏷️ Fetching token information...');
 
@@ -237,7 +244,8 @@ getTokenInfo('0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf42392');
 
 ### Token Holders API - Find Top Holders
 
-```javascript async function getTokenHolders(tokenAddress, limit = 20) {
+```javascript
+async function getTokenHolders(tokenAddress, limit = 20) {
   try {
     console.log('👥 Fetching token holders...');
 
@@ -264,7 +272,8 @@ getTokenInfo('0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf42392');
 
 ### Activity API - Track Swaps and Transfers
 
-```javascript async function getWalletActivity(walletAddress, limit = 10) {
+```javascript
+async function getWalletActivity(walletAddress, limit = 10) {
   try {
     console.log('⚡ Fetching wallet activity on Sei...');
 
@@ -298,7 +307,8 @@ getTokenInfo('0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf42392');
 
 ### Collectibles API - Get NFT Collections
 
-```javascript async function getNFTCollections(walletAddress) {
+```javascript
+async function getNFTCollections(walletAddress) {
   try {
     console.log('🖼️ Fetching NFT collections...');
 
@@ -347,7 +357,8 @@ getTokenInfo('0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf42392');
 
 ### Portfolio Analytics Dashboard
 
-```javascript require('dotenv').config();
+```javascript
+require('dotenv').config();
 const axios = require('axios');
 
 const SIM_API_BASE = 'https://api.sim.dune.com/v1';
@@ -468,7 +479,8 @@ analyzeToken('0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf42392'); // USDC address
 
 ### Comprehensive Error Handling
 
-```javascript class SimAPIClient {
+```javascript
+class SimAPIClient {
   constructor(apiKey) {
     this.apiKey = apiKey;
     this.baseURL = 'https://api.sim.dune.com/v1';
@@ -526,7 +538,8 @@ analyzeToken('0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf42392'); // USDC address
 
 ### Rate Limiting
 
-```javascript class RateLimitedClient {
+```javascript
+class RateLimitedClient {
   constructor(apiKey, requestsPerSecond = 10) {
     this.client = new SimAPIClient(apiKey);
     this.requestsPerSecond = requestsPerSecond;

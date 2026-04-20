@@ -106,7 +106,8 @@ Before getting started, ensure you have:
 
 Install the required packages for interacting with Sei precompiles:
 
-```bash # Install ethers.js for smart contract interactions
+```bash
+# Install ethers.js for smart contract interactions
 npm install ethers
 
 # Install Sei EVM bindings for precompile addresses and ABIs
@@ -115,7 +116,8 @@ npm install @sei-js/precompiles@2.1.2
 
 #### Import Precompile Components
 
-```typescript // Import CosmWasm precompile address and ABI
+```typescript
+// Import CosmWasm precompile address and ABI
 // View the entire ABI here: https://github.com/sei-protocol/sei-chain/tree/main/precompiles/wasmd
 import { WASM_PRECOMPILE_ABI, WASM_PRECOMPILE_ADDRESS } from '@sei-js/precompiles';
 import { ethers } from 'ethers';
@@ -127,7 +129,8 @@ import { ethers } from 'ethers';
 
 Set up your provider, signer, and contract instance:
 
-```typescript // Using EVM-compatible wallet as the signer and provider
+```typescript
+// Using EVM-compatible wallet as the signer and provider
 const provider = new ethers.BrowserProvider(window.ethereum);
 await provider.send('eth_requestAccounts', []);
 const signer = await provider.getSigner();
@@ -169,7 +172,8 @@ The CosmWasm precompile requires **JSON-encoded messages** that conform to each 
 
 When working with CosmWasm messages, use proper JSON encoding:
 
-```typescript // Helper functions for message encoding
+```typescript
+// Helper functions for message encoding
 class CosmWasmMessageEncoder {
   // Encode instantiate message
   static encodeInstantiateMsg(msg: object): Uint8Array {
@@ -223,7 +227,8 @@ const queryMsg = CosmWasmMessageEncoder.encodeQueryMsg({
 
 Use these helper functions to handle CosmWasm message formatting:
 
-```typescript // Helper functions for CosmWasm message handling
+```typescript
+// Helper functions for CosmWasm message handling
 class CosmWasmHelper {
   // Create instantiate message bytes
   static createInstantiateMsg(msgObject: any): Uint8Array {
@@ -284,7 +289,8 @@ const coins = CosmWasmHelper.createCoins([{ denom: 'uusdc', amount: '1000000' }]
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Instantiate a CW20 token contract
+```typescript
+// Instantiate a CW20 token contract
 const codeId = 1; // The stored code ID on Sei
 const admin = ''; // Provide Sei address
 const label = 'My Token Contract';
@@ -324,7 +330,8 @@ console.log('New contract address:', contractAddress);
 </Tab>
 <Tab title="Solidity">
 
-```solidity contract CosmWasmManager {
+```solidity
+contract CosmWasmManager {
     ICosmWasm constant COSMWASM = ICosmWasm(0x0000000000000000000000000000000000001002);
 
     event ContractInstantiated(string contractAddress, bytes data);
@@ -357,7 +364,8 @@ console.log('New contract address:', contractAddress);
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Execute a transfer on a CW20 token contract
+```typescript
+// Execute a transfer on a CW20 token contract
 const contractAddress = 'sei1contract...'; // Your CosmWasm contract address
 
 // Create execute message for CW20 transfer
@@ -384,7 +392,8 @@ console.log('Execution response:', response);
 </Tab>
 <Tab title="Solidity">
 
-```solidity contract CosmWasmExecutor {
+```solidity
+contract CosmWasmExecutor {
     ICosmWasm constant COSMWASM = ICosmWasm(0x0000000000000000000000000000000000001002);
 
     event ContractExecuted(string contractAddress, bytes response);
@@ -413,7 +422,8 @@ console.log('Execution response:', response);
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Execute multiple operations in a single transaction
+```typescript
+// Execute multiple operations in a single transaction
 const contract1 = 'sei1contract1...';
 const contract2 = 'sei1contract2...';
 
@@ -455,7 +465,8 @@ console.log('Batch execution completed:', receipt);
 </Tab>
 <Tab title="Solidity">
 
-```solidity contract BatchExecutor {
+```solidity
+contract BatchExecutor {
     ICosmWasm constant COSMWASM = ICosmWasm(0x0000000000000000000000000000000000001002);
 
     function executeBatch(
@@ -482,7 +493,8 @@ console.log('Batch execution completed:', receipt);
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Query balance of a CW20 token
+```typescript
+// Query balance of a CW20 token
 const contractAddress = 'sei1contract...';
 const userAddress = 'sei1user...';
 
@@ -516,7 +528,8 @@ try {
 </Tab>
 <Tab title="Solidity">
 
-```solidity contract CosmWasmQuery {
+```solidity
+contract CosmWasmQuery {
     ICosmWasm constant COSMWASM = ICosmWasm(0x0000000000000000000000000000000000001002);
 
     function queryContract(
@@ -548,7 +561,8 @@ try {
 
 ### Cross-Runtime DeFi Integration
 
-```typescript async function crossRuntimeDeFiOperation(cosmwasmDexContract: string, evmTokenContract: string, amount: string) {
+```typescript
+async function crossRuntimeDeFiOperation(cosmwasmDexContract: string, evmTokenContract: string, amount: string) {
   try {
     // 1. Execute swap on CosmWasm DEX
     const swapMsg = CosmWasmHelper.createExecuteMsg({
@@ -589,7 +603,8 @@ try {
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript async function cosmwasmExample() {
+```typescript
+async function cosmwasmExample() {
   // Setup
   const provider = new ethers.BrowserProvider(window.ethereum);
   await provider.send('eth_requestAccounts', []);
@@ -697,7 +712,8 @@ try {
 
 **Contract Example**
 
-```solidity // SPDX-License-Identifier: MIT
+```solidity
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 interface ICosmWasmPrecompile {
@@ -815,7 +831,8 @@ contract CosmWasmBridge {
 
 **Client Integration Example**
 
-```javascript const abi = require('./artifacts/contracts/CosmWasmBridge.sol/CosmWasmBridge.json');
+```javascript
+const abi = require('./artifacts/contracts/CosmWasmBridge.sol/CosmWasmBridge.json');
 const { ethers } = require('hardhat');
 const dotenv = require('dotenv');
 dotenv.config();
@@ -875,7 +892,8 @@ main().catch((error) => {
 
 #### Message Encoding Issues
 
-```typescript // Ensure proper JSON encoding for messages
+```typescript
+// Ensure proper JSON encoding for messages
 const msg = {
   transfer: {
     recipient: 'sei1...',

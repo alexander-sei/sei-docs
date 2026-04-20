@@ -47,7 +47,8 @@ be visible on the right side of the page:
 
 On your local machine run the following:
 
-```bash npm install -g @graphprotocol/graph-cli
+```bash
+npm install -g @graphprotocol/graph-cli
 ```
 
 ### Initialize your Subgraph⁠
@@ -55,7 +56,8 @@ On your local machine run the following:
 You can copy this directly from your subgraph page to include your specific
 subgraph slug:
 
-```bash graph init --studio <SUBGRAPH_SLUG>
+```bash
+graph init --studio <SUBGRAPH_SLUG>
 ```
 
 You'll be prompted to provide some info on your subgraph like this:
@@ -73,7 +75,8 @@ generate an entity for each event.
 
 First run these commands:
 
-```bash $ graph codegen
+```bash
+$ graph codegen
 $ graph build
 ```
 
@@ -81,7 +84,8 @@ Then run these to authenticate and deploy your subgraph. You can copy these
 commands directly from your subgraph's page in Studio to include your specific
 deploy key and subgraph slug:
 
-```bash $ graph auth --studio <DEPLOY_KEY>
+```bash
+$ graph auth --studio <DEPLOY_KEY>
 $ graph deploy --studio <SUBGRAPH_SLUG>
 ```
 
@@ -154,7 +158,8 @@ you can create API Keys.
 
 This query shows the most expensive CryptoPunks sold.
 
-```graphql {
+```graphql
+{
   trades(orderBy: priceETH, orderDirection: desc) {
     priceETH
     tokenId
@@ -164,7 +169,8 @@ This query shows the most expensive CryptoPunks sold.
 
 Passing this into the query URL returns this result:
 
-```json {
+```json
+{
   "data": {
     "trades": [
       {
@@ -184,7 +190,8 @@ Passing this into the query URL returns this result:
 
 ### Sample code
 
-```jsx const axios = require('axios');
+```jsx
+const axios = require('axios');
 
 const graphqlQuery = `{
   trades(orderBy: priceETH, orderDirection: desc) {

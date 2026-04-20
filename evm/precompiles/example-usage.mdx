@@ -21,12 +21,14 @@ Sei precompiles are special smart contracts deployed at fixed addresses that exp
 
 Install the required dependencies:
 
-```bash npm install ethers @sei-js/evm
+```bash
+npm install ethers @sei-js/evm
 ```
 
 Set up your provider and signer:
 
-```typescript import { ethers } from 'ethers';
+```typescript
+import { ethers } from 'ethers';
 
 // Browser environment with MetaMask
 const provider = new ethers.BrowserProvider(window.ethereum);
@@ -44,7 +46,8 @@ const signer = new ethers.Wallet('YOUR_PRIVATE_KEY', provider);
 
 Delegate tokens and manage staking operations:
 
-```typescript import { STAKING_PRECOMPILE_ABI, STAKING_PRECOMPILE_ADDRESS } from '@sei-js/evm';
+```typescript
+import { STAKING_PRECOMPILE_ABI, STAKING_PRECOMPILE_ADDRESS } from '@sei-js/evm';
 
 const staking = new ethers.Contract(STAKING_PRECOMPILE_ADDRESS, STAKING_PRECOMPILE_ABI, signer);
 
@@ -64,7 +67,8 @@ console.log('Delegated amount:', delegation.balance.amount.toString());
 
 Submit proposals and vote on governance:
 
-```typescript import { GOVERNANCE_PRECOMPILE_ABI, GOVERNANCE_PRECOMPILE_ADDRESS } from '@sei-js/evm';
+```typescript
+import { GOVERNANCE_PRECOMPILE_ABI, GOVERNANCE_PRECOMPILE_ADDRESS } from '@sei-js/evm';
 
 const governance = new ethers.Contract(GOVERNANCE_PRECOMPILE_ADDRESS, GOVERNANCE_PRECOMPILE_ABI, signer);
 
@@ -81,7 +85,8 @@ console.log('Vote cast successfully');
 
 Parse and query JSON data on-chain:
 
-```typescript import { JSON_PRECOMPILE_ABI, JSON_PRECOMPILE_ADDRESS } from '@sei-js/evm';
+```typescript
+import { JSON_PRECOMPILE_ABI, JSON_PRECOMPILE_ADDRESS } from '@sei-js/evm';
 
 const jsonPrecompile = new ethers.Contract(JSON_PRECOMPILE_ADDRESS, JSON_PRECOMPILE_ABI, signer);
 
@@ -104,7 +109,8 @@ console.log(`${symbol}: ${price}`);
 
 Always wrap precompile calls in try-catch blocks:
 
-```typescript try {
+```typescript
+try {
   const tx = await staking.delegate(validatorAddress, { value: amount });
   const receipt = await tx.wait();
   console.log('Success:', receipt.hash);
@@ -121,7 +127,8 @@ Always wrap precompile calls in try-catch blocks:
 
 Set appropriate gas limits for different operations:
 
-```typescript // Simple operations (queries)
+```typescript
+// Simple operations (queries)
 const delegation = await staking.delegation(address, validator, {
   gasLimit: 100000
 });
@@ -137,7 +144,8 @@ const tx = await governance.submitProposal(proposalJSON, {
 
 Execute multiple precompile calls efficiently:
 
-```typescript // Batch read operations
+```typescript
+// Batch read operations
 const [delegation1, delegation2] = await Promise.all([staking.delegation(address, validator1), staking.delegation(address, validator2)]);
 
 // Sequential write operations with error handling
@@ -157,7 +165,8 @@ for (const operation of operations) {
 
 Here's a minimal example that demonstrates using multiple precompiles:
 
-```javascript // multi-precompile-demo.js
+```javascript
+// multi-precompile-demo.js
 const { ethers } = require('ethers');
 const { STAKING_PRECOMPILE_ABI, STAKING_PRECOMPILE_ADDRESS, GOVERNANCE_PRECOMPILE_ABI, GOVERNANCE_PRECOMPILE_ADDRESS } = require('@sei-js/evm');
 
@@ -206,10 +215,10 @@ PRIVATE_KEY=your_key node multi-precompile-demo.js
 
 For detailed documentation on each precompile:
 
-- [Staking Precompile Usage →](staking)
-- [Governance Precompile Usage →](governance)
-- [Distribution Precompile Usage →](distribution)
-- [P256 Precompile Usage →](p256-precompile)
-- [JSON Precompile Usage →](json)
+- [Staking Precompile Usage →](/evm/precompiles/staking)
+- [Governance Precompile Usage →](/evm/precompiles/governance)
+- [Distribution Precompile Usage →](/evm/precompiles/distribution)
+- [P256 Precompile Usage →](/evm/precompiles/p256-precompile)
+- [JSON Precompile Usage →](/evm/precompiles/json)
 
 <Info>**Need Help?** Join the [Sei Discord](https://discord.gg/sei) for community support or check the [GitHub repository](https://github.com/sei-protocol/sei-chain) for more examples.</Info>

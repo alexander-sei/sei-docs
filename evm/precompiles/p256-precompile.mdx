@@ -102,7 +102,8 @@ contract P256Example {
 
 For more control, you can call the precompile directly:
 
-```solidity pragma solidity ^0.8.0;
+```solidity
+pragma solidity ^0.8.0;
 
 interface IP256Verify {
     function verify(bytes calldata input) external view returns (bytes32);
@@ -161,7 +162,8 @@ The precompile is highly gas efficient compared to Solidity implementations. The
 
 ### WebAuthn/PassKeys Authentication
 
-```solidity pragma solidity ^0.8.0;
+```solidity
+pragma solidity ^0.8.0;
 
 contract WebAuthnAuth {
     IP256Verify constant P256_PRECOMPILE = IP256Verify(0x0000000000000000000000000000000000001011);
@@ -204,7 +206,8 @@ contract WebAuthnAuth {
 
 ### Apple Secure Enclave Integration
 
-```solidity contract SecureEnclaveAuth {
+```solidity
+contract SecureEnclaveAuth {
     event SecureOperation(address indexed user, bytes32 indexed operationHash);
 
     function executeSecureOperation(
@@ -238,7 +241,8 @@ contract WebAuthnAuth {
 
 ### Multi-Signature with Hardware Keys
 
-```solidity contract HardwareMultiSig {
+```solidity
+contract HardwareMultiSig {
     IP256Verify constant P256_PRECOMPILE = IP256Verify(0x0000000000000000000000000000000000001011);
 
     struct Signature {
@@ -288,7 +292,8 @@ contract WebAuthnAuth {
 
 ### Public Key Validation
 
-```solidity function isValidPublicKey(bytes32 x, bytes32 y) internal pure returns (bool) {
+```solidity
+function isValidPublicKey(bytes32 x, bytes32 y) internal pure returns (bool) {
     // Ensure point is not at infinity
     if (x == 0 && y == 0) return false;
 
@@ -302,7 +307,8 @@ contract WebAuthnAuth {
 
 P256 signatures can be malleable. If your application requires unique signatures, implement additional checks:
 
-```solidity function isLowS(bytes32 s) internal pure returns (bool) {
+```solidity
+function isLowS(bytes32 s) internal pure returns (bool) {
     // Check if s is in the lower half of the curve order
     // This prevents signature malleability
     return uint256(s) <= 0x7FFFFFFF80000000FFFFFFFFFFFFFFFF;
@@ -344,7 +350,8 @@ The P256 precompile returns zero on failure. Common failure cases include:
 3. **Invalid Signature**: r or s values out of valid range
 4. **Verification Failure**: Signature doesn't match message and public key
 
-```solidity function safeVerifyP256(
+```solidity
+function safeVerifyP256(
     bytes32 messageHash,
     bytes32 r,
     bytes32 s,
@@ -374,7 +381,8 @@ The P256 precompile returns zero on failure. Common failure cases include:
 
 ### Unit Tests
 
-```solidity contract P256Test {
+```solidity
+contract P256Test {
     IP256Verify constant P256_PRECOMPILE = IP256Verify(0x0000000000000000000000000000000000001011);
 
     function testValidSignature() public {

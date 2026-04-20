@@ -10,7 +10,8 @@ The `@sei-js/ledger` package provides TypeScript helper functions for the SEI Le
 
 ## Installation
 
-```bash npm install @sei-js/ledger
+```bash
+npm install @sei-js/ledger
 ```
 
 ## Hardware Requirements
@@ -25,7 +26,8 @@ The `@sei-js/ledger` package provides TypeScript helper functions for the SEI Le
 
 Creates a transport connection and app instance for communicating with the Ledger device.
 
-```typescript import { createTransportAndApp } from '@sei-js/ledger';
+```typescript
+import { createTransportAndApp } from '@sei-js/ledger';
 
 const { transport, app } = await createTransportAndApp();
 ```
@@ -36,7 +38,8 @@ const { transport, app } = await createTransportAndApp();
 
 Retrieves both EVM and Cosmos addresses from the Ledger device for a given derivation path.
 
-```typescript import { createTransportAndApp, getAddresses } from '@sei-js/ledger';
+```typescript
+import { createTransportAndApp, getAddresses } from '@sei-js/ledger';
 
 const { app } = await createTransportAndApp();
 const { evmAddress, nativeAddress } = await getAddresses(app, "m/44'/60'/0'/0/0");
@@ -57,7 +60,8 @@ console.log('Sei address:', nativeAddress);
 
 A signer class compatible with CosmJS that enables offline Amino signing via Ledger.
 
-```typescript import { SeiLedgerOfflineAminoSigner } from '@sei-js/ledger';
+```typescript
+import { SeiLedgerOfflineAminoSigner } from '@sei-js/ledger';
 
 const ledgerSigner = new SeiLedgerOfflineAminoSigner(app, "m/44'/60'/0'/0/0");
 ```
@@ -72,7 +76,8 @@ const ledgerSigner = new SeiLedgerOfflineAminoSigner(app, "m/44'/60'/0'/0/0");
 
 Retrieves account information from the Ledger device.
 
-```typescript const accounts = await ledgerSigner.getAccounts();
+```typescript
+const accounts = await ledgerSigner.getAccounts();
 // [{ address: 'sei1...', pubkey: { type: 'tendermint/PubKeySecp256k1', value: '...' } }]
 ```
 
@@ -80,7 +85,8 @@ Retrieves account information from the Ledger device.
 
 Signs a transaction document using the Ledger device. The device will prompt for physical confirmation.
 
-```typescript import { StdSignDoc } from '@cosmjs/amino';
+```typescript
+import { StdSignDoc } from '@cosmjs/amino';
 
 const signDoc: StdSignDoc = {
   /* your transaction document */
@@ -90,7 +96,8 @@ const { signed, signature } = await ledgerSigner.signAmino('sei1...', signDoc);
 
 ## Complete Example: Delegating Tokens
 
-```typescript import { coins, SigningStargateClient, StdFee } from '@cosmjs/stargate';
+```typescript
+import { coins, SigningStargateClient, StdFee } from '@cosmjs/stargate';
 import { createTransportAndApp, getAddresses, SeiLedgerOfflineAminoSigner } from '@sei-js/ledger';
 
 async function delegateWithLedger() {

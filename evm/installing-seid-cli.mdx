@@ -18,7 +18,8 @@ To install seid, locate the version you wish to use on the [sei-chain releases p
 
 Execute the following commands with the version you picked:
 
-```bash git clone https://github.com/sei-protocol/sei-chain
+```bash
+git clone https://github.com/sei-protocol/sei-chain
 cd sei-chain
 git checkout [VERSION]
 make install
@@ -26,7 +27,8 @@ make install
 
 You can verify that seid was installed correctly by running:
 
-```bash seid version
+```bash
+seid version
 ```
 
 ## Troubleshooting Installation
@@ -36,7 +38,8 @@ You can verify that seid was installed correctly by running:
 - Use `go env GOPATH` to find your GOPATH
 - Add the following lines to your `~/.bashrc` or `~/.zshrc`:
 
-```bash export GOPATH=[your GOPATH from step 1]
+```bash
+export GOPATH=[your GOPATH from step 1]
 export PATH=$PATH:$GOPATH/bin
 ```
 
@@ -46,7 +49,8 @@ For more information see [here](https://pkg.go.dev/cmd/go#hdr-GOPATH_environment
 
 Seid supports all the commands you need to interact with the chain. To see a list of available commands and explanations of what they do, run seid:
 
-```bash seid
+```bash
+seid
 Start sei app
 
 Usage:
@@ -93,7 +97,8 @@ Use "seid [command] --help" for more information about a command.
 
 You can create a new wallet using the seid keys command:
 
-```bash seid keys add $NAME
+```bash
+seid keys add $NAME
 ```
 
 Output:
@@ -119,7 +124,8 @@ It is the only way to recover your account if you ever forget your password.
 
 Alternatively, if you would like to import an existing seed phrase, you can add the `--recover` flag:
 
-```bash seid keys add $NAME --recover
+```bash
+seid keys add $NAME --recover
 ```
 
 Output:
@@ -202,7 +208,8 @@ You'll be prompted to enter your existing 12 or 24-word mnemonic phrase.
 
 To see your local wallets, you can run:
 
-```bash seid keys list
+```bash
+seid keys list
 ```
 
 Output:
@@ -219,7 +226,8 @@ Output:
 
 to see a list of all wallets added, or
 
-```bash seid keys show $NAME
+```bash
+seid keys show $NAME
 ```
 
 Output:
@@ -239,7 +247,8 @@ to see details about a specific wallet.
 
 To delete a wallet/key, you can use the following command:
 
-```bash seid keys delete $NAME
+```bash
+seid keys delete $NAME
 ```
 
 Output:
@@ -255,5 +264,6 @@ This will remove the specified wallet from your local keyring. Be cautious, as t
 
 If you need to remove `seid` from your system, you can delete the binary from your `$GOPATH/bin` directory:
 
-```bash rm $(go env GOPATH)/bin/seid
+```bash
+rm $(go env GOPATH)/bin/seid
 ```

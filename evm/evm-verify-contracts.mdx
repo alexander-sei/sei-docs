@@ -22,7 +22,8 @@ Sourcify performs byte-by-byte verification by recompiling your source code with
 
 After deploying your contract with Foundry, verify it on Sourcify:
 
-```bash forge verify-contract \
+```bash
+forge verify-contract \
   --verifier sourcify \
   --chain-id <CHAIN_ID> \
   <DEPLOYED_CONTRACT_ADDRESS> \
@@ -31,7 +32,8 @@ After deploying your contract with Foundry, verify it on Sourcify:
 
 **Testnet example:**
 
-```bash forge verify-contract \
+```bash
+forge verify-contract \
   --verifier sourcify \
   --chain-id 1328 \
   0x1234567890abcdef1234567890abcdef12345678 \
@@ -40,7 +42,8 @@ After deploying your contract with Foundry, verify it on Sourcify:
 
 **Mainnet example:**
 
-```bash forge verify-contract \
+```bash
+forge verify-contract \
   --verifier sourcify \
   --chain-id 1329 \
   0x1234567890abcdef1234567890abcdef12345678 \
@@ -49,7 +52,8 @@ After deploying your contract with Foundry, verify it on Sourcify:
 
 To check verification status:
 
-```bash forge verify-check \
+```bash
+forge verify-check \
   --verifier sourcify \
   --chain-id 1328 \
   <VERIFICATION_JOB_ID>
@@ -57,7 +61,8 @@ To check verification status:
 
 You can also deploy and verify in a single step using `forge create`:
 
-```bash forge create src/Counter.sol:Counter \
+```bash
+forge create src/Counter.sol:Counter \
   --rpc-url https://evm-rpc-testnet.sei-apis.com \
   --private-key $PRIVATE_KEY \
   --verify \
@@ -73,12 +78,14 @@ The [`hardhat-verify`](https://hardhat.org/docs/learn-more/smart-contract-verifi
 
 #### 1. Install dependencies
 
-```bash npm install --save-dev hardhat @nomicfoundation/hardhat-verify
+```bash
+npm install --save-dev hardhat @nomicfoundation/hardhat-verify
 ```
 
 #### 2. Configure `hardhat.config.ts`
 
-```ts import { defineConfig, configVariable } from "hardhat/config";
+```ts
+import { defineConfig, configVariable } from "hardhat/config";
 import hardhatVerify from "@nomicfoundation/hardhat-verify";
 
 export default defineConfig({
@@ -116,17 +123,20 @@ export default defineConfig({
 
 #### 3. Deploy
 
-```bash npx hardhat ignition deploy ignition/modules/Counter.ts --network sei_testnet
+```bash
+npx hardhat ignition deploy ignition/modules/Counter.ts --network sei_testnet
 ```
 
 #### 4. Verify with Sourcify
 
-```bash npx hardhat verify sourcify --network sei_testnet <CONTRACT_ADDRESS>
+```bash
+npx hardhat verify sourcify --network sei_testnet <CONTRACT_ADDRESS>
 ```
 
 If your contract has constructor arguments:
 
-```bash npx hardhat verify sourcify --network sei_testnet <CONTRACT_ADDRESS> "arg1" "arg2"
+```bash
+npx hardhat verify sourcify --network sei_testnet <CONTRACT_ADDRESS> "arg1" "arg2"
 ```
 
 Running `npx hardhat verify` without a subtask will attempt verification on all enabled providers (Etherscan, Blockscout, and Sourcify) simultaneously.

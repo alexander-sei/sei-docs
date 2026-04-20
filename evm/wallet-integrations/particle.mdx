@@ -40,7 +40,8 @@ dependencies. While Particle Connect includes built-in support for Account
 Abstraction (AA), this example demonstrates using the Particle AA SDK alongside
 an EIP-1193 provider, such as ethers.js.
 
-```bash yarn add @particle-network/connectkit viem@^2 @particle-network/aa ethers
+```bash
+yarn add @particle-network/connectkit viem@^2 @particle-network/aa ethers
 ```
 
 ### Setting up the Particle dashboard
@@ -69,7 +70,8 @@ Once you've navigated to the Particle dashboard, follow the process below:
 Given the nature of these values, it's recommended that you store them within a
 `.env` file with this format:
 
-```shell NEXT_PUBLIC_PROJECT_ID='PROJECT_ID'
+```shell
+NEXT_PUBLIC_PROJECT_ID='PROJECT_ID'
 NEXT_PUBLIC_CLIENT_KEY='CLIENT_KEY'
 NEXT_PUBLIC_APP_ID='APP_ID'
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID='WALLETCONNECT_PROJECT_ID'
@@ -85,7 +87,8 @@ configured `ConnectKitProvider` instance. This component will be the central hub
 for managing and providing Particle Connect configuration across your
 application.
 
-```typescript "use client";
+```typescript
+"use client";
 
 import React from "react";
 import { ConnectKitProvider, createConfig } from "@particle-network/connectkit";
@@ -140,7 +143,8 @@ Once configured, wrap your application with the `ParticleConnectKit` component
 to make the Particle Connect SDK accessible throughout the app. Update the
 `layout.tsx` file in the `src` directory as shown below:
 
-```tsx import { ParticleConnectkit } from '@/components/Connectkit';
+```tsx
+import { ParticleConnectkit } from '@/components/Connectkit';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
@@ -184,7 +188,8 @@ in, the `ConnectButton` component will throw a unified login modal upon
 clicking, an example of this modal is viewable
 [here](https://demo.particle.network).
 
-```tsx 'use client';
+```tsx
+'use client';
 import { ConnectButton, useAccount } from '@particle-network/connectkit';
 
 const HomePage = () => {
@@ -220,7 +225,8 @@ instance of `ethers` to create a `customProvider`. With this setup, you can use
 `ethers` as usual, with the smart account handling the signing of transactions
 in the background.
 
-```tsx import { useSmartAccount } from '@particle-network/connectkit';
+```tsx
+import { useSmartAccount } from '@particle-network/connectkit';
 import { AAWrapProvider, SendTransactionMode } from '@particle-network/aa';
 
 const smartAccount = useSmartAccount();
@@ -272,7 +278,8 @@ In this example, the application creates a smart account on Sei using a social
 login or a Web3 login and sends a gasless transaction of 0.01 SEI via the
 `ethers` provider.
 
-```tsx 'use client';
+```tsx
+'use client';
 import React, { useEffect, useState } from 'react';
 
 // Particle imports

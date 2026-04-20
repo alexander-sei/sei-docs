@@ -21,7 +21,8 @@ A validator in the Sei network serves several critical functions. As a validator
 
 Before key management and registration, initialize your node with validator mode so that RPC and P2P bind to localhost (recommended for validator security):
 
-```bash seid init <moniker> --chain-id <chain-id> --mode validator
+```bash
+seid init <moniker> --chain-id <chain-id> --mode validator
 ```
 
 The default init mode is **full**, which binds RPC and P2P to all interfaces (`0.0.0.0`). For validator (and seed) nodes, use `--mode validator` or `--mode seed` so that RPC and P2P listen on localhost only. Genesis is written automatically for known networks; no separate download is required.
@@ -30,7 +31,8 @@ The default init mode is **full**, which binds RPC and P2P to all interfaces (`0
 
 The security of your validator begins with proper key management. Your validator requires several distinct keys:
 
-```bash # Validator consensus key - Used for signing blocks
+```bash
+# Validator consensus key - Used for signing blocks
 seid tendermint show-validator
 
 # Operator key - Used for managing validator operations
@@ -46,7 +48,8 @@ For production validators, using an HSM is strongly recommended to protect your 
 <details>
 <summary>HSM Configuration Steps</summary>
 
-```bash # Install required libraries
+```bash
+# Install required libraries
 sudo apt-get install opensc pkcs11-utils
 
 # Configure YubiHSM2
@@ -73,7 +76,8 @@ EOF
 
 Before registering your validator, ensure your node is fully synced with the network. The creation of a validator is a crucial step that requires careful consideration of commission parameters:
 
-```bash seid tx staking create-validator \
+```bash
+seid tx staking create-validator \
     --amount=1000000usei \
     --pubkey=$(seid tendermint show-validator) \
     --moniker="choose_moniker" \
@@ -104,7 +108,8 @@ The commission parameters require strategic consideration:
 
 Validators may choose to implement a sentry node architecture to protect the block signing node (the validator). This setup helps prevent DDoS attacks on your validator node by creating a layer of defensive proxies:
 
-```bash # Validator node config.toml
+```bash
+# Validator node config.toml
 [p2p]
 pex = false
 persistent_peers = "sentry_node_id@sentry_node_ip:26656"
@@ -132,7 +137,8 @@ Example script to encrypt backups of key files:
 <details>
 <summary>Key Backup Script</summary>
 
-```bash #!/bin/bash
+```bash
+#!/bin/bash
 # Create encrypted backup of validator keys
 BACKUP_DIR="/secure/validator/backup"
 DATE=$(date +%Y%m%d)
@@ -169,7 +175,8 @@ Consider posting to:
 
 Don't forget to stop the service!
 
-```bash # Gracefully stop the node
+```bash
+# Gracefully stop the node
 sudo systemctl stop seid
 
 # Perform maintenance tasks
@@ -193,7 +200,8 @@ Governance proposals may be submitted by anyone willing to provide the mandatory
 
 Proposals currently on chain can be queried at any given time:
 
-```bash # List active proposals
+```bash
+# List active proposals
 seid query gov proposals --status voting_period
 
 # Vote on a proposal
@@ -226,7 +234,8 @@ The safe approach to recovery is:
 
 When you need to recover your validator on a new machine, follow these steps carefully:
 
-```bash # 1. Set up new machine with Sei node
+```bash
+# 1. Set up new machine with Sei node
 # 2. Copy secured backup files
 # 3. Restore validator key
 gpg -d validator_key_backup.tar.gz.gpg | tar xzf -
@@ -238,7 +247,8 @@ sudo systemctl start seid
 
 After recovery, verify your validator's status and performance:
 
-```bash # Check validator status
+```bash
+# Check validator status
 seid status
 # Verify signing is working
 seid query slashing signing-info $(seid tendermint show-validator)

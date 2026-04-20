@@ -303,14 +303,16 @@ Install Alertmanager:
 
 Using Loki for log aggregation:
 
-```bash wget https://github.com/grafana/loki/releases/download/v2.8.0/loki-linux-amd64.zip
+```bash
+wget https://github.com/grafana/loki/releases/download/v2.8.0/loki-linux-amd64.zip
 unzip loki-linux-amd64.zip
 ```
 
 <details>
 <summary>Promtail Configuration</summary>
 
-```yaml server:
+```yaml
+server:
   http_listen_port: 9080
 
 positions:
@@ -335,7 +337,8 @@ scrape_configs:
 
 Configure logrotate to manage log files:
 
-```bash sudo tee /etc/logrotate.d/sei << EOF
+```bash
+sudo tee /etc/logrotate.d/sei << EOF
 /var/log/sei/*.log {
     daily
     rotate 14
@@ -357,7 +360,8 @@ EOF
 
 UFW firewall configuration:
 
-```bash sudo ufw default deny incoming
+```bash
+sudo ufw default deny incoming
 sudo ufw default allow outgoing
 sudo ufw allow 26656/tcp comment 'Sei P2P'
 sudo ufw allow 26657/tcp comment 'Sei RPC'
@@ -392,18 +396,21 @@ http {
 
 Query validator status through SDK:
 
-```bash seid query staking validator $(seid keys show --bech val -a <validator_keyfile_name>)
+```bash
+seid query staking validator $(seid keys show --bech val -a <validator_keyfile_name>)
 ```
 
 Query through REST API:
 
-```sh curl -s "http://localhost:1317/cosmos/staking/v1beta1/validators/<valoper_address>"
+```sh
+curl -s "http://localhost:1317/cosmos/staking/v1beta1/validators/<valoper_address>"
 ```
 
 <details>
 <summary>Validator "Status" Query Script</summary>
 
-```sh #!/bin/bash
+```sh
+#!/bin/bash
 
 MONIKER="$1"
 API_URL="http://localhost:1317/cosmos/staking/v1beta1/validators?pagination.limit=500"
@@ -427,7 +434,8 @@ echo "$VALIDATOR_DATA" | jq '.'
 
 Monitor these validator-specific metrics:
 
-```bash # Check signing status
+```bash
+# Check signing status
 seid query slashing signing-info $(seid tendermint show-validator)
 
 # Check current delegations
@@ -439,7 +447,8 @@ seid query staking delegations-to $(seid keys show -a $VALIDATOR_KEY)
 <details>
 <summary>Complete Automated Backup Script</summary>
 
-```bash #!/bin/bash
+```bash
+#!/bin/bash
 BACKUP_DIR="/backup/sei"
 DATE=$(date +%Y%m%d)
 NODE_HOME="/root/.sei"
@@ -477,13 +486,15 @@ echo "Backup completed successfully on $(date)" >> $BACKUP_DIR/backup.log
 
 Install and configure node_exporter:
 
-```bash wget https://github.com/prometheus/node_exporter/releases/download/v1.5.0/node_exporter-1.5.0.linux-amd64.tar.gz
+```bash
+wget https://github.com/prometheus/node_exporter/releases/download/v1.5.0/node_exporter-1.5.0.linux-amd64.tar.gz
 tar xvf node_exporter-1.5.0.linux-amd64.tar.gz
 ```
 
 Add to Prometheus configuration:
 
-```yaml scrape_configs:
+```yaml
+scrape_configs:
   - job_name: 'node'
     static_configs:
       - targets: ['localhost:9100']
@@ -494,7 +505,8 @@ Add to Prometheus configuration:
 <details>
 <summary> Example Benchmark Script using `eth_getLogs` </summary>
 
-```js import { ethers } from 'ethers';
+```js
+import { ethers } from 'ethers';
 
 // Configuration
 const EVM_RPC_URL = 'http://localhost:8545'; // EVM RPC endpoint to test

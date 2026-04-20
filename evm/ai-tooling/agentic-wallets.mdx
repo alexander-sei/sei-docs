@@ -71,16 +71,17 @@ AgentKit is organized around three concepts:
 
 <Steps>
 
-### Install packages
-
-```bash npm install @coinbase/agentkit @coinbase/agentkit-langchain viem
+<Step title="Install packages">
+```bash
+npm install @coinbase/agentkit @coinbase/agentkit-langchain viem
 ```
+</Step>
 
-### Create the wallet provider and AgentKit
-
+<Step title="Create the wallet provider and AgentKit">
 Viem ships with `sei` (id `1329`) and `seiTestnet` (id `1328`) out of the box, so you can import them directly from `viem/chains`.
 
-```typescript import { AgentKit, ViemWalletProvider, walletActionProvider, erc20ActionProvider } from '@coinbase/agentkit';
+```typescript
+import { AgentKit, ViemWalletProvider, walletActionProvider, erc20ActionProvider } from '@coinbase/agentkit';
 import { createWalletClient, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { sei } from 'viem/chains';
@@ -104,10 +105,11 @@ const agentKit = await AgentKit.from({
   ],
 });
 ```
+</Step>
 
-### Wire into LangChain
-
-```typescript import { getLangChainTools } from '@coinbase/agentkit-langchain';
+<Step title="Wire into LangChain">
+```typescript
+import { getLangChainTools } from '@coinbase/agentkit-langchain';
 import { ChatOpenAI } from '@langchain/openai';
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
 
@@ -126,6 +128,7 @@ const result = await agent.invoke({
   messages: [{ role: 'user', content: 'What is my SEI balance?' }],
 });
 ```
+</Step>
 
 </Steps>
 
@@ -134,14 +137,15 @@ const result = await agent.invoke({
 
 <Steps>
 
-### Install packages
-
-```bash pip install coinbase-agentkit coinbase-agentkit-langchain
+<Step title="Install packages">
+```bash
+pip install coinbase-agentkit coinbase-agentkit-langchain
 ```
+</Step>
 
-### Create the wallet provider
-
-```python from coinbase_agentkit import (
+<Step title="Create the wallet provider">
+```python
+from coinbase_agentkit import (
     AgentKit,
     AgentKitConfig,
     EthAccountWalletProvider,
@@ -161,10 +165,11 @@ wallet_provider = EthAccountWalletProvider(
 
 agent_kit = AgentKit(AgentKitConfig(wallet_provider=wallet_provider))
 ```
+</Step>
 
-### Wire into LangChain
-
-```python from coinbase_agentkit_langchain import get_langchain_tools
+<Step title="Wire into LangChain">
+```python
+from coinbase_agentkit_langchain import get_langchain_tools
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 
@@ -181,6 +186,7 @@ result = agent.invoke({
     "messages": [{"role": "user", "content": "What is my SEI balance?"}]
 })
 ```
+</Step>
 
 </Steps>
 
@@ -244,9 +250,9 @@ If you only need self-custodial keys (no TEE, you hold the private key), use `Vi
 
 <Steps>
 
-### Create a wallet
-
-```bash curl --request POST https://api.privy.io/v1/wallets \
+<Step title="Create a wallet">
+```bash
+curl --request POST https://api.privy.io/v1/wallets \
   -u "<your-app-id>:<your-app-secret>" \
   -H "privy-app-id: <your-app-id>" \
   -H 'Content-Type: application/json' \
@@ -265,12 +271,13 @@ Response:
   "policy_ids": ["your_policy_id"]
 }
 ```
+</Step>
 
-### Send a transaction on Sei
-
+<Step title="Send a transaction on Sei">
 Use `eip155:1329` (CAIP-2 format) to target Sei mainnet:
 
-```bash curl --request POST https://api.privy.io/v1/wallets/wallet_abc123/rpc \
+```bash
+curl --request POST https://api.privy.io/v1/wallets/wallet_abc123/rpc \
   -u "<your-app-id>:<your-app-secret>" \
   -H "privy-app-id: <your-app-id>" \
   -H "privy-authorization-signature: <authorization-signature>" \
@@ -287,10 +294,11 @@ Use `eip155:1329` (CAIP-2 format) to target Sei mainnet:
     }
   }'
 ```
+</Step>
 
-### Sign a message
-
-```bash curl --request POST https://api.privy.io/v1/wallets/wallet_abc123/rpc \
+<Step title="Sign a message">
+```bash
+curl --request POST https://api.privy.io/v1/wallets/wallet_abc123/rpc \
   -u "<your-app-id>:<your-app-secret>" \
   -H "privy-app-id: <your-app-id>" \
   -H "privy-authorization-signature: <authorization-signature>" \
@@ -303,6 +311,7 @@ Use `eip155:1329` (CAIP-2 format) to target Sei mainnet:
     }
   }'
 ```
+</Step>
 
 </Steps>
 
@@ -311,14 +320,15 @@ Use `eip155:1329` (CAIP-2 format) to target Sei mainnet:
 
 <Steps>
 
-### Install the SDK
-
-```bash npm install @privy-io/server-auth
+<Step title="Install the SDK">
+```bash
+npm install @privy-io/server-auth
 ```
+</Step>
 
-### Create a wallet and send a transaction
-
-```typescript import { PrivyClient } from '@privy-io/server-auth';
+<Step title="Create a wallet and send a transaction">
+```typescript
+import { PrivyClient } from '@privy-io/server-auth';
 import { parseEther } from 'viem';
 
 const privy = new PrivyClient('<your-app-id>', '<your-app-secret>', {
@@ -343,6 +353,7 @@ const { hash } = await privy.walletApi.ethereum.sendTransaction({
 });
 console.log('Transaction hash:', hash);
 ```
+</Step>
 
 </Steps>
 
@@ -351,14 +362,15 @@ console.log('Transaction hash:', hash);
 
 <Steps>
 
-### Install the SDK
-
-```bash pip install privy-client
+<Step title="Install the SDK">
+```bash
+pip install privy-client
 ```
+</Step>
 
-### Create a wallet and send a transaction
-
-```python from privy import PrivyAPI
+<Step title="Create a wallet and send a transaction">
+```python
+from privy import PrivyAPI
 
 client = PrivyAPI(app_id="<your-app-id>", app_secret="<your-app-secret>")
 
@@ -381,6 +393,7 @@ result = client.wallets.rpc(
 )
 print(f"Transaction hash: {result.hash}")
 ```
+</Step>
 
 </Steps>
 
@@ -398,7 +411,8 @@ Verified by running `@privy-io/server-auth` `1.32.5` against Sei testnet (`eip15
 
 Privy publishes a LangChain integration (`langchain-privy`) that exposes wallet operations as a single LangChain tool. The tool reads `PRIVY_APP_ID` and `PRIVY_APP_SECRET` from the environment and is bound directly to the LLM:
 
-```python import os
+```python
+import os
 from langchain_privy import PrivyWalletTool
 from langchain_openai import ChatOpenAI
 
@@ -429,7 +443,8 @@ Privy's policy engine evaluates policies server-side before signing. Each rule p
 **Privy's engine is default-deny.** A request is allowed only when at least one `ALLOW` rule matches and no `DENY` rule matches. A policy built from `DENY`-only rules blocks every transaction — including ones you expect to pass. Always start from an explicit `ALLOW` rule that describes the happy path, then layer `DENY` rules on top.
 </Warning>
 
-```typescript // "Cap sends at 10 SEI and block a specific address."
+```typescript
+// "Cap sends at 10 SEI and block a specific address."
 // Rule 1 (ALLOW) defines the happy path; without it, every request is denied.
 // Rule 2 (DENY) carves a specific hole in that allow.
 const policy = await privy.walletApi.createPolicy({
@@ -490,7 +505,8 @@ AgentKit includes a built-in `PrivyWalletProvider`, so you can use Privy's walle
 
 Because of the `authorizationKeyIds` quirk noted above, the simplest working pattern is to create the wallet once via the Privy SDK (or the dashboard) and then hand the resulting `walletId` to AgentKit:
 
-```typescript import { AgentKit, PrivyWalletProvider, walletActionProvider, erc20ActionProvider } from '@coinbase/agentkit';
+```typescript
+import { AgentKit, PrivyWalletProvider, walletActionProvider, erc20ActionProvider } from '@coinbase/agentkit';
 import { PrivyClient } from '@privy-io/server-auth';
 
 // Step 1 — create (or look up) a server wallet via the Privy SDK.

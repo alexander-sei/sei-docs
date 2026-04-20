@@ -38,7 +38,8 @@ Before we begin, ensure you have the following installed:
 
 Let's create a new project and set up Hardhat:
 
-```bash # Create a new directory for your project
+```bash
+# Create a new directory for your project
 mkdir sei-hardhat-project
 cd sei-hardhat-project
 
@@ -51,7 +52,8 @@ npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox @openzeppelin/co
 
 After installation, initialize a new Hardhat project:
 
-```bash npx hardhat --init
+```bash
+npx hardhat --init
 ```
 
 When prompted, select :
@@ -63,19 +65,21 @@ and then follow the instructions to set up your project.
 
 If you encounter an error because of mismatch of versioning, you can try the following command with `--legacy-peer-deps` flag:
 
-```bash npm install --save-dev "@nomicfoundation/hardhat-toolbox-mocha-ethers@^3.0.2" "@nomicfoundation/hardhat-ethers@^4.0.4" "@nomicfoundation/hardhat-ignition@^3.0.7" "@types/chai@^4.2.0" "@types/chai-as-promised@^8.0.1" "@types/mocha@>=10.0.10" "@types/node@^22.8.5" "chai@^5.1.2" "ethers@^6.14.0" "forge-std@foundry-rs/forge-std#v1.9.4" "mocha@^11.0.0" "typescript@~5.8.0" --legacy-peer-deps
+```bash
+npm install --save-dev "@nomicfoundation/hardhat-toolbox-mocha-ethers@^3.0.2" "@nomicfoundation/hardhat-ethers@^4.0.4" "@nomicfoundation/hardhat-ignition@^3.0.7" "@types/chai@^4.2.0" "@types/chai-as-promised@^8.0.1" "@types/mocha@>=10.0.10" "@types/node@^22.8.5" "chai@^5.1.2" "ethers@^6.14.0" "forge-std@foundry-rs/forge-std#v1.9.4" "mocha@^11.0.0" "typescript@~5.8.0" --legacy-peer-deps
 ```
 
 Post that, it is recommended to install some hardhat based dependencies as well for supporting Hardhat3:
 
-```bash npm i @nomicfoundation/hardhat-ethers-chai-matchers  @nomicfoundation/hardhat-ignition-ethers  @nomicfoundation/hardhat-keystore  @nomicfoundation/hardhat-mocha  @nomicfoundation/hardhat-network-helpers  @nomicfoundation/hardhat-typechain  @nomicfoundation/hardhat-verify
+```bash
+npm i @nomicfoundation/hardhat-ethers-chai-matchers  @nomicfoundation/hardhat-ignition-ethers  @nomicfoundation/hardhat-keystore  @nomicfoundation/hardhat-mocha  @nomicfoundation/hardhat-network-helpers  @nomicfoundation/hardhat-typechain  @nomicfoundation/hardhat-verify
 ```
 
 ## Configuring Hardhat for Sei EVM
 
 Next, we'll need to configure Hardhat to work with the Sei EVM. Update your `hardhat.config.ts` file:
 
-```typescript copy filename="hardhat.config.ts"
+```typescript title="hardhat.config.ts"
 import { HardhatUserConfig } from 'hardhat/config';
 import '@nomicfoundation/hardhat-toolbox';
 import 'dotenv/config';
@@ -125,7 +129,8 @@ const config: HardhatUserConfig = {
 
 Create a `.env` file in your project root to store your private key:
 
-```bash PRIVATE_KEY=your_private_key_here
+```bash
+PRIVATE_KEY=your_private_key_here
 ```
 
 <Warning>Add `.env` to your `.gitignore` file to prevent committing sensitive information such as your `PRIVATE_KEY` and potentially lose funds.</Warning>
@@ -134,7 +139,8 @@ Create a `.env` file in your project root to store your private key:
 
 OpenZeppelin provides a library of secure, tested smart contract components that you can use to build your applications. First, let's install the OpenZeppelin Contracts package:
 
-```bash npm install @openzeppelin/contracts
+```bash
+npm install @openzeppelin/contracts
 ```
 
 ## Creating and Deploying an ERC20 Token, ERC721 NFT or an Upgradeable UUPS Token
@@ -143,7 +149,7 @@ OpenZeppelin provides a library of secure, tested smart contract components that
   <Tab title="ERC20">
 Let's create a simple ERC20 token using OpenZeppelin contracts. Create a new file in the `contracts` directory called `SeiToken.sol`:
 
-```solidity copy filename="contracts/SeiToken.sol"
+```solidity title="contracts/SeiToken.sol"
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
 
@@ -173,7 +179,7 @@ contract SeiToken is ERC20, Ownable {
 
 Now, create a deployment script in the `ignition/modules` directory called `deploy-sei-token.ts`:
 
-```typescript copy filename="scripts/deploy-sei-token.ts"
+```typescript title="scripts/deploy-sei-token.ts"
 import { buildModule } from '@nomicfoundation/hardhat-ignition/modules';
 
 export default buildModule('SeiTokenModule', (m) => {
@@ -187,7 +193,8 @@ export default buildModule('SeiTokenModule', (m) => {
 
 To deploy the token to the Sei testnet:
 
-```bash npx hardhat ignition deploy ignition/modules/deploy-sei-token.ts --network seitestnet
+```bash
+npx hardhat ignition deploy ignition/modules/deploy-sei-token.ts --network seitestnet
 ```
 
 </Tab>
@@ -195,7 +202,7 @@ To deploy the token to the Sei testnet:
 <Tab title="ERC721">
 Now, let's create an ERC721 NFT contract. Create a new file `SeiNFT.sol` in the `contracts` directory:
 
-```solidity copy filename="contracts/SeiNFT.sol"
+```solidity title="contracts/SeiNFT.sol"
 // SPDX-License-Identifier: MIT
 // Compatible with OpenZeppelin Contracts ^5.0.0
 pragma solidity ^0.8.22;
@@ -288,7 +295,7 @@ contract SeiNFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausable, O
 
 Create a deployment script `deploy-sei-nft.ts`:
 
-```typescript copy filename="scripts/deploy-sei-nft.ts"
+```typescript title="scripts/deploy-sei-nft.ts"
 import { ethers } from 'hardhat';
 
 async function main() {
@@ -324,7 +331,8 @@ main()
 
 Deploy the NFT contract to the Sei testnet:
 
-```bash npx hardhat run scripts/deploy-sei-nft.ts --network seitestnet
+```bash
+npx hardhat run scripts/deploy-sei-nft.ts --network seitestnet
 ```
 
 </Tab>
@@ -333,12 +341,13 @@ Upgradeable contracts allow you to modify the contract's logic after deployment 
 
 First, ensure you have installed the necessary upgrade plugins as mentioned in the [Using OpenZeppelin Contracts](#using-openzeppelin-contracts) section:
 
-```bash npm install @openzeppelin/contracts-upgradeable @openzeppelin/hardhat-upgrades
+```bash
+npm install @openzeppelin/contracts-upgradeable @openzeppelin/hardhat-upgrades
 ```
 
 And make sure your `hardhat.config.ts` includes the upgrades plugin:
 
-```typescript copy filename="hardhat.config.ts"
+```typescript title="hardhat.config.ts"
 import { HardhatUserConfig } from 'hardhat/config';
 import '@nomicfoundation/hardhat-toolbox';
 import '@openzeppelin/hardhat-upgrades';
@@ -349,7 +358,7 @@ import 'dotenv/config';
 
 Now, let's create an upgradeable ERC20 token. Create `contracts/UpgradeableSeiToken.sol`:
 
-```solidity copy filename="contracts/UpgradeableSeiToken.sol"
+```solidity title="contracts/UpgradeableSeiToken.sol"
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
 
@@ -396,7 +405,7 @@ Note the use of `Initializable`, `initializer` modifier, `__ERC20_init`, `__Owna
 
 Create a deployment script `scripts/deploy-upgradeable-token.ts`:
 
-```typescript copy filename="scripts/deploy-upgradeable-token.ts"
+```typescript title="scripts/deploy-upgradeable-token.ts"
 import { ethers, upgrades } from 'hardhat';
 
 async function main() {
@@ -426,14 +435,15 @@ main()
 
 Deploy this to the testnet:
 
-```bash npx hardhat run scripts/deploy-upgradeable-token.ts --network seitestnet
+```bash
+npx hardhat run scripts/deploy-upgradeable-token.ts --network seitestnet
 ```
 
 **Upgrading the Contract**
 
 Let's say you want to add a new feature or fix a bug. Create a new version of the contract, `contracts/UpgradeableSeiTokenV2.sol`:
 
-```solidity copy filename="contracts/UpgradeableSeiTokenV2.sol"
+```solidity title="contracts/UpgradeableSeiTokenV2.sol"
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
 
@@ -461,7 +471,7 @@ contract UpgradeableSeiTokenV2 is UpgradeableSeiToken {
 
 Now, create an upgrade script `scripts/upgrade-token.ts`. **Replace `PROXY_ADDRESS` with the address printed when you deployed the proxy.**
 
-```typescript copy filename="scripts/upgrade-token.ts"
+```typescript title="scripts/upgrade-token.ts"
 import { ethers, upgrades } from 'hardhat';
 
 // !! REPLACE WITH YOUR PROXY ADDRESS !!
@@ -496,7 +506,8 @@ main()
 
 Run the upgrade script:
 
-```bash npx hardhat run scripts/upgrade-token.ts --network seitestnet
+```bash
+npx hardhat run scripts/upgrade-token.ts --network seitestnet
 ```
 
 You have now successfully deployed and upgraded a UUPS contract on the Sei network using Hardhat and OpenZeppelin!
@@ -508,7 +519,7 @@ You have now successfully deployed and upgraded a UUPS contract on the Sei netwo
 
 Hardhat makes it easy to test your contracts before deploying them. Create a test file `test/sei-token-test.ts`:
 
-```typescript copy filename="test/sei-token-test.ts"
+```typescript title="test/sei-token-test.ts"
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 
@@ -582,7 +593,8 @@ describe('SeiToken', function () {
 
 Run your tests with:
 
-```bash npx hardhat test
+```bash
+npx hardhat test
 ```
 
 ## Deploying to Sei Testnet and Mainnet
@@ -594,10 +606,12 @@ Once you've tested your contracts, you can deploy them to the Sei testnet or mai
 
 Deploy to the testnet:
 
-```bash npx hardhat ignition deploy ignition/modules/deploy-sei-token.ts --network seitestnet
+```bash
+npx hardhat ignition deploy ignition/modules/deploy-sei-token.ts --network seitestnet
 ```
 
 Deploy to the mainnet (only when you're ready for production):
 
-```bash npx hardhat ignition deploy ignition/modules/deploy-sei-token.ts --network seimainnet
+```bash
+npx hardhat ignition deploy ignition/modules/deploy-sei-token.ts --network seimainnet
 ```

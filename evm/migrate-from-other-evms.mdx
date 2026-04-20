@@ -298,7 +298,7 @@ Revisit the [Divergence from Ethereum](/evm/differences-with-ethereum) doc and c
 
 **Hardhat Configuration:**
 
-```ts filename="hardhat.config.ts"
+```ts title="hardhat.config.ts"
 import '@nomicfoundation/hardhat-verify';
 
 const config = {
@@ -324,7 +324,7 @@ export default config;
 
 **Foundry Configuration:**
 
-```toml filename="foundry.toml"
+```toml title="foundry.toml"
 [profile.default]
 src = "src"
 out = "out"
@@ -425,7 +425,7 @@ modifier notClosed() {
 
 Sei's LayerZero Endpoint ID is `30280`. See the complete [LayerZero integration guide](/evm/bridging/layerzero).
 
-```ts filename="layerzero.config.ts"
+```ts title="layerzero.config.ts"
 import { EndpointId } from '@layerzerolabs/lz-definitions';
 
 const seiContract = {

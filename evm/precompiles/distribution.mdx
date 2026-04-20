@@ -327,7 +327,8 @@ The distribution precompile has **different decimal precision for queries vs act
 
 ### Conversion Helper Functions
 
-```typescript // Convert pending rewards (18 decimals) to SEI
+```typescript
+// Convert pending rewards (18 decimals) to SEI
 function pendingRewardsToSei(amount: bigint): number {
   return Number(amount) / 1e18;
 }

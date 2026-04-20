@@ -16,14 +16,16 @@ The `--generate-only` flag transforms any Sei CLI transaction command into a tem
 
 The general pattern follows this structure:
 
-```bash seid tx <module> <action> <parameters> --from <key> --evm-rpc http://url-to-sei-evm-rpc --generate-only
+```bash
+seid tx <module> <action> <parameters> --from <key> --evm-rpc http://url-to-sei-evm-rpc --generate-only
 ```
 
 ### Generating EVM Transaction Templates
 
 To generate an EVM transaction template, use the `evm` module with `--generate-only`. Here's an example registering an EVM pointer:
 
-```bash seid tx evm register-evm-pointer NATIVE \
+```bash
+seid tx evm register-evm-pointer NATIVE \
 factory/sei1ep3f207kt7julz9tjwxp2x8kluj0y9l6u0fume/gptw \
 --gas-fee-cap=100000000000 \
 --gas-limit=2500000 \
@@ -40,13 +42,15 @@ factory/sei1ep3f207kt7julz9tjwxp2x8kluj0y9l6u0fume/gptw \
 
 Once you have a transaction hash, you can use Foundry's `cast` command to inspect the transaction details:
 
-```bash cast tx 0x5010e6600e67f04a9bc3d3b670a7c2de380b180713d9a014a5dbd76b7e2190f1 \
+```bash
+cast tx 0x5010e6600e67f04a9bc3d3b670a7c2de380b180713d9a014a5dbd76b7e2190f1 \
 --rpc-url=http://url-to-sei-evm-rpc
 ```
 
 **Example Output:**
 
-```text blockHash               0x4696d63a9a9ae88b03bcc94ccbd87f407e994b309d1dff9c0626de51ac57b76e
+```text
+blockHash               0x4696d63a9a9ae88b03bcc94ccbd87f407e994b309d1dff9c0626de51ac57b76e
 blockNumber             130076639
 from                    0xAa55a16dD4E73c48C968928983c2bcC98d913d96
 transactionIndex        7
@@ -68,13 +72,15 @@ value                   0
 
 **Get transaction receipt:**
 
-```bash cast receipt 0x5010e6600e67f04a9bc3d3b670a7c2de380b180713d9a014a5dbd76b7e2190f1 \
+```bash
+cast receipt 0x5010e6600e67f04a9bc3d3b670a7c2de380b180713d9a014a5dbd76b7e2190f1 \
 --rpc-url=http://url-to-sei-evm-rpc
 ```
 
 **Decode transaction input data:**
 
-```bash cast 4byte-decode 0xc31d960f0000...
+```bash
+cast 4byte-decode 0xc31d960f0000...
 ```
 
 <Info>All template generation commands create JSON files that you can inspect, modify, and use for debugging before executing the actual transactions.</Info>
@@ -91,7 +97,8 @@ value                   0
 
 If your endpoint supports debug RPC methods, you can retrieve full execution traces and revert reasons:
 
-```bash # Full transaction trace
+```bash
+# Full transaction trace
 cast rpc debug_traceTransaction 0xTX_HASH '{"tracer":"callTracer","timeout":"120s"}' \
   --rpc-url=$EVM_RPC_URL
 
@@ -111,7 +118,8 @@ cast rpc debug_traceCall '{"from":"0xFROM","to":"0xTO","data":"0xDATA"}' \
 
 Fork the network locally to reproduce issues deterministically and run traces even if remote debug RPC is disabled:
 
-```bash # Start a local fork
+```bash
+# Start a local fork
 anvil --fork-url $EVM_RPC_URL
 
 # Re-run calls against the fork
@@ -128,7 +136,8 @@ cast rpc debug_traceCall '{"to":"0xContract","data":"0xENCODED_DATA"}' \
 
 Use the receipt to inspect logs and decode with the contract ABI:
 
-```bash # Fetch receipt JSON and view logs
+```bash
+# Fetch receipt JSON and view logs
 cast receipt 0xTX_HASH --rpc-url=$EVM_RPC_URL --json | jq '.logs'
 
 # Compute an event signature for topic[0]
@@ -143,7 +152,8 @@ cast keccak "Transfer(address,address,uint256)"
 
 Check common failure points quickly:
 
-```bash cast nonce 0xYourAddress --rpc-url=$EVM_RPC_URL
+```bash
+cast nonce 0xYourAddress --rpc-url=$EVM_RPC_URL
 cast balance 0xYourAddress --rpc-url=$EVM_RPC_URL
 cast gas-price --rpc-url=$EVM_RPC_URL
 cast block latest baseFeePerGas --rpc-url=$EVM_RPC_URL
@@ -163,7 +173,8 @@ cast chain-id --rpc-url=$EVM_RPC_URL
 
 Generate, inspect, sign, and broadcast safely:
 
-```bash # 1) Generate a template (no broadcast)
+```bash
+# 1) Generate a template (no broadcast)
 seid tx evm send 0xTO 1000000000000000000 \
   --from=$WALLET_NAME --evm-rpc=$EVM_RPC_URL --generate-only > tx.json
 
@@ -191,7 +202,8 @@ Calls to system precompiles (for example, addresses like `0x...100b`) may have s
 
 Verify on-chain state directly when debugging state changes:
 
-```bash cast storage 0xContract 0xSLOT --rpc-url=$EVM_RPC_URL
+```bash
+cast storage 0xContract 0xSLOT --rpc-url=$EVM_RPC_URL
 ```
 
 ---
@@ -207,7 +219,8 @@ When analyzing transactions, follow these essential practices:
 
 **Analysis Tips:**
 
-```bash # Use Foundry's cast tool for detailed transaction inspection
+```bash
+# Use Foundry's cast tool for detailed transaction inspection
 cast tx 0x5010e6600e67f04a9bc3d3b670a7c2de380b180713d9a014a5dbd76b7e2190f1 \
 --rpc-url=$EVM_RPC_URL
 
@@ -229,7 +242,8 @@ cast 4byte-decode 0xa9059cbb000000...
 
 Handle potential EVM transaction issues with proper monitoring:
 
-```javascript try {
+```javascript
+try {
   // Check EVM transaction status
   const evmStatus = await checkEvmStatus(txHash);
   if (!evmStatus.success) {
@@ -258,7 +272,8 @@ Handle potential EVM transaction issues with proper monitoring:
 
 **Environment Variable Setup:**
 
-```bash # Create .env file for sensitive data
+```bash
+# Create .env file for sensitive data
 WALLET_NAME=mykey
 EVM_RPC_URL=http://url-to-sei-evm-rpc
 PRIVATE_KEY=your_private_key_here
@@ -269,7 +284,8 @@ echo ".env" >> .gitignore
 
 **Secure Transaction Execution:**
 
-```bash # Use environment variables in commands
+```bash
+# Use environment variables in commands
 seid tx evm send 0x1234567890abcdef... 1000000000000000000 \
 --from=$WALLET_NAME \
 --evm-rpc=$EVM_RPC_URL

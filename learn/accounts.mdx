@@ -224,13 +224,15 @@ the association.
 
 ### Fetch EVM Address for a Sei Address
 
-```bash curl -X POST $SEIEVM -H "Content-Type: application/json" -d \
+```bash
+curl -X POST $SEIEVM -H "Content-Type: application/json" -d \
 '{"jsonrpc": "2.0", "method": "sei_getEVMAddress", "params": ["<seiAddress>"], "id": 1}'
 ```
 
 **Example Response**:
 
-```json {
+```json
+{
   "jsonrpc": "2.0",
   "id": 1,
   "result": "0x4e1ae6017997128D421074FbE31d90362F181C"
@@ -239,7 +241,8 @@ the association.
 
 **Failure Example**:
 
-```json {
+```json
+{
   "jsonrpc": "2.0",
   "id": 1,
   "error": {
@@ -251,13 +254,15 @@ the association.
 
 ### Fetch Bech32 Address for an EVM Address
 
-```bash curl -X POST $SEIEVM -H "Content-Type: application/json" -d \
+```bash
+curl -X POST $SEIEVM -H "Content-Type: application/json" -d \
 '{"jsonrpc": "2.0", "method": "sei_getSeiAddress", "params": ["<hexAddress>"], "id": 1}'
 ```
 
 **Example Response**:
 
-```json {
+```json
+{
   "jsonrpc": "2.0",
   "id": 1,
   "result": "sei1wev8ptzj27aueu04wg..."
@@ -269,7 +274,8 @@ the association.
 If no transaction has been broadcasted, use this command to manually associate
 the addresses:
 
-```bash seid tx evm associate-address [optional priv key hex] --rpc=<url> --from=<sender> [flags]
+```bash
+seid tx evm associate-address [optional priv key hex] --rpc=<url> --from=<sender> [flags]
 ```
 
 <Info>**Note**: The account must have at least 1 wei to perform this operation.</Info>
@@ -286,7 +292,8 @@ The Cosmos address is derived from the public key using the following steps:
 
 Example implementation:
 
-```ts import { bech32 } from 'bech32';
+```ts
+import { bech32 } from 'bech32';
 import { keccak256 } from 'ethereumjs-util';
 
 export function deriveSeiAddress(publicKey: Buffer): string {
@@ -306,7 +313,8 @@ The EVM-compatible address is derived as follows:
 
 Example implementation:
 
-```ts import { keccak256 } from 'ethereumjs-util';
+```ts
+import { keccak256 } from 'ethereumjs-util';
 
 export function deriveEVMAddress(publicKey: Buffer): string {
   const hash = keccak256(publicKey);

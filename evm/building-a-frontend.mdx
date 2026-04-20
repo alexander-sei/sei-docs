@@ -77,7 +77,8 @@ Before starting, ensure you have:
 
 Start by creating a new React project using Vite's TypeScript template for streamlined development:
 
-```bash npm create vite@latest sei-token-interface -- --template react-ts
+```bash
+npm create vite@latest sei-token-interface -- --template react-ts
 ```
 
 This command creates a new folder with a React project using TypeScript. Open `sei-token-interface` in your favorite IDE.
@@ -88,7 +89,8 @@ This command creates a new folder with a React project using TypeScript. Open `s
 
 For clarity, we'll create separate components for each library implementation. First, let's set up the project structure:
 
-```bash cd sei-token-interface
+```bash
+cd sei-token-interface
 mkdir src/components
 touch src/components/EthersInterface.tsx
 touch src/components/ViemInterface.tsx
@@ -104,7 +106,7 @@ touch src/wagmi.ts
 
 Let's create a shared constants file for our project:
 
-```tsx copy filename="src/shared/constants.ts"
+```tsx title="src/shared/constants.ts"
 // Constants used across different implementations
 export const ERC20_ABI = [
   {
@@ -224,7 +226,8 @@ export const TOKEN_CONTRACT_ADDRESS = '0xYourTokenContractAddress';
 
 Install ethers.js first:
 
-```bash npm install ethers
+```bash
+npm install ethers
 ```
 
 Let's start with the Ethers.js implementation:
@@ -235,7 +238,7 @@ Let's start with the Ethers.js implementation:
 - Creates an ethers.js contract instance with the signer from the wallet,
   setting it in the contract state for later use.
 
-```tsx copy filename="src/components/EthersInterface.tsx"
+```tsx title="src/components/EthersInterface.tsx"
 import { useState, useEffect } from 'react';
 import { BrowserProvider, Contract, formatEther, parseEther } from 'ethers';
 import { ERC20_ABI, TOKEN_CONTRACT_ADDRESS } from '../shared/constants';
@@ -376,12 +379,13 @@ export function EthersInterface() {
 
 Install Viem first:
 
-```bash npm install viem
+```bash
+npm install viem
 ```
 
 Now implement the Viem interface:
 
-```tsx copy filename="src/components/ViemInterface.tsx"
+```tsx title="src/components/ViemInterface.tsx"
 import { useState, useEffect } from 'react';
 import { createWalletClient, custom, parseEther, formatEther } from 'viem';
 import { createPublicClient, http } from 'viem';
@@ -553,12 +557,13 @@ export function ViemInterface() {
 
 Install Wagmi and configure it:
 
-```bash npm install wagmi viem @tanstack/react-query
+```bash
+npm install wagmi viem @tanstack/react-query
 ```
 
 First, let's create a Wagmi configuration file:
 
-```tsx copy filename="src/wagmi.ts"
+```tsx title="src/wagmi.ts"
 import { http, createConfig } from 'wagmi';
 import { sei, seiTestnet } from 'wagmi/chains';
 import { injected } from 'wagmi/connectors';
@@ -575,7 +580,7 @@ export const config = createConfig({
 
 Now implement the Wagmi interface:
 
-```tsx copy filename="src/components/WagmiInterface.tsx"
+```tsx title="src/components/WagmiInterface.tsx"
 import { useState } from 'react';
 import { useAccount, useConnect, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { injected } from 'wagmi/connectors';
@@ -692,7 +697,7 @@ export function WagmiInterface() {
 
 Now update your `App.tsx` to include all three interface options:
 
-```tsx copy filename="src/App.tsx"
+```tsx title="src/App.tsx"
 import { useState } from 'react';
 import { WagmiProvider } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -750,7 +755,7 @@ export default App;
 
 When developing frontend applications for the blockchain, you might need polyfills for Node.js-specific features like `Buffer`. Add these polyfills to your project:
 
-```tsx copy filename="src/main.tsx"
+```tsx title="src/main.tsx"
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
@@ -775,19 +780,22 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 
 To see your app in action, run:
 
-```bash npm run dev
+```bash
+npm run dev
 ```
 
 This will start a local development server, at `http://localhost:5173`. You can toggle between the different library implementations to see how each one works.
 
 To build your application, run:
 
-```bash npm run build
+```bash
+npm run build
 ```
 
 Then deploy via:
 
-```bash npm run preview
+```bash
+npm run preview
 ```
 
 This will start a local production server, at `http://localhost:4173`. You can toggle between the different library implementations to see how each one works.

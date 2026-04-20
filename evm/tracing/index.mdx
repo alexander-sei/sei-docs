@@ -61,7 +61,8 @@ Tracing an ERC-20 transfer transaction:
 
 <Tabs>
 <Tab title="Transaction Details">
-```bash # Real transaction on Sei mainnet
+```bash
+# Real transaction on Sei mainnet
 TRANSACTION_HASH="0x75b7ba10248e90db85b224eae587db1728520b6f72c795b9185064f444cee7c3"
 
 # Transaction details
@@ -109,7 +110,8 @@ curl -X POST -H "Content-Type: application/json" \
 
 </Tab>
 <Tab title="Basic Trace">
-```bash # Trace the transaction execution
+```bash
+# Trace the transaction execution
 curl -X POST -H "Content-Type: application/json" \
   --data '{
     "jsonrpc": "2.0",
@@ -192,7 +194,8 @@ curl -X POST -H "Content-Type: application/json" \
 
 </Tab>
 <Tab title="Gas Analysis">
-```bash # Analyze gas usage patterns
+```bash
+# Analyze gas usage patterns
 curl -X POST -H "Content-Type: application/json" \
   --data '{
     "jsonrpc": "2.0",
@@ -268,7 +271,8 @@ Steps to analyze and resolve transaction failures:
 
 ### Step 1: Identify the Problem
 
-```bash # Get transaction receipt
+```bash
+# Get transaction receipt
 FAILED_TX="0xb2a6f4f7f37d8df728968126c05d1a8b0391003cf375ed5abb1b5e02fe66c717"
 
 curl -X POST -H "Content-Type: application/json" \
@@ -283,7 +287,8 @@ curl -X POST -H "Content-Type: application/json" \
 
 ### Step 2: Trace the Execution
 
-```bash # Trace to see where it failed
+```bash
+# Trace to see where it failed
 curl -X POST -H "Content-Type: application/json" \
   --data '{
     "jsonrpc": "2.0",
@@ -326,7 +331,8 @@ Response
 
 ### Step 3: Fix and Test
 
-```bash # Simulate the fix with debug_traceCall
+```bash
+# Simulate the fix with debug_traceCall
 curl -X POST \
   -H "Content-Type: application/json" \
   --data '{
@@ -380,7 +386,8 @@ curl -X POST \
 
 ### Essential Commands
 
-```bash # Trace transaction
+```bash
+# Trace transaction
 debug_traceTransaction(hash, {tracer: "callTracer"})
 
 # Trace block

@@ -127,7 +127,8 @@ Before getting started, ensure you have:
 
 Install the required packages for interacting with Sei precompiles:
 
-```bash # Instantiate a new hardhat project
+```bash
+# Instantiate a new hardhat project
 npx hardhat init
 
 # Install ethers.js for smart contract interactions
@@ -141,7 +142,8 @@ npm install @sei-js/precompiles@2.1.2
 
 Create a `hardhat.config.js` file with the following content:
 
-```javascript require('@nomicfoundation/hardhat-toolbox');
+```javascript
+require('@nomicfoundation/hardhat-toolbox');
 require('dotenv').config();
 
 /** @type import('hardhat/config').HardhatUserConfig */
@@ -159,7 +161,8 @@ module.exports = {
 
 Create a `.env` file in the root directory with your private key and RPC URL:
 
-```plaintext RPC_URL=https://evm-rpc.sei-apis.com
+```plaintext
+RPC_URL=https://evm-rpc.sei-apis.com
 PRIVATE_KEY=your_private_key_here
 ```
 
@@ -167,7 +170,8 @@ PRIVATE_KEY=your_private_key_here
 
 <Tabs>
 <Tab title="JavaScript">
-```typescript // Import Bank precompile address and ABI
+```typescript
+// Import Bank precompile address and ABI
 // View the entire ABI here: https://github.com/sei-protocol/sei-chain/tree/main/precompiles/bank
 import { BANK_PRECOMPILE_ABI, BANK_PRECOMPILE_ADDRESS } from '@sei-js/precompiles';
 import { ethers } from 'ethers';
@@ -175,7 +179,8 @@ import { ethers } from 'ethers';
 
 </Tab>
 <Tab title="Solidity">
-```solidity // SPDX-License-Identifier: MIT
+```solidity
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 struct Coin {
@@ -234,7 +239,8 @@ uint256 amount
 <Tab title="JavaScript">
 Set up your provider, signer, and contract instance:
 
-```typescript // Using EVM-compatible wallet as the signer and provider
+```typescript
+// Using EVM-compatible wallet as the signer and provider
 const provider = new ethers.BrowserProvider(window.ethereum);
 await provider.send('eth_requestAccounts', []);
 const signer = await provider.getSigner();
@@ -245,7 +251,8 @@ const bank = new ethers.Contract(BANK_PRECOMPILE_ADDRESS, BANK_PRECOMPILE_ABI, s
 
 </Tab>
 <Tab title="Solidity">
-```solidity // Initialize the contract instance in your Solidity code
+```solidity
+// Initialize the contract instance in your Solidity code
 contract TokenManager {
     IBankPrecompile constant BANK = IBankPrecompile(0x0000000000000000000000000000000000001001);
 }
@@ -274,7 +281,8 @@ contract TokenManager {
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Send native SEI tokens to another address
+```typescript
+// Send native SEI tokens to another address
 const recipientAddress = 'sei1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6s8dpw';
 const amountInSei = '0.1'; // 0.1 SEI
 
@@ -299,7 +307,8 @@ try {
 </Tab>
 <Tab title="Solidity">
 
-```solidity contract PaymentProcessor {
+```solidity
+contract PaymentProcessor {
     IBankPrecompile constant BANK = IBankPrecompile(0x0000000000000000000000000000000000001001);
 
     event PaymentSent(address indexed from, string to, uint256 amount);
@@ -323,7 +332,8 @@ try {
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Send custom tokens between addresses
+```typescript
+// Send custom tokens between addresses
 const fromAddress = '0x1234567890123456789012345678901234567890';
 const toAddress = '0x9876543210987654321098765432109876543210';
 const tokenDenom = 'usei';
@@ -352,7 +362,8 @@ try {
 </Tab>
 <Tab title="Solidity">
 
-```solidity contract TokenTransferManager {
+```solidity
+contract TokenTransferManager {
     IBankPrecompile constant BANK = IBankPrecompile(0x0000000000000000000000000000000000001001);
 
     event TokenTransfer(
@@ -399,7 +410,8 @@ try {
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Query specific token balance
+```typescript
+// Query specific token balance
 const accountAddress = '0x1234567890123456789012345678901234567890';
 const tokenDenom = 'usei';
 
@@ -421,7 +433,8 @@ try {
 </Tab>
 <Tab title="Solidity">
 
-```solidity contract BalanceChecker {
+```solidity
+contract BalanceChecker {
     IBankPrecompile constant BANK = IBankPrecompile(0x0000000000000000000000000000000000001001);
 
     function getUserSeiBalance(address user) external view returns (uint256) {
@@ -454,7 +467,8 @@ try {
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Query all token balances for an account
+```typescript
+// Query all token balances for an account
 const accountAddress = '0x1234567890123456789012345678901234567890';
 
 try {
@@ -479,7 +493,8 @@ try {
 </Tab>
 <Tab title="Solidity">
 
-```solidity contract PortfolioManager {
+```solidity
+contract PortfolioManager {
     IBankPrecompile constant BANK = IBankPrecompile(0x0000000000000000000000000000000000001001);
 
     struct Portfolio {
@@ -527,7 +542,8 @@ try {
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Query comprehensive token metadata
+```typescript
+// Query comprehensive token metadata
 const tokenDenom = 'usei';
 
 try {
@@ -569,7 +585,8 @@ async function getTokenInfo(denom) {
 </Tab>
 <Tab title="Solidity">
 
-```solidity contract TokenRegistry {
+```solidity
+contract TokenRegistry {
     IBankPrecompile constant BANK = IBankPrecompile(0x0000000000000000000000000000000000001001);
 
     struct TokenInfo {
@@ -608,7 +625,8 @@ async function getTokenInfo(denom) {
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript import { BANK_PRECOMPILE_ABI, BANK_PRECOMPILE_ADDRESS } from '@sei-js/precompiles';
+```typescript
+import { BANK_PRECOMPILE_ABI, BANK_PRECOMPILE_ADDRESS } from '@sei-js/precompiles';
 import { ethers } from 'ethers';
 
 class SeiTokenManager {
@@ -762,7 +780,8 @@ async function bankExample() {
 
 **Complete Contract Example**
 
-```solidity // SPDX-License-Identifier: MIT
+```solidity
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 interface IBankPrecompile {
@@ -982,14 +1001,16 @@ contract ComprehensiveTokenManager {
 
 Compile the contract:
 
-```bash npx hardhat compile
+```bash
+npx hardhat compile
 ```
 
 **Deployment Script**
 
 First, deploy the contract using Hardhat:
 
-```javascript const { ethers } = require('hardhat');
+```javascript
+const { ethers } = require('hardhat');
 
 const dotenv = require('dotenv');
 dotenv.config();
@@ -1020,12 +1041,14 @@ main().catch((error) => {
 
 To deploy, run:
 
-```bash npx hardhat run scripts/deploy.js --network sei
+```bash
+npx hardhat run scripts/deploy.js --network sei
 ```
 
 Next look through the integration example:
 
-```javascript const { ethers } = require('hardhat');
+```javascript
+const { ethers } = require('hardhat');
 const TokenManager = require('./artifacts/contracts/ComprehensiveTokenManager.sol/ComprehensiveTokenManager.json');
 
 async function main() {
@@ -1068,7 +1091,8 @@ main()
 
 The run the integration example:
 
-```bash node integrationExample.js
+```bash
+node integrationExample.js
 ```
 
 </Tab>
@@ -1084,7 +1108,8 @@ The run the integration example:
 
 ### Permission Management
 
-```solidity // Example of secure permission patterns
+```solidity
+// Example of secure permission patterns
 modifier onlyTokenHolder(string memory denom, uint256 minAmount) {
     require(BANK.balance(msg.sender, denom) >= minAmount, "Insufficient token balance");
     _;
@@ -1103,7 +1128,8 @@ modifier validRecipient(address recipient) {
 
 #### Transaction Failures
 
-```typescript // Handle common transfer errors
+```typescript
+// Handle common transfer errors
 try {
   const tx = await bank.sendNative(recipient, { value: amount });
   await tx.wait();
@@ -1120,7 +1146,8 @@ try {
 
 #### Balance Query Issues
 
-```typescript // Safe balance checking with error handling
+```typescript
+// Safe balance checking with error handling
 async function safeGetBalance(address: string, denom: string) {
   try {
     const balance = await bank.balance(address, denom);

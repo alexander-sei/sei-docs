@@ -42,7 +42,8 @@ All transaction commands support these common flags:
 
 Associates the Sei address and EVM address on-chain for the sending key. This is required for cross-layer interactions.
 
-```bash seid tx evm associate-address [optional priv key hex] --from=<sender> --evm-rpc=<url>
+```bash
+seid tx evm associate-address [optional priv key hex] --from=<sender> --evm-rpc=<url>
 ```
 
 **Parameters:**
@@ -51,7 +52,8 @@ Associates the Sei address and EVM address on-chain for the sending key. This is
 
 **Example:**
 
-```bash seid tx evm associate-address --from=mykey --evm-rpc=http://localhost:8545
+```bash
+seid tx evm associate-address --from=mykey --evm-rpc=http://localhost:8545
 ```
 
 **Output :**
@@ -66,7 +68,8 @@ Response: {"jsonrpc":"2.0","result":null,"id":"associate_addr"}
 
 Sends native tokens (usei) to the target EVM address.
 
-```bash seid tx evm send [to EVM address] [amount in wei] --from=<sender> --gas-fee-cap=<cap> --gas-limit=<limit> --evm-rpc=<url>
+```bash
+seid tx evm send [to EVM address] [amount in wei] --from=<sender> --gas-fee-cap=<cap> --gas-limit=<limit> --evm-rpc=<url>
 ```
 
 **Parameters:**
@@ -81,7 +84,8 @@ Sends native tokens (usei) to the target EVM address.
 
 **Example:**
 
-```bash seid tx evm send 0x1234567890abcdef1234567890abcdef12345678 1000000000000000000 --from=mykey
+```bash
+seid tx evm send 0x1234567890abcdef1234567890abcdef12345678 1000000000000000000 --from=mykey
 ```
 
 **Output :**
@@ -94,7 +98,8 @@ Transaction hash: 0x...
 
 Sends ERC20 tokens from a specific contract to a recipient.
 
-```bash seid tx evm erc20-send [contract addr] [recipient] [amount] --from=<sender> --gas-fee-cap=<cap> --gas-limit=<limit> --evm-rpc=<url>
+```bash
+seid tx evm erc20-send [contract addr] [recipient] [amount] --from=<sender> --gas-fee-cap=<cap> --gas-limit=<limit> --evm-rpc=<url>
 ```
 
 **Parameters:**
@@ -110,7 +115,8 @@ Sends ERC20 tokens from a specific contract to a recipient.
 
 **Example:**
 
-```bash seid tx evm erc20-send 0xTokenContract123... 0xRecipient456... 1000000 --from=mykey
+```bash
+seid tx evm erc20-send 0xTokenContract123... 0xRecipient456... 1000000 --from=mykey
 ```
 
 **Output :**
@@ -125,7 +131,8 @@ Transaction hash: 0x...
 
 Deploys an EVM contract from a binary file.
 
-```bash seid tx evm deploy [path to binary] --from=<sender> --gas-fee-cap=<cap> --gas-limit=<limit> --evm-rpc=<url>
+```bash
+seid tx evm deploy [path to binary] --from=<sender> --gas-fee-cap=<cap> --gas-limit=<limit> --evm-rpc=<url>
 ```
 
 **Parameters:**
@@ -139,7 +146,8 @@ Deploys an EVM contract from a binary file.
 
 **Example:**
 
-```bash seid tx evm deploy ./MyContract.bin --from=mykey --gas-limit=8000000
+```bash
+seid tx evm deploy ./MyContract.bin --from=mykey --gas-limit=8000000
 ```
 
 **Output :**
@@ -156,7 +164,8 @@ Transaction hash: 0x...
 
 Calls an EVM contract with a specific payload. You can generate payload by taking a look at docs [here](/evm/querying-the-evm#payload-generation).
 
-```bash seid tx evm call-contract [addr] [payload hex] --value=<payment> --from=<sender> --gas-fee-cap=<cap> --gas-limit=<limit> --evm-rpc=<url>
+```bash
+seid tx evm call-contract [addr] [payload hex] --value=<payment> --from=<sender> --gas-fee-cap=<cap> --gas-limit=<limit> --evm-rpc=<url>
 ```
 
 **Parameters:**
@@ -172,7 +181,8 @@ Calls an EVM contract with a specific payload. You can generate payload by takin
 
 **Example:**
 
-```bash seid tx evm call-contract 0xContract123... 0xa9059cbb000000... --value=1000000000000000000 --from=mykey
+```bash
+seid tx evm call-contract 0xContract123... 0xa9059cbb000000... --value=1000000000000000000 --from=mykey
 ```
 
 **Output :**
@@ -185,7 +195,8 @@ Transaction hash: 0x...
 
 Calls a method on a precompiled contract. Precompiles provide EVM access to Cosmos-SDK functionality.
 
-```bash seid tx evm call-precompile [precompile name] [method] [args...] --value=<payment> --from=<sender> --gas-fee-cap=<cap> --gas-limit=<limit> --evm-rpc=<url>
+```bash
+seid tx evm call-precompile [precompile name] [method] [args...] --value=<payment> --from=<sender> --gas-fee-cap=<cap> --gas-limit=<limit> --evm-rpc=<url>
 ```
 
 **Parameters:**
@@ -204,7 +215,8 @@ Calls a method on a precompiled contract. Precompiles provide EVM access to Cosm
 
 _Delegate to validator (payable - uses --value):_
 
-```bash seid tx evm call-precompile staking delegate seivaloper1... --value=1000000000000000000 --from=mykey
+```bash
+seid tx evm call-precompile staking delegate seivaloper1... --value=1000000000000000000 --from=mykey
 ```
 
 **Available Precompiles:**
@@ -228,7 +240,8 @@ Transaction hash: 0x...
 
 You can customize gas settings for any transaction:
 
-```bash seid tx evm send 0x... 1000000000000000000 \
+```bash
+seid tx evm send 0x... 1000000000000000000 \
   --gas-fee-cap=2000000000000 \
   --gas-limit=100000 \
   --from=mykey
@@ -238,7 +251,8 @@ You can customize gas settings for any transaction:
 
 Override automatic nonce calculation:
 
-```bash seid tx evm send 0x... 1000000000000000000 \
+```bash
+seid tx evm send 0x... 1000000000000000000 \
   --nonce=42 \
   --from=mykey
 ```
@@ -273,5 +287,6 @@ Override automatic nonce calculation:
 
 For more detailed information about specific commands, use the help flag:
 
-```bash seid tx evm [command] --help
+```bash
+seid tx evm [command] --help
 ```

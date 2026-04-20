@@ -82,7 +82,8 @@ Before getting started, ensure you have:
 
 Install the required packages for interacting with Sei precompiles:
 
-```bash   # Instantiate a new hardhat project
+```bash
+# Instantiate a new hardhat project
 npx hardhat init
 
 # Install ethers.js for smart contract interactions
@@ -96,7 +97,8 @@ npm install @sei-js/precompiles@2.1.2
 
 Create a hardhat.config.js file with the following content:
 
-```javascript require('@nomicfoundation/hardhat-toolbox');
+```javascript
+require('@nomicfoundation/hardhat-toolbox');
 require('dotenv').config();
 
 /** @type import('hardhat/config').HardhatUserConfig */
@@ -114,7 +116,8 @@ module.exports = {
 
 Create a `.env` file in the root directory with your private key:
 
-```plaintext PRIVATE_KEY=your_private_key_here
+```plaintext
+PRIVATE_KEY=your_private_key_here
 RPC_URL=https://evm-rpc.sei-apis.com
 ```
 
@@ -122,14 +125,16 @@ RPC_URL=https://evm-rpc.sei-apis.com
 
 <Tabs>
 <Tab title="JavaScript">
-```typescript // Import ethers for contract interactions
+```typescript
+// Import ethers for contract interactions
 import { ethers } from 'ethers';
 import { POINTER_PRECOMPILE_ADDRESS, POINTER_PRECOMPILE_ABI } from '@sei-js/precompiles';
 
 ````
 </Tab>
 <Tab title="Solidity">
-```solidity // SPDX-License-Identifier: MIT
+```solidity
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 interface IPointerPrecompile {
@@ -162,7 +167,8 @@ interface IPointerPrecompile {
 <Tab title="JavaScript">
 Set up your provider, signer, and contract instance:
 
-```typescript // Using EVM-compatible wallet as the signer and provider
+```typescript
+// Using EVM-compatible wallet as the signer and provider
 const provider = new ethers.BrowserProvider(window.ethereum);
 await provider.send('eth_requestAccounts', []);
 const signer = await provider.getSigner();
@@ -173,7 +179,8 @@ const pointer = new ethers.Contract(POINTER_PRECOMPILE_ADDRESS, POINTER_PRECOMPI
 
 </Tab>
 <Tab title="Solidity">
-```solidity // Initialize the contract instance in your Solidity code
+```solidity
+// Initialize the contract instance in your Solidity code
 contract PointerManager {
     IPointerPrecompile constant POINTER = IPointerPrecompile(0x000000000000000000000000000000000000100B);
 }
@@ -225,7 +232,8 @@ Each pointer type requires specific parameters:
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Create a pointer for native SEI tokens
+```typescript
+// Create a pointer for native SEI tokens
 async function createNativePointer() {
   const tokenDenom = 'uatom'; // Native token denomination
 
@@ -264,7 +272,8 @@ async function createNativePointer() {
 </Tab>
 <Tab title="Solidity">
 
-```solidity contract NativePointerManager {
+```solidity
+contract NativePointerManager {
     IPointerPrecompile constant POINTER = IPointerPrecompile(0x000000000000000000000000000000000000100B);
 
     // Store created pointers
@@ -301,7 +310,8 @@ async function createNativePointer() {
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Create a pointer for a CW20 token
+```typescript
+// Create a pointer for a CW20 token
 async function createCW20Pointer() {
   // Example CW20 contract address (use actual contract address)
   const cw20Address = 'sei1hrpna9v7vs3stzyd4z3xf00676kf78zpe2u5ksvljswn2vnjp3yqtxqz3t';
@@ -335,7 +345,8 @@ async function createCW20Pointer() {
 </Tab>
 <Tab title="Solidity">
 
-```solidity contract CW20PointerManager {
+```solidity
+contract CW20PointerManager {
     IPointerPrecompile constant POINTER = IPointerPrecompile(0x000000000000000000000000000000000000100B);
 
     // Store created CW20 pointers
@@ -383,7 +394,8 @@ async function createCW20Pointer() {
 <Tabs>
 <Tab title="JavaScript">
 
-```typescript // Create a pointer for a CW721 NFT contract
+```typescript
+// Create a pointer for a CW721 NFT contract
 async function createCW721Pointer() {
   // Example CW721 contract address (use actual contract address)
   const cw721Address = 'sei1nft789abcdef123456789abcdef123456789abcdef123456789abcdef12';
@@ -420,7 +432,8 @@ async function createCW721Pointer() {
 </Tab>
 <Tab title="Solidity">
 
-```solidity contract CW721PointerManager {
+```solidity
+contract CW721PointerManager {
     IPointerPrecompile constant POINTER = IPointerPrecompile(0x000000000000000000000000000000000000100B);
 
     // Store created CW721 pointers
@@ -501,7 +514,8 @@ async function createCW721Pointer() {
 
 Once you create a native token pointer, you can interact with it like any erc20 token:
 
-```typescript // After creating a native pointer for a native token
+```typescript
+// After creating a native pointer for a native token
 const ERC20_ABI = ['function balanceOf(address) view returns (uint256)', 'function transfer(address, uint256) returns (bool)', 'function approve(address, uint256) returns (bool)'];
 
 const seiPointer = new ethers.Contract(pointerAddress, ERC20_ABI, signer);
@@ -518,7 +532,8 @@ const transferTx = await seiPointer.transfer(recipientAddress, amount);
 
 CW20 pointers function as standard erc20 tokens:
 
-```typescript // Interact with CW20 pointer as erc20
+```typescript
+// Interact with CW20 pointer as erc20
 const cw20Pointer = new ethers.Contract(pointerAddress, ERC20_ABI, signer);
 
 // All standard erc20 functions are available
@@ -531,7 +546,8 @@ const symbol = await cw20Pointer.symbol();
 
 CW721 pointers work as standard erc721 tokens:
 
-```typescript const ERC721_ABI = ['function balanceOf(address) view returns (uint256)', 'function ownerOf(uint256) view returns (address)', 'function transferFrom(address, address, uint256)', 'function approve(address, uint256)'];
+```typescript
+const ERC721_ABI = ['function balanceOf(address) view returns (uint256)', 'function ownerOf(uint256) view returns (address)', 'function transferFrom(address, address, uint256)', 'function approve(address, uint256)'];
 
 const nftPointer = new ethers.Contract(pointerAddress, ERC721_ABI, signer);
 
@@ -546,7 +562,8 @@ const balance = await nftPointer.balanceOf(userAddress);
 
 #### Pointer Creation Failures
 
-```typescript // Handle common pointer creation errors
+```typescript
+// Handle common pointer creation errors
 async function createPointerWithErrorHandling(type, asset) {
   try {
     let tx;
@@ -579,7 +596,8 @@ async function createPointerWithErrorHandling(type, asset) {
 
 #### Gas Estimation Issues
 
-```typescript // Proper gas estimation for different pointer types
+```typescript
+// Proper gas estimation for different pointer types
 async function estimatePointerGas(type, asset) {
   try {
     let gasEstimate;

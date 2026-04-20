@@ -15,17 +15,20 @@ Here are the most frequent errors you might encounter and their solutions:
 
 When you encounter consensus errors, quick and appropriate action is essential:
 
-```text Error: "Consensus failure - height halted"
+```text
+Error: "Consensus failure - height halted"
 Solution: Check for network upgrades or chain halts
 Command: seid status | jq .SyncInfo
 ```
 
-```text Error: "Private validator file not found"
+```text
+Error: "Private validator file not found"
 Solution: Restore validator key or check file permissions
 Location: $HOME/.sei/config/priv_validator_key.json
 ```
 
-```text Error: "Duplicate signature"
+```text
+Error: "Duplicate signature"
 Solution: IMMEDIATELY STOP NODE - potential double signing risk
 Action: Check validator operation on other machines
 ```
@@ -34,14 +37,16 @@ Action: Check validator operation on other machines
 
 Network errors can prevent your node from participating in consensus:
 
-```text Error: "Dial tcp connection refused"
+```text
+Error: "Dial tcp connection refused"
 Solution: Check network connectivity and firewall rules
 Commands:
   - netstat -tulpn | grep seid
   - ufw status
 ```
 
-```text Error: "No peers available"
+```text
+Error: "No peers available"
 Solution: Verify peer connections and network config
 Commands:
 
@@ -52,7 +57,8 @@ Commands:
 
 Database corruption can require immediate attention:
 
-```text Error: "Database is corrupted"
+```text
+Error: "Database is corrupted"
 Solution: Reset database or restore from backup
 Commands:
   - seid tendermint unsafe-reset-all
@@ -63,7 +69,8 @@ Commands:
 
 These commands help you investigate issues and monitor your node:
 
-```bash # Check node synchronization
+```bash
+# Check node synchronization
 seid status | jq '.sync_info'
 
 # Check validator status
@@ -80,7 +87,8 @@ top -p $(pgrep seid)
 
 If you encounter an AppHash mismatch, you'll need to capture the state for comparison with a known good version:
 
-```bash # For SeiDB (most non-archive nodes):
+```bash
+# For SeiDB (most non-archive nodes):
 git clone https://github.com/sei-protocol/sei-db.git
 cd sei-db/tools
 make install
@@ -98,7 +106,8 @@ Always include the app hash, commit hash, and block height from your logs when r
 
 AppHash errors typically appear in logs as:
 
-```text ERR wrong Block.Header.AppHash. Expected [EXPECTED_HASH], got [ACTUAL_HASH]
+```text
+ERR wrong Block.Header.AppHash. Expected [EXPECTED_HASH], got [ACTUAL_HASH]
 block_id={"hash":"...","parts":{"hash":"...","total":1}} height=[HEIGHT]
 ```
 
@@ -127,7 +136,8 @@ block_id={"hash":"...","parts":{"hash":"...","total":1}} height=[HEIGHT]
 
 When you see extensive peer connection errors like:
 
-```text ERR failed to handshake with peer
+```text
+ERR failed to handshake with peer
 ERR failed to send request for peers
 ERR peer handshake failed endpoint={} err=EOF
 ```
@@ -161,7 +171,8 @@ This approach can save hours of debugging time by addressing the root cause rath
 
 Look for these error patterns in your logs:
 
-```text ERR failed to handshake with peer err="expected to connect with peer \"[EXPECTED_ID]\", got \"[ACTUAL_ID]\""
+```text
+ERR failed to handshake with peer err="expected to connect with peer \"[EXPECTED_ID]\", got \"[ACTUAL_ID]\""
 ERR failed to send request for peers err="no available peers to send a PEX request to (retrying)"
 ERR peer handshake failed endpoint={} err=EOF module=p2p
 ```
@@ -199,7 +210,8 @@ ERR peer handshake failed endpoint={} err=EOF module=p2p
 
 Monitor these indicators:
 
-```bash # Check sync status and lag
+```bash
+# Check sync status and lag
 curl http://localhost:26657/lag_status | jq .
 
 # Monitor if height is progressing
@@ -246,7 +258,8 @@ For crashes, panics, or nil pointer exceptions:
 
 Proper logging configuration is essential for debugging and monitoring:
 
-```toml # In config.toml
+```toml
+# In config.toml
 # Set appropriate log level
 log_level = "debug"  # Use "trace" for maximum detail
 
@@ -256,7 +269,8 @@ log_format = "json"  # Use "plain" for human-readable logs
 
 Configure log rotation to manage storage effectively:
 
-```bash # Example logrotate configuration
+```bash
+# Example logrotate configuration
 sudo tee /etc/logrotate.d/seid << EOF
 /var/log/seid/*.log {
     daily
@@ -275,7 +289,8 @@ EOF
 
 Enable core dumps for crash analysis:
 
-```bash # Set unlimited core dump size
+```bash
+# Set unlimited core dump size
 ulimit -c unlimited
 
 # Configure core dump location
