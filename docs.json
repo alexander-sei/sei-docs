@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "maple",
+  "theme": "mint",
   "name": "Sei Docs",
   "description": "Official documentation for Sei — the high-performance EVM blockchain with sub-second finality, parallel execution, and full Ethereum compatibility.",
   "colors": {

@@ -547,9 +547,8 @@ button[aria-selected="true"][role="tab"] {
 
 /* --------------------------------------------------------------------------
    SIDEBAR — dense, narrow, Sei-styled active state
-   Mintlify (maple theme) hardcodes w-[19rem] (304px) in four places. We
-   override the column itself, its bottom band, the main-content offset,
-   and the article width so the layout stays in sync.
+   Mintlify hardcodes w-[19rem] (304px). We narrow the sidebar, sync the
+   main-content offset, and ensure the footer spans the full page width.
    -------------------------------------------------------------------------- */
 
 /* 1. The sidebar column itself */
@@ -557,37 +556,38 @@ button[aria-selected="true"][role="tab"] {
   width: 220px !important;
 }
 
-/* 2. The footer band inside the sidebar (Developer Hub / GitHub / Launch dApp).
-      Original: w-[calc(19rem-1px)] px-4 py-3                                  */
-#sidebar > div:last-child {
-  width: calc(220px - 1px) !important;
-  padding-left: 12px !important;
-  padding-right: 10px !important;
-  padding-top: 8px !important;
-  padding-bottom: 8px !important;
-}
-
-/* 3. Main content wrapper — slide left to match new sidebar width.
-      Original: lg:ml-[19rem] ... lg:pl-16 lg:pr-10                            */
+/* 2. Main content wrapper — slide left to match new sidebar width */
 @media (min-width: 1024px) {
-  div[class*="lg:ml-[19rem]"],
-  .advanced-footer[class*="lg:ml-[19rem]"] {
+  div[class*="lg:ml-[19rem]"]:not(#footer):not(.advanced-footer) {
     margin-left: 220px !important;
   }
-  /* Trim the generous left padding (lg:pl-16 = 64px) that pushes content right */
   div[class*="lg:pl-16"] {
     padding-left: 32px !important;
   }
 }
 
-/* 4. Article width override */
+/* 3. Article width override */
 div[class*="xl:w-[calc(100%-19rem)]"] {
   width: calc(100% - 220px) !important;
 }
 
-/* Inner sidebar content padding — was px-7 (28px). Tighten dramatically. */
+/* 4. Footer — always full-width, never indented by the sidebar */
+#footer,
+footer.advanced-footer,
+footer[class*="advanced-footer"] {
+  margin-left: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Hide the sticky gradient "shadow bar" Mintlify places at the top of the sidebar scroll area */
+#sidebar-content [class*="bg-gradient-to-b"] {
+  display: none !important;
+}
+
+/* Inner sidebar content padding — tighten to align items with the navbar tabs (px-12 = 48px) */
 #sidebar-content {
-  padding-left: 12px !important;
+  padding-left: 8px !important;
   padding-right: 10px !important;
   padding-top: 16px !important;
 }
@@ -626,6 +626,16 @@ div[class*="xl:w-[calc(100%-19rem)]"] {
 #sidebar button[aria-expanded] {
   padding-top: 4px !important;
   padding-bottom: 4px !important;
+}
+
+/* Global nav-anchor items (Dashboard, Ecosystem, …) — reduce left margin for narrower sidebar */
+#sidebar .nav-anchor {
+  margin-left: 8px !important;
+}
+
+/* Group header containers — tighten left padding to align with page items */
+#sidebar .sidebar-group-header {
+  padding-left: 8px !important;
 }
 
 /* Section / group headers (GETTING STARTED, CORE ARCHITECTURE, ...) */
