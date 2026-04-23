@@ -45,9 +45,7 @@ These keys serve different purposes and should be managed with appropriate secur
 
 For production validators, using an HSM is strongly recommended to protect your consensus key. Here's how to configure an HSM with your validator:
 
-<details>
-<summary>HSM Configuration Steps</summary>
-
+<Accordion title="HSM Configuration Steps">
 ```bash
 # Install required libraries
 sudo apt-get install opensc pkcs11-utils
@@ -70,7 +68,7 @@ tee "$HOME/.sei/config/priv_validator_config.json" << EOF
 EOF
 ```
 
-</details>
+</Accordion>
 
 ### Validator Registration
 
@@ -134,9 +132,7 @@ By default, the wallet key files are stored in your `/.sei` directory root, and 
 
 Example script to encrypt backups of key files:
 
-<details>
-<summary>Key Backup Script</summary>
-
+<Accordion title="Key Backup Script">
 ```bash
 #!/bin/bash
 # Create encrypted backup of validator keys
@@ -157,7 +153,7 @@ tar czf - $HOME/.sei/keyring-file | \
 sha256sum $BACKUP_DIR/*.gpg > $BACKUP_DIR/checksums_$DATE.txt
 ```
 
-</details>
+</Accordion>
 
 ## Maintenance Procedures
 

@@ -73,11 +73,9 @@ mode: "wide"
 
 Choose from official Sei Foundation endpoints or community-maintained alternatives. All endpoints support standard EVM JSON-RPC methods. Public endpoints have rate limits — for production apps, consider using a [dedicated RPC provider](/learn/rpc-providers) or [running your own node](/node).
 
-| Network        | Chain ID | EVM RPC                              | Explorer                             |
-| -------------- | -------- | ------------------------------------ | ------------------------------------ |
-| Mainnet (Pacific-1)     | 1329     | `https://evm-rpc.sei-apis.com`       | [seitrace.com](https://seitrace.com) |
-| Testnet (Atlantic-2)    | 1328     | `https://evm-rpc-testnet.sei-apis.com` | [seitrace.com/?chain=atlantic-2](https://seitrace.com/?chain=atlantic-2) |
-
-<Card title="See full network reference" icon="circle-info" href="/evm/networks">
-  All chain IDs, RPC endpoints, WebSocket URLs, and block explorers.
-</Card>
+<iframe
+  src="https://widgets.sei.io/rpc-selector"
+  style={{ width: "100%", minHeight: "520px", border: "0" }}
+  loading="lazy"
+  title="Sei RPC selector"
+/>

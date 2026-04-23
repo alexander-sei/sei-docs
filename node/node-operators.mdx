@@ -86,12 +86,8 @@ make install
 seid version
 ```
 
-<details className="group border border-neutral-200 dark:border-neutral-800">
-  <summary className="flex items-center justify-between cursor-pointer p-4 bg-neutral-50 dark:bg-neutral-900/50 rounded-t-lg">
-    <span className="text-base font-medium text-neutral-800 dark:text-neutral-200">Alternative: Docker Image</span>
-  </summary>
-  <div className="p-5 pt-4 border-t border-neutral-200 dark:border-neutral-800">
-    Official Docker images are available at the [GitHub Container Registry](https://github.com/sei-protocol/sei-chain/pkgs/container/sei).
+<Accordion title="Alternative: Docker Image">
+Official Docker images are available at the [GitHub Container Registry](https://github.com/sei-protocol/sei-chain/pkgs/container/sei).
 
 ```bash
 # Pull the latest version
@@ -101,9 +97,8 @@ docker pull ghcr.io/sei-protocol/sei:latest
 docker pull ghcr.io/sei-protocol/sei:v6.3.1
 ```
 
-    Available architectures: `linux/amd64` and `linux/arm64`.
-  </div>
-</details>
+Available architectures: `linux/amd64` and `linux/arm64`.
+</Accordion>
 
 <Info>
 If you encounter an error like `command not found: seid`, you may need to set your GOPATH environment variable.
@@ -160,11 +155,7 @@ sed -i 's/^ss-keep-recent = [0-9]*/ss-keep-recent = 0/' ~/.sei/config/app.toml
 ```
 </Info>
 
-<details className="group border border-neutral-200 dark:border-neutral-800">
-  <summary className="flex items-center justify-between cursor-pointer p-4 bg-neutral-50 dark:bg-neutral-900/50 rounded-t-lg">
-    <span className="text-base font-medium text-neutral-800 dark:text-neutral-200">Advanced Configuration</span>
-  </summary>
-  <div className="p-5 pt-4 border-t border-neutral-200 dark:border-neutral-800">
+<Accordion title="Advanced Configuration">
 
 #### Archive Node Setup
 
@@ -204,8 +195,7 @@ pending-ttl-duration = "3s"
 pending-ttl-num-blocks = 5
 ```
 
-  </div>
-</details>
+</Accordion>
 </Step>
 
 <Step title="Run Node">

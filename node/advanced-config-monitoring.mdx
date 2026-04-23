@@ -4,6 +4,7 @@ description: "Optimize your Sei node's performance with advanced system configur
 keywords: ['sei node', 'node monitoring', 'prometheus', 'grafana', 'performance optimization', 'system tuning', 'infrastructure alerts']
 mode: "wide"
 ---
+
 ## Optimizing System Configuration
 
 There are a virtually unlimited number of unique individual setups that cannot be covered in this document. As well, even very similar builds and configurations can behave very differently due to external factors, so your results may vary.
@@ -15,15 +16,16 @@ Always focus on only one specific area at a time - avoid making changes to memor
 
 The following settings in `/etc/sysctl.conf` can optimize memory usage and disk I/O patterns:
 
-    ```bash     # Minimize swapping
-    vm.swappiness = 1
+```bash
+# Minimize swapping
+vm.swappiness = 1
 
-    # Control disk write behavior
-    vm.dirty_background_ratio = 3
-    vm.dirty_ratio = 10
-    vm.dirty_expire_centisecs = 300
-    vm.dirty_writeback_centisecs = 100
-    ```
+# Control disk write behavior
+vm.dirty_background_ratio = 3
+vm.dirty_ratio = 10
+vm.dirty_expire_centisecs = 300
+vm.dirty_writeback_centisecs = 100
+```
 
 Apply changes: `sudo sysctl -p`
 
@@ -31,17 +33,18 @@ Apply changes: `sudo sysctl -p`
 
 The following settings in `/etc/sysctl.conf` may improve network performance:
 
-    ```bash     # Increase connection handling capacity
-    net.core.somaxconn = 32768
-    net.core.netdev_max_backlog = 32768
-    net.ipv4.tcp_max_syn_backlog = 16384
+```bash
+# Increase connection handling capacity
+net.core.somaxconn = 32768
+net.core.netdev_max_backlog = 32768
+net.ipv4.tcp_max_syn_backlog = 16384
 
-    # Optimize buffer sizes
-    net.core.rmem_max = 16777216
-    net.core.wmem_max = 16777216
-    net.ipv4.tcp_rmem = 4096 87380 16777216
-    net.ipv4.tcp_wmem = 4096 87380 16777216
-    ```
+# Optimize buffer sizes
+net.core.rmem_max = 16777216
+net.core.wmem_max = 16777216
+net.ipv4.tcp_rmem = 4096 87380 16777216
+net.ipv4.tcp_wmem = 4096 87380 16777216
+```
 
 ### Storage Configuration
 
@@ -49,24 +52,25 @@ For NVMe drives, optimize I/O scheduling:
 
 Storage Optimization Commands
 
-    ```bash     # Set IO scheduler
-    echo "none" > /sys/block/nvme0n1/queue/scheduler
+```bash
+# Set IO scheduler
+echo "none" > /sys/block/nvme0n1/queue/scheduler
 
-    # Set read-ahead buffer
-    blockdev --setra 4096 /dev/nvme0n1
+# Set read-ahead buffer
+blockdev --setra 4096 /dev/nvme0n1
 
-    # Set IO priority in systemd service
-    sudo tee -a /etc/systemd/system/seid.service << EOF
-    [Service]
-    IOSchedulingClass=realtime
-    IOSchedulingPriority=2
-    EOF
+# Set IO priority in systemd service
+sudo tee -a /etc/systemd/system/seid.service << EOF
+[Service]
+IOSchedulingClass=realtime
+IOSchedulingPriority=2
+EOF
 
-    # Configure disk mount options
-    sudo tee -a /etc/fstab << EOF
-    /dev/nvme0n1p1 /data ext4 defaults,noatime,nosuid,nodev,noexec,commit=60 0 0
-    EOF
-    ```
+# Configure disk mount options
+sudo tee -a /etc/fstab << EOF
+/dev/nvme0n1p1 /data ext4 defaults,noatime,nosuid,nodev,noexec,commit=60 0 0
+EOF
+```
 
 ## Infrastructure Monitoring
 
@@ -76,226 +80,230 @@ Monitoring is one of the most critical components of network infrastructure. per
 
 First, install Prometheus:
 
-    ```bash     wget https://github.com/prometheus/prometheus/releases/download/v2.42.0/prometheus-2.42.0.linux-amd64.tar.gz
-    tar xvf prometheus-2.42.0.linux-amd64.tar.gz
-    ```
+```bash
+wget https://github.com/prometheus/prometheus/releases/download/v2.42.0/prometheus-2.42.0.linux-amd64.tar.gz
+tar xvf prometheus-2.42.0.linux-amd64.tar.gz
+```
 
 Example Prometheus configuration:
 
-    ```yaml     global:
-    	scrape_interval: 15s
-    	evaluation_interval: 15s
+```yaml
+global:
+	scrape_interval: 15s
+	evaluation_interval: 15s
 
-    scrape_configs:
-    	- job_name: 'sei_node'
-    		static_configs:
-    			- targets: ['node1_ip:port']
-    		metrics_path: /metrics
-    	- job_name: 'node'
-    		static_configs:
-    			- targets: ['node2_ip:port']
-    ```
+scrape_configs:
+	- job_name: 'sei_node'
+		static_configs:
+			- targets: ['node1_ip:port']
+		metrics_path: /metrics
+	- job_name: 'node'
+		static_configs:
+			- targets: ['node2_ip:port']
+```
 
 ### Grafana Integration
 
 Install and configure Grafana:
 
-    ```bash     sudo apt install -y apt-transport-https software-properties-common
-    sudo add-apt-repository "deb https://packages.grafana.com/oss/deb stable main"
-    sudo apt update && sudo apt-get install grafana
-    ```
+```bash
+sudo apt install -y apt-transport-https software-properties-common
+sudo add-apt-repository "deb https://packages.grafana.com/oss/deb stable main"
+sudo apt update && sudo apt-get install grafana
+```
 
-<details>
-<summary>Sample Grafana Dashboard JSON</summary>
+<Accordion title="Sample Grafana Dashboard JSON">
 
-    ```json     {
-    	"annotations": {
-    		"list": [
-    			{
-    				"builtIn": 1,
-    				"datasource": "-- Grafana --",
-    				"enable": true,
-    				"hide": true,
-    				"iconColor": "rgba(0, 211, 255, 1)",
-    				"name": "Annotations & Alerts",
-    				"type": "dashboard"
-    			}
-    		]
-    	},
-    	"editable": true,
-    	"gnetId": null,
-    	"graphTooltip": 0,
-    	"id": 1,
-    	"links": [],
-    	"panels": [
-    		{
-    			"alerting": {},
-    			"aliasColors": {},
-    			"bars": false,
-    			"dashLength": 10,
-    			"dashes": false,
-    			"datasource": null,
-    			"fieldConfig": {
-    				"defaults": {
-    					"custom": {}
-    				},
-    				"overrides": []
-    			},
-    			"fill": 1,
-    			"fillGradient": 0,
-    			"gridPos": {
-    				"h": 8,
-    				"w": 12,
-    				"x": 0,
-    				"y": 0
-    			},
-    			"hiddenSeries": false,
-    			"id": 2,
-    			"legend": {
-    				"avg": false,
-    				"current": false,
-    				"max": false,
-    				"min": false,
-    				"show": true,
-    				"total": false,
-    				"values": false
-    			},
-    			"lines": true,
-    			"linewidth": 1,
-    			"nullPointMode": "null",
-    			"options": {
-    				"alertThreshold": true
-    			},
-    			"percentage": false,
-    			"pluginVersion": "7.2.0",
-    			"pointradius": 2,
-    			"points": false,
-    			"renderer": "flot",
-    			"seriesOverrides": [],
-    			"spaceLength": 10,
-    			"stack": false,
-    			"steppedLine": false,
-    			"targets": [
-    				{
-    					"expr": "tendermint_consensus_height",
-    					"interval": "",
-    					"legendFormat": "",
-    					"refId": "A"
-    				}
-    			],
-    			"thresholds": [],
-    			"timeRegions": [],
-    			"title": "Block Height",
-    			"tooltip": {
-    				"shared": true,
-    				"sort": 0,
-    				"value_type": "individual"
-    			},
-    			"type": "graph",
-    			"xaxis": {
-    				"buckets": null,
-    				"mode": "time",
-    				"name": null,
-    				"show": true,
-    				"values": []
-    			},
-    			"yaxes": [
-    				{
-    					"format": "short",
-    					"label": null,
-    					"logBase": 1,
-    					"max": null,
-    					"min": null,
-    					"show": true
-    				},
-    				{
-    					"format": "short",
-    					"label": null,
-    					"logBase": 1,
-    					"max": null,
-    					"min": null,
-    					"show": true
-    				}
-    			],
-    			"yaxis": {
-    				"align": false,
-    				"alignLevel": null
-    			}
-    		}
-    	],
-    	"schemaVersion": 26,
-    	"style": "dark",
-    	"tags": [],
-    	"templating": {
-    		"list": []
-    	},
-    	"time": {
-    		"from": "now-6h",
-    		"to": "now"
-    	},
-    	"timepicker": {},
-    	"timezone": "",
-    	"title": "Sei Node Metrics",
-    	"uid": "sei_metrics",
-    	"version": 1
-    }
-    ```
+```json
+{
+	"annotations": {
+		"list": [
+			{
+				"builtIn": 1,
+				"datasource": "-- Grafana --",
+				"enable": true,
+				"hide": true,
+				"iconColor": "rgba(0, 211, 255, 1)",
+				"name": "Annotations & Alerts",
+				"type": "dashboard"
+			}
+		]
+	},
+	"editable": true,
+	"gnetId": null,
+	"graphTooltip": 0,
+	"id": 1,
+	"links": [],
+	"panels": [
+		{
+			"alerting": {},
+			"aliasColors": {},
+			"bars": false,
+			"dashLength": 10,
+			"dashes": false,
+			"datasource": null,
+			"fieldConfig": {
+				"defaults": {
+					"custom": {}
+				},
+				"overrides": []
+			},
+			"fill": 1,
+			"fillGradient": 0,
+			"gridPos": {
+				"h": 8,
+				"w": 12,
+				"x": 0,
+				"y": 0
+			},
+			"hiddenSeries": false,
+			"id": 2,
+			"legend": {
+				"avg": false,
+				"current": false,
+				"max": false,
+				"min": false,
+				"show": true,
+				"total": false,
+				"values": false
+			},
+			"lines": true,
+			"linewidth": 1,
+			"nullPointMode": "null",
+			"options": {
+				"alertThreshold": true
+			},
+			"percentage": false,
+			"pluginVersion": "7.2.0",
+			"pointradius": 2,
+			"points": false,
+			"renderer": "flot",
+			"seriesOverrides": [],
+			"spaceLength": 10,
+			"stack": false,
+			"steppedLine": false,
+			"targets": [
+				{
+					"expr": "tendermint_consensus_height",
+					"interval": "",
+					"legendFormat": "",
+					"refId": "A"
+				}
+			],
+			"thresholds": [],
+			"timeRegions": [],
+			"title": "Block Height",
+			"tooltip": {
+				"shared": true,
+				"sort": 0,
+				"value_type": "individual"
+			},
+			"type": "graph",
+			"xaxis": {
+				"buckets": null,
+				"mode": "time",
+				"name": null,
+				"show": true,
+				"values": []
+			},
+			"yaxes": [
+				{
+					"format": "short",
+					"label": null,
+					"logBase": 1,
+					"max": null,
+					"min": null,
+					"show": true
+				},
+				{
+					"format": "short",
+					"label": null,
+					"logBase": 1,
+					"max": null,
+					"min": null,
+					"show": true
+				}
+			],
+			"yaxis": {
+				"align": false,
+				"alignLevel": null
+			}
+		}
+	],
+	"schemaVersion": 26,
+	"style": "dark",
+	"tags": [],
+	"templating": {
+		"list": []
+	},
+	"time": {
+		"from": "now-6h",
+		"to": "now"
+	},
+	"timepicker": {},
+	"timezone": "",
+	"title": "Sei Node Metrics",
+	"uid": "sei_metrics",
+	"version": 1
+}
+```
 
-</details>
+</Accordion>
 
 ### Alert Management
 
 Install Alertmanager:
 
-    ```bash     wget https://github.com/prometheus/alertmanager/releases/download/v0.25.0/alertmanager-0.25.0.linux-amd64.tar.gz
-    tar xvf alertmanager-0.25.0.linux-amd64.tar.gz
-    ```
+```bash
+wget https://github.com/prometheus/alertmanager/releases/download/v0.25.0/alertmanager-0.25.0.linux-amd64.tar.gz
+tar xvf alertmanager-0.25.0.linux-amd64.tar.gz
+```
 
-<details>
-<summary>Create Alert Rules Configuration</summary>
+<Accordion title="Create Alert Rules Configuration">
 
-    ```yaml     groups:
-    	- name: validator_alerts
-    		rules:
-    			- alert: NodeDown
-    				expr: up == 0
-    				for: 5m
-    				labels:
-    					severity: critical
-    				annotations:
-    					summary: 'Node {{ $labels.instance }} down'
+```yaml
+groups:
+	- name: validator_alerts
+		rules:
+			- alert: NodeDown
+				expr: up == 0
+				for: 5m
+				labels:
+					severity: critical
+				annotations:
+					summary: 'Node {{ $labels.instance }} down'
 
-    			- alert: BlockProductionSlow
-    				expr: rate(tendermint_consensus_height[5m]) < 0.1
-    				for: 5m
-    				labels:
-    					severity: warning
-    				annotations:
-    					summary: 'Block production is slow on {{ $labels.instance }}'
-    			- alert: ValidatorMissedBlocks
-    				expr: increase(tendermint_consensus_validator_missed_blocks[1h]) > 0
-    				labels:
-    					severity: critical
-    				annotations:
-    					summary: 'Validator missing blocks'
+			- alert: BlockProductionSlow
+				expr: rate(tendermint_consensus_height[5m]) < 0.1
+				for: 5m
+				labels:
+					severity: warning
+				annotations:
+					summary: 'Block production is slow on {{ $labels.instance }}'
+			- alert: ValidatorMissedBlocks
+				expr: increase(tendermint_consensus_validator_missed_blocks[1h]) > 0
+				labels:
+					severity: critical
+				annotations:
+					summary: 'Validator missing blocks'
 
-    			- alert: ValidatorJailed
-    				expr: tendermint_consensus_validator_status == 0
-    				labels:
-    					severity: critical
-    				annotations:
-    					summary: 'Validator has been jailed'
+			- alert: ValidatorJailed
+				expr: tendermint_consensus_validator_status == 0
+				labels:
+					severity: critical
+				annotations:
+					summary: 'Validator has been jailed'
 
-    			- alert: ConsensusStalled
-    				expr: tendermint_consensus_height_status == 0
-    				for: 5m
-    				labels:
-    					severity: critical
-    				annotations:
-    					summary: 'Consensus has stalled'
-    ```
+			- alert: ConsensusStalled
+				expr: tendermint_consensus_height_status == 0
+				for: 5m
+				labels:
+					severity: critical
+				annotations:
+					summary: 'Consensus has stalled'
+```
 
-</details>
+</Accordion>
 
 ## Log Management
 
@@ -308,8 +316,7 @@ wget https://github.com/grafana/loki/releases/download/v2.8.0/loki-linux-amd64.z
 unzip loki-linux-amd64.zip
 ```
 
-<details>
-<summary>Promtail Configuration</summary>
+<Accordion title="Promtail Configuration">
 
 ```yaml
 server:
@@ -331,7 +338,7 @@ scrape_configs:
           __path__: /var/log/seid/*.log
 ```
 
-</details>
+</Accordion>
 
 ### Log Rotation
 
@@ -371,8 +378,7 @@ sudo ufw enable
 
 ### Rate Limiting
 
-<details>
-<summary>Example Nginx Configuration with Rate Limiting</summary>
+<Accordion title="Example Nginx Configuration with Rate Limiting">
 
 ```nginx
 http {
@@ -388,7 +394,7 @@ http {
 }
 ```
 
-</details>
+</Accordion>
 
 ## Validator-Specific Monitoring
 
@@ -406,8 +412,7 @@ Query through REST API:
 curl -s "http://localhost:1317/cosmos/staking/v1beta1/validators/<valoper_address>"
 ```
 
-<details>
-<summary>Validator "Status" Query Script</summary>
+<Accordion title='Validator "Status" Query Script'>
 
 ```sh
 #!/bin/bash
@@ -420,7 +425,7 @@ echo "Querying validators from $API_URL..."
 VALIDATOR_DATA=$(curl -s "$API_URL" | jq -c --arg MONIKER "$MONIKER" '.validators[] | select(.description.moniker == $MONIKER)')
 
 if [[ -z "$VALIDATOR_DATA" ]]; then
-    echo "❌ No validator found with moniker: $MONIKER"
+    echo "No validator found with moniker: $MONIKER"
     exit 1
 fi
 
@@ -428,7 +433,7 @@ echo "Validator details:"
 echo "$VALIDATOR_DATA" | jq '.'
 ```
 
-</details>
+</Accordion>
 
 ### Critical Metrics
 
@@ -444,8 +449,7 @@ seid query staking delegations-to $(seid keys show -a $VALIDATOR_KEY)
 
 ## Backup Management
 
-<details>
-<summary>Complete Automated Backup Script</summary>
+<Accordion title="Complete Automated Backup Script">
 
 ```bash
 #!/bin/bash
@@ -478,7 +482,7 @@ find $BACKUP_DIR -type f -mtime +7 -name '*.tar.gz' -delete
 echo "Backup completed successfully on $(date)" >> $BACKUP_DIR/backup.log
 ```
 
-</details>
+</Accordion>
 
 ## Host System Monitoring
 
@@ -502,8 +506,7 @@ scrape_configs:
 
 ## Performance Testing
 
-<details>
-<summary> Example Benchmark Script using `eth_getLogs` </summary>
+<Accordion title="Example Benchmark Script using eth_getLogs">
 
 ```js
 import { ethers } from 'ethers';
@@ -656,7 +659,7 @@ async function testEthGetLogs() {
 testEthGetLogs();
 ```
 
-</details>
+</Accordion>
 
 For specific customizations or additional metrics, consult the Sei
 technical communities in [Telegram](https://t.me/+ZN-NcvOWStQwMzk0) or

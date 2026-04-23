@@ -4,6 +4,7 @@ description: 'A comprehensive technical overview of Sei Giga - a high-performanc
 keywords: ['sei giga', 'evm blockchain', 'autobahn consensus', 'parallel execution', 'blockchain performance', '5 gigagas', 'sub-second finality']
 mode: "wide"
 ---
+
 ## Introduction
 
 Sei Giga represents a high-performance blockchain platform designed to address the persistent challenges of the "blockchain trilemma": the difficulty of simultaneously optimizing for security, decentralization, and performance. The platform combines current optimizations with upcoming architectural innovations to achieve exceptional performance while maintaining security guarantees and developer experience.
@@ -57,69 +58,27 @@ The next evolution of Sei Giga will introduce three key innovations designed to 
 
 A planned architectural enhancement will implement complete separation of consensus and execution. Unlike traditional blockchains where these processes are tightly coupled, the upcoming Sei Giga architecture will reach consensus solely on the ordering of transactions within a block, not the resulting state change.
 
-<div className="p-8 border border-neutral-700  bg-black shadow-md my-8">
-  <div className="text-center font-bold mb-8 text-white text-xl">Asynchronous Execution Architecture</div>
+<Columns cols={2}>
+  <Card title="Traditional Blockchain">
+    1. Order Transactions
+    2. Execute & Compute State
+    3. Reach Consensus on State
+    4. Finalize Block
 
-  <div className="grid grid-cols-2 gap-8 mb-8">
-    <div className="border-2 border-blue-700/40  p-6">
-      <div className="text-center font-semibold mb-6 text-blue-400">Traditional Blockchain</div>
+    ⚠️ Execution delays consensus
+  </Card>
+  <Card title="Sei Giga Model">
+    1. Order Transactions
+    2. Consensus on Order
+    3. Finalize Block n
 
-      <div className="space-y-4">
-        <div className="bg-neutral-900 rounded p-4 border border-neutral-700">
-          <div className="text-white text-center">1. Order Transactions</div>
-        </div>
-        <div className="text-white text-center text-2xl">↓</div>
-        <div className="bg-neutral-900 rounded p-4 border border-neutral-700">
-          <div className="text-white text-center">2. Execute & Compute State</div>
-        </div>
-        <div className="text-white text-center text-2xl">↓</div>
-        <div className="bg-neutral-900 rounded p-4 border border-neutral-700">
-          <div className="text-white text-center">3. Reach Consensus on State</div>
-        </div>
-        <div className="text-white text-center text-2xl">↓</div>
-        <div className="bg-neutral-900 rounded p-4 border border-neutral-700">
-          <div className="text-white text-center">4. Finalize Block</div>
-        </div>
-      </div>
+    **Parallel Process:**
+    - Execute Block $n - 1$
+    - Commit State in Block $n+x$
 
-      <div className="mt-6 text-center !text-sei-maroon-25">⚠️ Execution delays consensus</div>
-    </div>
-
-    <div className="border-2 border-green-700/40  p-6">
-      <div className="text-center font-semibold mb-6 text-green-400">Sei Giga Model</div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-4">
-          <div className="bg-neutral-900 rounded p-4 border border-neutral-700">
-            <div className="text-white text-center">1. Order Transactions</div>
-          </div>
-          <div className="text-white text-center text-2xl">↓</div>
-          <div className="bg-neutral-900 rounded p-4 border border-neutral-700">
-            <div className="text-white text-center">2. Consensus on Order</div>
-          </div>
-          <div className="text-white text-center text-2xl">↓</div>
-          <div className="bg-neutral-900 rounded p-4 border border-neutral-700">
-            <div className="text-white text-center">3. Finalize Block n</div>
-          </div>
-        </div>
-
-        <div className="space-y-4 opacity-80">
-          <div className="text-white text-center mt-12">Parallel Process</div>
-          <div className="bg-neutral-900 rounded p-4 border border-neutral-700 border-dashed">
-            <div className="text-white text-center">Execute Block $n - 1 $</div>
-          </div>
-          <div className="text-white text-center text-2xl">↓</div>
-          <div className="bg-neutral-900 rounded p-4 border border-neutral-700 border-dashed">
-            <div className="text-white text-center">Commit State in Block $ n+x $</div>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-6 text-center text-green-400">✓ Consensus proceeds independently</div>
-    </div>
-
-  </div>
-</div>
+    ✓ Consensus proceeds independently
+  </Card>
+</Columns>
 
 This approach leverages the key property of deterministic execution:
 
@@ -137,132 +96,42 @@ Key benefits of this model:
 
 The upcoming Sei Giga will employ Autobahn, a Byzantine Fault Tolerant (BFT) consensus protocol designed for high performance blockchain networks. Unlike traditional single-proposer systems, Autobahn will enable multiple validators to propose blocks simultaneously, targeting significant throughput improvements while maintaining security guarantees.
 
-<div className="p-8 border border-neutral-700  bg-black shadow-md my-8">
-  <div className="text-center font-bold mb-8 text-white text-xl">Autobahn Consensus Architecture</div>
+**Autobahn Consensus Architecture**
 
-  <div className="border-2 border-purple-700/40  p-8">
-    <div className="grid grid-cols-2 gap-8 mb-8">
-      <div>
-        <div className="text-center font-semibold mb-6 text-purple-400">Data Dissemination Layer (Lanes)</div>
+<Columns cols={2}>
+  <Card title="Data Dissemination Layer (Lanes)">
+    - **Lane $\ell_1$**: ${Prop}_1$, ${Prop}_2$, ${Prop}_3$, $Tip$
+    - **Lane $\ell_2$**: ${Prop}_1$, ${Prop}_2$, $Tip$, ...
+    - **Lane $\ell_n$**: ${Prop}_1$, ${Prop}_2$, ${Prop}_3$, $Tip$
 
-        <div className="space-y-4">
-          <div className="bg-neutral-900 rounded p-4 border border-neutral-700">
-            <div className="text-white text-sm">
-              <div className="font-semibold mb-2">
-                Lane $\ell_1$
-              </div>
-              <div className="grid grid-cols-4 gap-2">
-                <div className="bg-neutral-800 rounded p-2 text-center text-xs">
-                  ${Prop}_1$
-                </div>
-                <div className="bg-neutral-800 rounded p-2 text-center text-xs">
-                  ${Prop}_2$
-                </div>
-                <div className="bg-neutral-800 rounded p-2 text-center text-xs">
-                  ${Prop}_3$
-                </div>
-                <div className="bg-purple-900/50 rounded p-3 text-center text-xs">$Tip$</div>
-              </div>
-            </div>
-          </div>
+    Each validator maintains independent lane.
+  </Card>
+  <Card title="Consensus Layer (Cut Formation)">
+    $Cut = [{Tip}_1, {Tip}_2, ..., {Tip}_n]$
 
-          <div className="bg-neutral-900 rounded p-4 border border-neutral-700">
-            <div className="text-white text-sm">
-              <div className="font-semibold mb-2">
-                Lane $\ell_2$
-              </div>
-              <div className="grid grid-cols-4 gap-2">
-                <div className="bg-neutral-800 rounded p-2 text-center text-xs">
-                  ${Prop}_1$
-                </div>
-                <div className="bg-neutral-800 rounded p-2 text-center text-xs">
-                  ${Prop}_2$
-                </div>
-                <div className="bg-purple-900/50 rounded p-3 text-center text-xs">$Tip$</div>
-                <div className="bg-neutral-800/50 rounded p-2 text-center text-xs">...</div>
-              </div>
-            </div>
-          </div>
+    Periodic ordering of lane tips.
 
-          <div className="bg-neutral-900 rounded p-4 border border-neutral-700">
-            <div className="text-white text-sm">
-              <div className="font-semibold mb-2">
-                Lane $\ell_n$
-              </div>
-              <div className="grid grid-cols-4 gap-2">
-                <div className="bg-neutral-800 rounded p-2 text-center text-xs">
-                  ${Prop}_1$
-                </div>
-                <div className="bg-neutral-800 rounded p-2 text-center text-xs">
-                  ${Prop}_2$
-                </div>
-                <div className="bg-neutral-800 rounded p-2 text-center text-xs">
-                  ${Prop}_3$
-                </div>
-                <div className="bg-purple-900/50 rounded p-3 text-center text-xs">$Tip$</div>
-              </div>
-            </div>
-          </div>
-        </div>
+    1. **Prepare Phase** — Leader collects tips, forms Cut
+    2. **Fast Path** ($n$ votes) — Immediate commit if all agree
+    3. **Slow Path** ($2f+1$ votes) — Additional round if needed
 
-        <div className="mt-4 text-center text-sm text-neutral-400">Each validator maintains independent lane</div>
-      </div>
+    Global ordering through BFT agreement.
+  </Card>
+</Columns>
 
-      <div>
-        <div className="text-center font-semibold mb-6 text-purple-400">Consensus Layer (Cut Formation)</div>
+**Protocol Properties**
 
-        <div className="space-y-6">
-          <div className="bg-neutral-900 rounded p-4 border border-purple-700/40">
-            <div className="text-white text-center mb-3">
-              $Cut = [{Tip}_1, {Tip}_2, ..., {Tip}_n]$
-            </div>
-            <div className="text-xs text-neutral-400 text-center">Periodic ordering of lane tips</div>
-          </div>
-
-          <div className="space-y-3">
-            <div className="bg-neutral-900 rounded p-3 border border-neutral-700">
-              <div className="text-white text-sm">1. Prepare Phase</div>
-              <div className="text-xs text-neutral-400 mt-1">Leader collects tips, forms Cut</div>
-            </div>
-
-            <div className="bg-neutral-900 rounded p-3 border border-neutral-700">
-              <div className="text-white text-sm">2. Fast Path ($n$ votes)</div>
-              <div className="text-xs text-neutral-400 mt-1">Immediate commit if all agree</div>
-            </div>
-
-            <div className="bg-neutral-900 rounded p-3 border border-neutral-700">
-              <div className="text-white text-sm">3. Slow Path ($2f+1$ votes)</div>
-              <div className="text-xs text-neutral-400 mt-1">Additional round if needed</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-4 text-center text-sm text-neutral-400">Global ordering through BFT agreement</div>
-      </div>
-    </div>
-
-    <div className="mt-8 border-t border-neutral-700 pt-6">
-      <div className="text-center text-white">
-        <div className="font-semibold mb-2">Protocol Properties</div>
-        <div className="grid grid-cols-3 gap-4 text-sm">
-          <div className="bg-neutral-900 rounded p-3">
-            <div className="text-purple-400">Network Model</div>
-            <div className="text-xs mt-1">$n = 3f + 1$ replicas</div>
-          </div>
-          <div className="bg-neutral-900 rounded p-3">
-            <div className="text-purple-400">Safety</div>
-            <div className="text-xs mt-1">Unconditional</div>
-          </div>
-          <div className="bg-neutral-900 rounded p-3">
-            <div className="text-purple-400">Liveness</div>
-            <div className="text-xs mt-1">Eventual synchrony</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
+<Columns cols={3}>
+  <Card title="Network Model">
+    $n = 3f + 1$ replicas
+  </Card>
+  <Card title="Safety">
+    Unconditional
+  </Card>
+  <Card title="Liveness">
+    Eventual synchrony
+  </Card>
+</Columns>
 
 The protocol operates through two complementary layers:
 
@@ -282,64 +151,45 @@ The protocol operates through two complementary layers:
 
 The parallel execution architecture extends beyond current OCC capabilities to include:
 
-<div className="p-8 border border-neutral-700  bg-black shadow-md my-8">
-  <div className="text-center font-bold mb-8 text-white text-xl">Parallel Execution Pipeline</div>
+**Parallel Execution Pipeline**
 
-  <div className="border-2 border-green-700/40  p-8">
-    <div className="grid grid-cols-4 gap-4 mb-8">
-      <div className="bg-neutral-900 rounded p-4 border border-neutral-700">
-        <div className="text-green-400 text-center font-semibold mb-2">Stage 1</div>
-        <div className="text-white text-center text-sm">Transaction Parsing</div>
-        <div className="text-xs text-neutral-400 text-center mt-2">Parallel decode</div>
-      </div>
+<Columns cols={4}>
+  <Card title="Stage 1">
+    **Transaction Parsing**
 
-      <div className="bg-neutral-900 rounded p-4 border border-neutral-700">
-        <div className="text-green-400 text-center font-semibold mb-2">Stage 2</div>
-        <div className="text-white text-center text-sm">Dependency Analysis</div>
-        <div className="text-xs text-neutral-400 text-center mt-2">Conflict prediction</div>
-      </div>
+    Parallel decode
+  </Card>
+  <Card title="Stage 2">
+    **Dependency Analysis**
 
-      <div className="bg-neutral-900 rounded p-4 border border-neutral-700">
-        <div className="text-green-400 text-center font-semibold mb-2">Stage 3</div>
-        <div className="text-white text-center text-sm">Parallel Execution</div>
-        <div className="text-xs text-neutral-400 text-center mt-2">Multi-core OCC</div>
-      </div>
+    Conflict prediction
+  </Card>
+  <Card title="Stage 3">
+    **Parallel Execution**
 
-      <div className="bg-neutral-900 rounded p-4 border border-neutral-700">
-        <div className="text-green-400 text-center font-semibold mb-2">Stage 4</div>
-        <div className="text-white text-center text-sm">State Commit</div>
-        <div className="text-xs text-neutral-400 text-center mt-2">Batch writes</div>
-      </div>
-    </div>
+    Multi-core OCC
+  </Card>
+  <Card title="Stage 4">
+    **State Commit**
 
-    <div className="grid grid-cols-2 gap-8">
-      <div>
-        <div className="text-center font-semibold mb-4 text-green-400">Conflict Detection</div>
-        <div className="bg-neutral-900 rounded p-4 border border-neutral-700">
-          <div className="text-white text-sm space-y-2">
-            <div>• Read/Write set tracking</div>
-            <div>• Optimistic execution</div>
-            <div>• Automatic re-execution on conflict</div>
-            <div>• Preserves deterministic ordering</div>
-          </div>
-        </div>
-      </div>
+    Batch writes
+  </Card>
+</Columns>
 
-      <div>
-        <div className="text-center font-semibold mb-4 text-green-400">Performance Stats</div>
-        <div className="bg-neutral-900 rounded p-4 border border-neutral-700">
-          <div className="text-white text-sm space-y-2">
-            <div>• ~65% of ETH txs parallelizable</div>
-            <div>• Linear scaling with cores</div>
-            <div>• Minimal conflict overhead</div>
-            <div>• Zero-copy transaction handling</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
+<Columns cols={2}>
+  <Card title="Conflict Detection">
+    - Read/Write set tracking
+    - Optimistic execution
+    - Automatic re-execution on conflict
+    - Preserves deterministic ordering
+  </Card>
+  <Card title="Performance Stats">
+    - ~65% of ETH txs parallelizable
+    - Linear scaling with cores
+    - Minimal conflict overhead
+    - Zero-copy transaction handling
+  </Card>
+</Columns>
 
 Key innovations in the execution model:
 
@@ -352,97 +202,39 @@ Key innovations in the execution model:
 
 Beyond the current SeiDB capabilities, the Sei Giga architecture includes advanced storage innovations:
 
-<div className="p-8 border border-neutral-700  bg-black shadow-md my-8">
-  <div className="text-center font-bold mb-8 text-white text-xl">Hybrid Storage Architecture</div>
+**Hybrid Storage Architecture**
 
-  <div className="grid grid-cols-3 gap-6">
-    <div className="border-2 border-blue-700/40  p-6">
-      <div className="text-center font-semibold mb-4 text-blue-400">Hot Storage Tier</div>
+<Columns cols={3}>
+  <Card title="Hot Storage Tier">
+    - **Recent Blocks** — High-speed NVMe SSDs
+    - **Active State** — Memory-mapped files
+    - **Access Pattern** — Sub-ms latency
+  </Card>
+  <Card title="Warm Storage Tier">
+    - **Recent History** — Standard SSDs
+    - **Compressed State** — LZ4 compression
+    - **Access Pattern** — 1-10ms latency
+  </Card>
+  <Card title="Cold Storage Tier">
+    - **Historical Data** — Distributed storage
+    - **Columnar Format** — Analytics optimized
+    - **Access Pattern** — Batch queries
+  </Card>
+</Columns>
 
-      <div className="space-y-3">
-        <div className="bg-neutral-900 rounded p-3 border border-neutral-700">
-          <div className="text-white text-sm">Recent Blocks</div>
-          <div className="text-xs text-neutral-400 mt-1">High-speed NVMe SSDs</div>
-        </div>
+**Cryptographic Layer**
 
-        <div className="bg-neutral-900 rounded p-3 border border-neutral-700">
-          <div className="text-white text-sm">Active State</div>
-          <div className="text-xs text-neutral-400 mt-1">Memory-mapped files</div>
-        </div>
-
-        <div className="bg-neutral-900 rounded p-3 border border-neutral-700">
-          <div className="text-white text-sm">Access Pattern</div>
-          <div className="text-xs text-neutral-400 mt-1">Sub-ms latency</div>
-        </div>
-      </div>
-    </div>
-
-    <div className="border-2 border-teal-700/40  p-6">
-      <div className="text-center font-semibold mb-4 text-teal-400">Warm Storage Tier</div>
-
-      <div className="space-y-3">
-        <div className="bg-neutral-900 rounded p-3 border border-neutral-700">
-          <div className="text-white text-sm">Recent History</div>
-          <div className="text-xs text-neutral-400 mt-1">Standard SSDs</div>
-        </div>
-
-        <div className="bg-neutral-900 rounded p-3 border border-neutral-700">
-          <div className="text-white text-sm">Compressed State</div>
-          <div className="text-xs text-neutral-400 mt-1">LZ4 compression</div>
-        </div>
-
-        <div className="bg-neutral-900 rounded p-3 border border-neutral-700">
-          <div className="text-white text-sm">Access Pattern</div>
-          <div className="text-xs text-neutral-400 mt-1">1-10ms latency</div>
-        </div>
-      </div>
-    </div>
-
-    <div className="border-2 border-purple-700/40  p-6">
-      <div className="text-center font-semibold mb-4 text-purple-400">Cold Storage Tier</div>
-
-      <div className="space-y-3">
-        <div className="bg-neutral-900 rounded p-3 border border-neutral-700">
-          <div className="text-white text-sm">Historical Data</div>
-          <div className="text-xs text-neutral-400 mt-1">Distributed storage</div>
-        </div>
-
-        <div className="bg-neutral-900 rounded p-3 border border-neutral-700">
-          <div className="text-white text-sm">Columnar Format</div>
-          <div className="text-xs text-neutral-400 mt-1">Analytics optimized</div>
-        </div>
-
-        <div className="bg-neutral-900 rounded p-3 border border-neutral-700">
-          <div className="text-white text-sm">Access Pattern</div>
-          <div className="text-xs text-neutral-400 mt-1">Batch queries</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <div className="mt-8 border-2 border-yellow-700/40  p-6">
-    <div className="text-center font-semibold mb-4 text-yellow-400">Cryptographic Layer</div>
-
-    <div className="grid grid-cols-3 gap-4">
-      <div className="bg-neutral-900 rounded p-3 border border-neutral-700">
-        <div className="text-white text-sm text-center">Flat KV Store</div>
-        <div className="text-xs text-neutral-400 text-center mt-1">LSM-tree based</div>
-      </div>
-
-      <div className="bg-neutral-900 rounded p-3 border border-neutral-700">
-        <div className="text-white text-sm text-center">Cryptographic Accumulators</div>
-        <div className="text-xs text-neutral-400 text-center mt-1">Compact proofs</div>
-      </div>
-
-      <div className="bg-neutral-900 rounded p-3 border border-neutral-700">
-        <div className="text-white text-sm text-center">Write-Ahead Log</div>
-        <div className="text-xs text-neutral-400 text-center mt-1">Durability guarantee</div>
-      </div>
-    </div>
-
-  </div>
-</div>
+<Columns cols={3}>
+  <Card title="Flat KV Store">
+    LSM-tree based
+  </Card>
+  <Card title="Cryptographic Accumulators">
+    Compact proofs
+  </Card>
+  <Card title="Write-Ahead Log">
+    Durability guarantee
+  </Card>
+</Columns>
 
 ## Economic Model
 
@@ -462,62 +254,31 @@ Sei operates with a native SEI token that serves multiple functions within the e
 
 ### Staking Mechanics
 
-<div className="p-6 border border-neutral-700  bg-black shadow-md my-8">
-  <div className="text-center font-bold mb-6 text-white text-xl">Staking & Validation</div>
+**Staking & Validation**
 
-  <div className="grid grid-cols-2 gap-6">
-    <div className="border-2 border-blue-700/40  p-6">
-      <div className="text-center font-semibold mb-4 text-blue-400">Validators</div>
-      <div className="space-y-3">
-        <div className="bg-neutral-900 rounded p-3">
-          <div className="text-white text-sm">Self-Stake Requirement</div>
-          <div className="text-xs text-neutral-400 mt-1">Minimum SEI to operate</div>
-        </div>
-        <div className="bg-neutral-900 rounded p-3">
-          <div className="text-white text-sm">Commission Rate</div>
-          <div className="text-xs text-neutral-400 mt-1">Set by validator</div>
-        </div>
-        <div className="bg-neutral-900 rounded p-3">
-          <div className="text-white text-sm">Responsibilities</div>
-          <div className="text-xs text-neutral-400 mt-1">Consensus & execution</div>
-        </div>
-      </div>
-    </div>
+<Columns cols={2}>
+  <Card title="Validators">
+    - **Self-Stake Requirement** — Minimum SEI to operate
+    - **Commission Rate** — Set by validator
+    - **Responsibilities** — Consensus & execution
+  </Card>
+  <Card title="Delegators">
+    - **Delegation** — Stake with chosen validators
+    - **Rewards** — Proportional to stake
+    - **Unbonding** — 21-day period
+  </Card>
+</Columns>
 
-    <div className="border-2 border-green-700/40  p-6">
-      <div className="text-center font-semibold mb-4 text-green-400">Delegators</div>
-      <div className="space-y-3">
-        <div className="bg-neutral-900 rounded p-3">
-          <div className="text-white text-sm">Delegation</div>
-          <div className="text-xs text-neutral-400 mt-1">Stake with chosen validators</div>
-        </div>
-        <div className="bg-neutral-900 rounded p-3">
-          <div className="text-white text-sm">Rewards</div>
-          <div className="text-xs text-neutral-400 mt-1">Proportional to stake</div>
-        </div>
-        <div className="bg-neutral-900 rounded p-3">
-          <div className="text-white text-sm">Unbonding</div>
-          <div className="text-xs text-neutral-400 mt-1">21-day period</div>
-        </div>
-      </div>
-    </div>
+**Slashing Conditions**
 
-  </div>
-
-  <div className="mt-6 border-2 border-sei-maroon-100/40  p-6">
-    <div className="text-center font-semibold mb-4 text-sei-maroon-100">Slashing Conditions</div>
-    <div className="grid grid-cols-2 gap-4">
-      <div className="bg-neutral-900 rounded p-3">
-        <div className="text-white text-sm">Liveness Failures</div>
-        <div className="text-xs text-neutral-400 mt-1">Penalties for downtime</div>
-      </div>
-      <div className="bg-neutral-900 rounded p-3">
-        <div className="text-white text-sm">Safety Violations</div>
-        <div className="text-xs text-neutral-400 mt-1">Severe penalties for double-signing</div>
-      </div>
-    </div>
-  </div>
-</div>
+<Columns cols={2}>
+  <Card title="Liveness Failures">
+    Penalties for downtime
+  </Card>
+  <Card title="Safety Violations">
+    Severe penalties for double-signing
+  </Card>
+</Columns>
 
 ## Developer Experience
 
@@ -539,54 +300,35 @@ Sei maintains full EVM compatibility while providing enhanced capabilities:
 
 ## Implementation Status
 
-<div className="p-8 border border-neutral-700  bg-black shadow-md my-8">
-  <div className="text-center font-bold mb-8 text-white text-xl">Current & Upcoming Features</div>
+**Current & Upcoming Features**
 
-  <div className="space-y-6">
-    <div className="border-2 border-green-700/40  p-6">
-      <div className="flex items-center justify-between mb-4">
-        <div className="text-green-400 font-semibold">Current Implementation</div>
-        <div className="text-xs text-neutral-400">Live on Mainnet</div>
-      </div>
-      <div className="grid grid-cols-3 gap-4">
-        <div className="bg-neutral-900 rounded p-3">
-          <div className="text-white text-sm">Twin Turbo Consensus</div>
-          <div className="text-xs text-green-400 mt-1">~400ms blocks</div>
-        </div>
-        <div className="bg-neutral-900 rounded p-3">
-          <div className="text-white text-sm">Parallel Execution</div>
-          <div className="text-xs text-green-400 mt-1">Multi-core processing</div>
-        </div>
-        <div className="bg-neutral-900 rounded p-3">
-          <div className="text-white text-sm">SeiDB Storage</div>
-          <div className="text-xs text-green-400 mt-1">Optimized state access</div>
-        </div>
-      </div>
-    </div>
+<Card title="Current Implementation — Live on Mainnet" icon="check">
+  <Columns cols={3}>
+    <Card title="Twin Turbo Consensus">
+      ~400ms blocks
+    </Card>
+    <Card title="Parallel Execution">
+      Multi-core processing
+    </Card>
+    <Card title="SeiDB Storage">
+      Optimized state access
+    </Card>
+  </Columns>
+</Card>
 
-    <div className="border-2 border-purple-700/40  p-6">
-      <div className="flex items-center justify-between mb-4">
-        <div className="text-purple-400 font-semibold">Upcoming Features</div>
-        <div className="text-xs text-neutral-400">In Development</div>
-      </div>
-      <div className="grid grid-cols-3 gap-4">
-        <div className="bg-neutral-900 rounded p-3">
-          <div className="text-white text-sm">Autobahn Consensus</div>
-          <div className="text-xs text-purple-400 mt-1">Multi-proposer protocol</div>
-        </div>
-        <div className="bg-neutral-900 rounded p-3">
-          <div className="text-white text-sm">5 Gigagas Throughput</div>
-          <div className="text-xs text-purple-400 mt-1">Performance target</div>
-        </div>
-        <div className="bg-neutral-900 rounded p-3">
-          <div className="text-white text-sm">Advanced Optimizations</div>
-          <div className="text-xs text-purple-400 mt-1">Enhanced execution</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
+<Card title="Upcoming Features — In Development" icon="clock">
+  <Columns cols={3}>
+    <Card title="Autobahn Consensus">
+      Multi-proposer protocol
+    </Card>
+    <Card title="5 Gigagas Throughput">
+      Performance target
+    </Card>
+    <Card title="Advanced Optimizations">
+      Enhanced execution
+    </Card>
+  </Columns>
+</Card>
 
 ## Learn More
 

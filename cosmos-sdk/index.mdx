@@ -6,38 +6,17 @@ noindex: true
 mode: "wide"
 ---
 
-<Warning>
-  **Deprecation notice**
+<Danger>
+  **Deprecation Notice**
 
-  Cosmos SDK and CosmWasm functionality will be deprecated in favor of EVM-only. See [SIP-3](https://github.com/sei-protocol/sips/blob/main/sips/sip-3.md) and the [governance proposal](https://www.mintscan.io/sei/proposals/99) for details.
+  Cosmos SDK and CosmWasm functionality will be deprecated in favor of EVM-only. For more details, see [SIP-3](https://github.com/sei-protocol/sips/blob/main/sips/sip-3.md) and the [governance proposal](https://www.mintscan.io/sei/proposals/99).
+</Danger>
 
-  Developers should [migrate to the EVM docs](/evm) for all new work. See the [SIP-03 migration guide](/learn/sip-03-migration) for affected assets and next steps.
-</Warning>
+## Cosmos-SDK type Endpoints
 
-## Cosmos-SDK endpoints
-
-| Network  | Chain ID    | REST                               | gRPC                              |
-| -------- | ----------- | ---------------------------------- | --------------------------------- |
-| Mainnet  | pacific-1   | `https://rest.sei-apis.com`        | `https://grpc.sei-apis.com`       |
-| Testnet  | atlantic-2  | `https://rest-testnet.sei-apis.com` | `https://grpc-testnet.sei-apis.com` |
-
-<Info>
-  EVM precompiles remain the supported path for accessing Cosmos-SDK modules (bank, staking, governance, distribution, etc.). See [EVM Precompiles](/evm/precompiles/example-usage) and the [CosmWasm precompile bridge](/evm/precompiles/cosmwasm-precompiles/example-usage).
-</Info>
-
-## Where to go next
-
-<CardGroup cols={2}>
-  <Card title="EVM documentation" icon="cube" href="/evm">
-    The supported path for new development on Sei.
-  </Card>
-  <Card title="EVM ↔ CosmWasm interop" icon="link" href="/learn/dev-interoperability">
-    How precompiles bridge the EVM and CosmWasm runtimes.
-  </Card>
-  <Card title="SIP-03 migration guide" icon="triangle-exclamation" href="/learn/sip-03-migration">
-    Affected assets, timelines, and required actions.
-  </Card>
-  <Card title="Pointer contracts" icon="arrow-right-arrow-left" href="/learn/pointers">
-    Expose CW-side tokens to EVM callers and vice-versa.
-  </Card>
-</CardGroup>
+<iframe
+  src="https://widgets.sei.io/chain-info?network=cosmos"
+  style={{ width: "100%", minHeight: "420px", border: "0" }}
+  loading="lazy"
+  title="Sei Cosmos-SDK chain information"
+/>

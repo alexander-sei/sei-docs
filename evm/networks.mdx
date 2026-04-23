@@ -1,45 +1,13 @@
 ---
 title: "Sei EVM Networks"
-description: "Network information for Sei EVM across mainnet and testnet — RPC endpoints, chain IDs, and blockchain explorers."
+description: "Discover network information for Sei EVM across all environments including mainnet and testnet. Access RPC endpoints, chain IDs, and blockchain explorers."
 keywords: ["sei evm", "network information", "chain ids", "rpc endpoints", "blockchain explorers"]
 mode: "wide"
 ---
 
-Connect your wallets, dApps, and nodes to Sei using the values below. For production workloads, prefer a [dedicated RPC provider](/learn/rpc-providers) over the public endpoints.
-
-## Mainnet — Pacific-1
-
-| Property        | Value                                                   |
-| --------------- | ------------------------------------------------------- |
-| Chain ID        | `1329` (`0x531`)                                        |
-| Currency        | SEI                                                     |
-| EVM RPC         | `https://evm-rpc.sei-apis.com`                          |
-| EVM WebSocket   | `wss://evm-ws.sei-apis.com`                             |
-| REST (Cosmos)   | `https://rest.sei-apis.com`                             |
-| gRPC (Cosmos)   | `https://grpc.sei-apis.com`                             |
-| Explorer        | [seitrace.com](https://seitrace.com)                    |
-
-## Testnet — Atlantic-2
-
-| Property        | Value                                                               |
-| --------------- | ------------------------------------------------------------------- |
-| Chain ID        | `1328` (`0x530`)                                                    |
-| Currency        | SEI                                                                 |
-| EVM RPC         | `https://evm-rpc-testnet.sei-apis.com`                              |
-| EVM WebSocket   | `wss://evm-ws-testnet.sei-apis.com`                                 |
-| REST (Cosmos)   | `https://rest-testnet.sei-apis.com`                                 |
-| gRPC (Cosmos)   | `https://grpc-testnet.sei-apis.com`                                 |
-| Explorer        | [seitrace.com/?chain=atlantic-2](https://seitrace.com/?chain=atlantic-2) |
-| Faucet          | [Sei Faucet](/learn/faucet)                                         |
-
-<Info>
-  All endpoints are public and rate-limited. For production apps, use a [dedicated RPC provider](/learn/rpc-providers) or [run your own node](/node).
-</Info>
-
-## Add Sei to your wallet
-
-Most EVM wallets (MetaMask, Rabby, Frame, Trust) accept a chain config via [chainlist.org/chain/1329](https://chainlist.org/chain/1329). Or add the network manually using the values above.
-
-<Card title="Sei Global Wallet" icon="wallet" href="/evm/sei-global-wallet">
-  Skip manual config — Sei Global Wallet is built into every Sei dApp.
-</Card>
+<iframe
+  src="https://widgets.sei.io/chain-info?network=evm"
+  style={{ width: "100%", minHeight: "600px", border: "0" }}
+  loading="lazy"
+  title="Sei EVM chain information"
+/>

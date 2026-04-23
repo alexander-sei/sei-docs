@@ -18,138 +18,36 @@ At its heart, the Parallelization Engine utilizes an **Optimistic Concurrency Co
 
 ## System Architecture
 
-<div className="p-6 border border-neutral-200 dark:border-neutral-800  bg-neutral-50 dark:bg-neutral-950 my-8">
-  <div className="text-center font-bold mb-6 text-neutral-900 dark:text-white text-xl">Sei Parallelization Engine</div>
+**Sei Parallelization Engine**
 
-  <div className="grid grid-cols-3 gap-8 mb-8">
-    <div className="relative">
-      <div className="border border-sei-maroon-100/20 dark:border-sei-maroon-100/40  p-4">
-        <div className="text-center font-semibold mb-3 text-sei-maroon-100 dark:text-sei-maroon-25">Transaction Preprocessing</div>
-        <div className="bg-neutral-200 dark:bg-neutral-800 rounded p-3">
-          <div className="text-center text-neutral-800 dark:text-neutral-200 text-sm font-medium">Classifier</div>
-        </div>
-      </div>
-      <div className="absolute right-[-24px] top-1/2 transform -translate-y-1/2 text-neutral-400 dark:text-neutral-500 z-10">→</div>
-    </div>
+<Columns cols={3}>
+  <Card title="Transaction Preprocessing">
+    - Classifier
+    - Batch Formation
+    - Gas Estimation
+  </Card>
+  <Card title="Dependency Analysis">
+    - Access Analysis
+    - Dependency Mapping
+    - Contract Interaction
+  </Card>
+  <Card title="Parallel Execution">
+    - Worker Pool
+    - State Transitions
+    - Speculative Execution
+  </Card>
+</Columns>
 
-    <div className="relative">
-      <div className="border border-amber-600/20 dark:border-amber-800/40  p-4">
-        <div className="text-center font-semibold mb-3 text-amber-700 dark:text-amber-400">Dependency Analysis</div>
-        <div className="bg-neutral-200 dark:bg-neutral-800 rounded p-3">
-          <div className="text-center text-neutral-800 dark:text-neutral-200 text-sm font-medium">Access Analysis</div>
-        </div>
-      </div>
-      <div className="absolute right-[-24px] top-1/2 transform -translate-y-1/2 text-neutral-400 dark:text-neutral-500 z-10">→</div>
-    </div>
-
-    <div>
-      <div className="border border-blue-600/20 dark:border-blue-800/40  p-4">
-        <div className="text-center font-semibold mb-3 text-blue-700 dark:text-blue-400">Parallel Execution</div>
-        <div className="bg-neutral-200 dark:bg-neutral-800 rounded p-3">
-          <div className="text-center text-neutral-800 dark:text-neutral-200 text-sm font-medium">Worker Pool</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <div className="grid grid-cols-3 gap-8 mb-8">
-    <div className="relative">
-      <div className="border border-sei-maroon-100/20 dark:border-sei-maroon-100/40  p-4">
-        <div className="bg-neutral-200 dark:bg-neutral-800 rounded p-3">
-          <div className="text-center text-neutral-800 dark:text-neutral-200 text-sm font-medium">Batch Formation</div>
-        </div>
-      </div>
-      <div className="absolute right-[-24px] top-1/2 transform -translate-y-1/2 text-neutral-400 dark:text-neutral-500 z-10">→</div>
-    </div>
-
-    <div className="relative">
-      <div className="border border-amber-600/20 dark:border-amber-800/40  p-4">
-        <div className="bg-neutral-200 dark:bg-neutral-800 rounded p-3">
-          <div className="text-center text-neutral-800 dark:text-neutral-200 text-sm font-medium">Dependency Mapping</div>
-        </div>
-      </div>
-      <div className="absolute right-[-24px] top-1/2 transform -translate-y-1/2 text-neutral-400 dark:text-neutral-500 z-10">→</div>
-    </div>
-
-    <div>
-      <div className="border border-blue-600/20 dark:border-blue-800/40  p-4">
-        <div className="bg-neutral-200 dark:bg-neutral-800 rounded p-3">
-          <div className="text-center text-neutral-800 dark:text-neutral-200 text-sm font-medium">State Transitions</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <div className="grid grid-cols-3 gap-8 mb-8">
-    <div className="relative">
-      <div className="border border-sei-maroon-100/20 dark:border-sei-maroon-100/40  p-4">
-        <div className="bg-neutral-200 dark:bg-neutral-800 rounded p-3">
-          <div className="text-center text-neutral-800 dark:text-neutral-200 text-sm font-medium">Gas Estimation</div>
-        </div>
-      </div>
-      <div className="absolute right-[-24px] top-1/2 transform -translate-y-1/2 text-neutral-400 dark:text-neutral-500 z-10">→</div>
-    </div>
-
-    <div className="relative">
-      <div className="border border-amber-600/20 dark:border-amber-800/40  p-4">
-        <div className="bg-neutral-200 dark:bg-neutral-800 rounded p-3">
-          <div className="text-center text-neutral-800 dark:text-neutral-200 text-sm font-medium">Contract Interaction</div>
-        </div>
-      </div>
-      <div className="absolute right-[-24px] top-1/2 transform -translate-y-1/2 text-neutral-400 dark:text-neutral-500 z-10">→</div>
-    </div>
-
-    <div>
-      <div className="border border-blue-600/20 dark:border-blue-800/40  p-4">
-        <div className="bg-neutral-200 dark:bg-neutral-800 rounded p-3">
-          <div className="text-center text-neutral-800 dark:text-neutral-200 text-sm font-medium">Speculative Execution</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<div className="grid grid-cols-2 gap-24 mb-6">
-  <div className="flex justify-center">
-    <div className="text-neutral-400 dark:text-neutral-500 text-3xl">↓</div>
-  </div>
-  <div className="flex justify-center">
-    <div className="text-neutral-400 dark:text-neutral-500 text-3xl">↓</div>
-  </div>
-</div>
-
-<div className="grid grid-cols-2 gap-24 mb-8 relative">
-  <div className="border border-purple-600/20 dark:border-purple-800/40  p-4 bg-neutral-50 dark:bg-neutral-950">
-    <div className="text-center font-semibold mb-3 text-purple-700 dark:text-purple-400">Conflict Resolution</div>
-
-    <div className="bg-neutral-200 dark:bg-neutral-800 rounded p-3 mb-4">
-      <div className="text-center text-neutral-800 dark:text-neutral-200 text-sm font-medium">Conflict Detection</div>
-    </div>
-
-    <div className="bg-neutral-200 dark:bg-neutral-800 rounded p-3">
-      <div className="text-center text-neutral-800 dark:text-neutral-200 text-sm font-medium">Sequential Re-execution</div>
-    </div>
-
-  </div>
-
-  <div className="border border-green-600/20 dark:border-green-800/40  p-4 bg-neutral-50 dark:bg-neutral-950">
-    <div className="text-center font-semibold mb-3 text-green-700 dark:text-green-400">SeiDB & Consensus</div>
-
-    <div className="bg-neutral-200 dark:bg-neutral-800 rounded p-3 mb-4">
-      <div className="text-center text-neutral-800 dark:text-neutral-200 text-sm font-medium">State Commit</div>
-    </div>
-
-    <div className="bg-neutral-200 dark:bg-neutral-800 rounded p-3">
-      <div className="text-center text-neutral-800 dark:text-neutral-200 text-sm font-medium">MVCC Support</div>
-    </div>
-
-  </div>
-
-  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-neutral-400 dark:text-neutral-500 text-3xl z-10">↔</div>
-</div>
+<Columns cols={2}>
+  <Card title="Conflict Resolution">
+    - Conflict Detection
+    - Sequential Re-execution
+  </Card>
+  <Card title="SeiDB & Consensus">
+    - State Commit
+    - MVCC Support
+  </Card>
+</Columns>
 
 This architecture enables the Sei blockchain to process transactions in parallel while ensuring consistency and correctness. Let's explore each component in detail.
 

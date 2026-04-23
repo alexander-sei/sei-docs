@@ -1,11 +1,11 @@
 ---
-title: "Sei Documentation"
-description: "The first parallelized EVM blockchain — build with Ethereum tooling, settle in sub-second finality, and scale to 100 MGas/s throughput."
-keywords: ["Sei", "EVM", "blockchain", "smart contracts", "Solidity", "parallelized EVM", "web3", "dApps"]
+title: "Home"
+description: "Sei documentation: guides, references, and tutorials for building on the Sei EVM and ecosystem."
+keywords: ["Sei", "EVM", "blockchain", "smart contracts", "Solidity", "parallelized EVM", "documentation", "web3", "dApps"]
 mode: "wide"
 ---
 
-<Warning>
+<Danger>
   **Action required: IBC assets on Sei will become inaccessible**
 
   If you hold [USDC.n](https://seitrace.com/address/0x3894085Ef7Ff0f0aeDf52E2A2704928d1Ec074F1) (USDC via Noble), [USDT.kava](https://seitrace.com/address/0xb75d0b03c06a926e488e2659df1a861f860bd3d1) (Kava USDT), Wormhole-bridged tokens, or any other IBC asset on Sei, you **must** swap, migrate, or bridge out **before the governance proposal to disable inbound/outbound IBC transfers passes and is activated** to avoid permanent loss of access. After this, Sei will no longer support IBC bridging of assets from Cosmos-based chains to and from Sei Network.
@@ -13,72 +13,55 @@ mode: "wide"
   Consult the [SIP-03 Migration Guide](/learn/sip-03-migration) for the full list of affected assets, required actions, and supported routes.
 
   For USDC.n specifically, see: [Holders of USDC.n Need to Swap or Migrate](https://blog.sei.io/announcements/holders-of-usdcn-need-to-swap-or-migrate/).
-</Warning>
+</Danger>
 
-## Start building in minutes
-
-<CardGroup cols={3}>
-  <Card title="Deploy a smart contract" icon="code" href="/evm/evm-general">
-    Build and deploy EVM contracts with parallelized execution and sub-second finality.
-  </Card>
-  <Card title="Build a frontend" icon="browser" href="/evm/building-a-frontend">
-    Wire wagmi, ethers, or viem into the fastest EVM dApp stack.
-  </Card>
-  <Card title="Scaffold a project" icon="terminal" href="/evm/sei-js/create-sei">
-    Spin up a full-stack Sei app in a single command with `create-sei`.
-  </Card>
-  <Card title="Run a node" icon="server" href="/node">
-    Deploy validators, RPC, and archive nodes on Sei infrastructure.
-  </Card>
-  <Card title="Connect your wallet" icon="wallet" href="/evm/sei-global-wallet">
-    Sei Global Wallet ships with every Sei dApp — no extensions required.
-  </Card>
-  <Card title="Integrate MCP" icon="robot" href="/evm/ai-tooling/mcp-server">
-    Give Claude, Cursor, and ChatGPT native access to Sei via MCP.
-  </Card>
-</CardGroup>
-
-## Why Sei
-
-<Columns cols={2}>
-  <Card title="400ms block time" icon="bolt">
-    Twin Turbo Consensus delivers sub-second finality — 30× faster than Ethereum, while staying 100% EVM-compatible.
-  </Card>
-  <Card title="100 MGas/s throughput" icon="gauge-high">
-    Parallel execution processes non-conflicting transactions across all cores, scaling with hardware.
-  </Card>
-  <Card title="Full Ethereum tooling" icon="ethereum">
-    Hardhat, Foundry, wagmi, ethers, viem, MetaMask — everything you already use works out of the box.
-  </Card>
-  <Card title="Unified dual-VM account" icon="link">
-    One public key, one wallet, two runtimes. Native EVM and CosmWasm interop via precompiles.
-  </Card>
-</Columns>
-
-## Explore the docs
+## Quick Start
 
 <CardGroup cols={2}>
-  <Card title="Learn" icon="book-open" href="/learn">
-    Core architecture, consensus, tokenomics, staking, governance, and the Sei Giga upgrade.
+  <Card title="Deploy a Smart Contract" icon="code" href="/evm/evm-general">
+    Deploy EVM contracts with parallelized execution.
   </Card>
-  <Card title="EVM" icon="cube" href="/evm">
-    Smart contracts, precompiles, frontend integration, bridging, oracles, and the sei-js library.
+  <Card title="Build a Frontend" icon="bolt" href="/evm/building-a-frontend">
+    Create powerful dApps with Sei's fast finality.
   </Card>
-  <Card title="Cosmos-SDK" icon="layer-group" href="/cosmos-sdk">
-    The Cosmos-SDK layer powering Sei's interoperability stack.
+  <Card title="Scaffold with create-sei" icon="terminal" href="/evm/sei-js/create-sei">
+    Bootstrap a full-stack Sei project in seconds.
   </Card>
-  <Card title="Nodes" icon="server" href="/node">
-    Run validator, RPC, archive, and statesync nodes — with hardware specs and tuning guides.
+  <Card title="Verify Contracts" icon="shield-check" href="/evm/evm-verify-contracts">
+    Verify and publish your contract source code.
   </Card>
 </CardGroup>
 
-## Ecosystem & integrations
+## Essential Resources
+
+<CardGroup cols={3}>
+  <Card title="Chain Info" icon="globe" href="/learn/dev-chains">
+    RPC URLs & Chain IDs
+  </Card>
+  <Card title="Faucet" icon="droplet" href="/learn/faucet">
+    Testnet tokens
+  </Card>
+  <Card title="Block Explorers" icon="eye" href="/learn/explorers">
+    Inspect transactions
+  </Card>
+  <Card title="Wallets" icon="wallet" href="/learn/wallets">
+    Supported wallets
+  </Card>
+  <Card title="RPC Providers" icon="server" href="/learn/rpc-providers">
+    Infrastructure partners
+  </Card>
+  <Card title="Gas & Fees" icon="gas-pump" href="/learn/dev-gas">
+    Pricing & optimization
+  </Card>
+</CardGroup>
+
+## Ecosystem & Integrations
 
 <CardGroup cols={2}>
   <Card title="Sei Global Wallet" icon="wallet" href="/evm/sei-global-wallet">
     Onboard users from any chain with a single wallet.
   </Card>
-  <Card title="AI tooling" icon="robot" href="/evm/ai-tooling/cambrian-agent-kit">
+  <Card title="AI Tooling" icon="robot" href="/evm/ai-tooling/cambrian-agent-kit">
     Deploy AI agents that execute smart contract actions.
   </Card>
   <Card title="Tokens" icon="coins" href="/evm/tokens">
@@ -90,45 +73,92 @@ mode: "wide"
   <Card title="Oracles" icon="eye" href="/learn/oracles">
     Chainlink, Pyth, Redstone, and API3 price feeds.
   </Card>
-  <Card title="USDC & payments" icon="credit-card" href="/evm/usdc-on-sei">
+  <Card title="USDC & Payments" icon="credit-card" href="/evm/usdc-on-sei">
     Fast, low-fee payments with immediate finality.
   </Card>
-  <Card title="x402 micropayments" icon="receipt" href="/evm/x402">
+  <Card title="x402 Micropayments" icon="receipt" href="/evm/x402">
     Monetize APIs with HTTP-native payments.
   </Card>
-  <Card title="In-app swaps" icon="arrow-right-arrow-left" href="/evm/in-app-swaps">
+  <Card title="In-App Swaps" icon="arrow-right-arrow-left" href="/evm/in-app-swaps">
     Embed token swaps directly in your dApp.
   </Card>
 </CardGroup>
 
-## Popular guides
+## Migrate to Sei
+
+<CardGroup cols={3}>
+  <Card title="Sei vs Ethereum" icon="arrow-right-arrow-left" href="/evm/differences-with-ethereum">
+    Key differences to know.
+  </Card>
+  <Card title="From Other EVMs" icon="shuffle" href="/evm/migrate-from-other-evms">
+    Migrate existing EVM dApps.
+  </Card>
+  <Card title="From Solana" icon="arrow-right" href="/evm/migrate-from-solana">
+    Transition from Solana to Sei.
+  </Card>
+</CardGroup>
+
+## Learn
 
 <CardGroup cols={2}>
-  <Card title="User quickstart" icon="rocket" href="/learn/user-quickstart">
-    Get a wallet, fund it, and start using Sei in a few minutes.
+  <Card title="Sei Giga Architecture" icon="bolt" href="/learn/sei-giga">
+    Next-gen design enabling giga gas execution bandwidth.
   </Card>
-  <Card title="EVM differences" icon="code-compare" href="/evm/differences-with-ethereum">
-    What Sei keeps from Ethereum — and what it changes to go faster.
+  <Card title="Twin Turbo Consensus" icon="clock" href="/learn/twin-turbo-consensus">
+    Sub-second finality and fast block production.
   </Card>
-  <Card title="Migrate from another EVM" icon="arrow-right-arrow-left" href="/evm/migrate-from-other-evms">
-    Port existing contracts and dApps from Ethereum, Arbitrum, Base, or Optimism.
+  <Card title="Parallelization Engine" icon="microchip" href="/learn/parallelization-engine">
+    Optimistic, multi-core transaction execution.
   </Card>
-  <Card title="Migrate from Solana" icon="arrow-right-arrow-left" href="/evm/migrate-from-solana">
-    Bring SVM apps to a parallelized EVM with familiar tooling.
+  <Card title="SeiDB" icon="database" href="/learn/seidb">
+    State access optimized for high throughput.
   </Card>
-  <Card title="Optimize for parallelization" icon="gauge-high" href="/evm/best-practices/optimizing-for-parallelization">
-    Write contracts that benefit from Sei's parallel execution engine.
+  <Card title="Governance" icon="users" href="/learn/general-governance">
+    Proposals, voting, and staking overview.
   </Card>
-  <Card title="Verify contracts" icon="shield-check" href="/evm/evm-verify-contracts">
-    Publish contract source to explorers for public verification.
+  <Card title="Interoperability" icon="arrow-right-arrow-left" href="/learn/dev-interoperability">
+    EVM and CosmWasm cross-VM communication.
   </Card>
 </CardGroup>
 
-## Stay connected
+## Smart Contracts
+
+<Card title="Deploy & Debug on Sei" icon="code" href="/evm/evm-general">
+  Write, deploy, and debug Solidity smart contracts with your favorite toolchain. Sei is fully EVM-compatible with 400 ms blocks and parallelized execution.
+</Card>
 
 <CardGroup cols={4}>
-  <Card title="X (Twitter)" icon="x-twitter" href="https://x.com/SeiNetwork" />
-  <Card title="Discord" icon="discord" href="https://discord.com/invite/sei" />
-  <Card title="GitHub" icon="github" href="https://github.com/sei-protocol" />
-  <Card title="Blog" icon="newspaper" href="https://blog.sei.io" />
+  <Card title="Hardhat" href="/evm/evm-hardhat" />
+  <Card title="Foundry" href="/evm/evm-foundry" />
+  <Card title="Debug Tracing" href="/evm/tracing" />
+  <Card title="Best Practices" href="/evm/best-practices/optimizing-for-parallelization" />
 </CardGroup>
+
+## Infrastructure & Tools
+
+<CardGroup cols={2}>
+  <Card title="Run a Node" icon="lock" href="/node">
+    Participate in the Sei network.
+
+    - [Full Node](/node/node-operators)
+    - [Validator Node](/node/validators)
+  </Card>
+  <Card title="Precompiles" icon="hexagon-nodes" href="/evm/precompiles/example-usage">
+    Access native Sei features from Solidity contracts.
+  </Card>
+  <Card title="Solidity Resources" icon="clipboard" href="/evm/solidity-resources">
+    Libraries, tools, and learning materials.
+  </Card>
+  <Card title="Ecosystem Contracts" icon="file-lines" href="/evm/ecosystem-contracts">
+    Key deployed contract addresses on Sei.
+  </Card>
+</CardGroup>
+
+## Network Information
+
+<iframe
+  src="https://widgets.sei.io/network-tabs"
+  style={{ width: "100%", minHeight: "420px", border: "0" }}
+  loading="lazy"
+  title="Sei network information"
+/>

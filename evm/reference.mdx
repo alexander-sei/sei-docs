@@ -27,9 +27,7 @@ Sei supports the [Ethereum JSON-RPC API](https://ethereum.org/en/developers/docs
 
 All endpoints follow the standard JSON-RPC format:
 
-<details>
-<summary>JSON-RPC Request/Response Format</summary>
-
+<Accordion title="JSON-RPC Request/Response Format">
 **Request Format**
 
 - HTTP method: always "`POST`"
@@ -49,7 +47,7 @@ All endpoints follow the standard JSON-RPC format:
   - `result`: an object that differs from endpoint to endpoint
   - `error` (if applicable): error details
 
-</details>
+</Accordion>
 
 ## Standard Ethereum Endpoints
 
@@ -59,9 +57,7 @@ Sei supports all standard Ethereum JSON-RPC endpoints, organized into the follow
 
 These endpoints allow you to send transactions to the Sei network.
 
-<details>
-<summary>View Send Transaction Endpoints</summary>
-
+<Accordion title="View Send Transaction Endpoints">
 #### eth_sendRawTransaction
 
 Sends a signed transaction.
@@ -78,15 +74,13 @@ Sends a signed transaction.
 | :------- | :-------------------- |
 | `string` | The transaction hash. |
 
-</details>
+</Accordion>
 
 ### Transaction Lookup
 
 These endpoints allow you to find transaction details.
 
-<details>
-<summary>View Transaction Lookup Endpoints</summary>
-
+<Accordion title="View Transaction Lookup Endpoints">
 #### eth_getTransactionReceipt
 
 Gets the receipt of a sent transaction
@@ -155,15 +149,13 @@ Gets transaction by the transaction hash.
 | :------- | :---------------------------------------------------------------------------------------------------------- |
 | `object` | The [transaction details](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_gettransactionbyhash). |
 
-</details>
+</Accordion>
 
 ### Account Information
 
 These endpoints allow you to query account-related information.
 
-<details>
-<summary>View Account Information Endpoints</summary>
-
+<Accordion title="View Account Information Endpoints">
 #### eth_getTransactionCount
 
 Gets the number of transactions sent by the account
@@ -268,15 +260,13 @@ Object Schema:
 Note: The storage proofs in the return object follow this
 [format](https://github.com/sei-protocol/sei-tendermint/blob/main/proto/tendermint/crypto/proof.pb.go#L272-L274).
 
-</details>
+</Accordion>
 
 ### Block Information
 
 Endpoints for retrieving block data and related information.
 
-<details>
-<summary>View complete list of Block Information endpoints</summary>
-
+<Accordion title="View complete list of Block Information endpoints">
 #### eth_getBlockTransactionCountByNumber
 
 Gets the count of EVM transactions in a block by its number.
@@ -367,15 +357,13 @@ Gets an array of EVM transaction receipts in a block by its number.
 | :--------- | :---------------------------- |
 | `object[]` | Array of transaction receipts |
 
-</details>
+</Accordion>
 
 ### Blockchain Information
 
 Endpoints for querying general blockchain data.
 
-<details>
-<summary>View complete list of Blockchain Information endpoints</summary>
-
+<Accordion title="View complete list of Blockchain Information endpoints">
 #### eth_blockNumber
 
 Gets the latest committed block number.
@@ -488,7 +476,7 @@ _None_
 | :------- | :-------------------- |
 | `string` | Client version string |
 
-</details>
+</Accordion>
 
 ### Filter Endpoints
 
@@ -504,9 +492,7 @@ Note that log filters are subject to the following limits by default:
 
 </Info>
 
-<details>
-<summary>View complete list of Filter endpoints</summary>
-
+<Accordion title="View complete list of Filter endpoints">
 #### eth_newFilter
 
 Creates a new log filter.
@@ -612,13 +598,11 @@ Removes a previously created filter.
 | :----- | :-------------------------------------------- |
 | `bool` | `true` if the filter existed and was removed. |
 
-</details>
+</Accordion>
 
 ### Simulation & Debugging
 
-<details>
-<summary>Simulation Endpoints</summary>
-
+<Accordion title="Simulation Endpoints">
 Endpoints for simulating contract execution.
 
 #### eth_estimateGas
@@ -657,11 +641,9 @@ Executes a message call immediately without creating a transaction.
 | :------- | :--------------------------- |
 | `string` | Returned data (hexadecimal). |
 
-</details>
+</Accordion>
 
-<details>
-<summary>Debugging Endpoints</summary>
-
+<Accordion title="Debugging Endpoints">
 Endpoints for debugging transactions and blocks.
 
 #### debug_traceTransaction
@@ -718,7 +700,7 @@ Traces all transactions in a block specified by hash.
 | :--------- | :------------------------------------ |
 | `object[]` | Array of trace result objects per tx. |
 
-</details>
+</Accordion>
 
 ## Sei Custom Endpoints
 
@@ -747,9 +729,7 @@ enabled_legacy_sei_apis = [
 
 To enable additional legacy methods, add them to this array. All other `sei_*` and `sei2_*` methods (including all `sei2_*` block methods) are disabled by default and must be explicitly enabled.
 
-<details>
-<summary>View all available legacy methods</summary>
-
+<Accordion title="View all available legacy methods">
 **`sei_*` methods:**
 
 | Method | Description |
@@ -795,15 +775,13 @@ To enable additional legacy methods, add them to this array. All other `sei_*` a
 | `sei2_getBlockByHashExcludeTraceFail` | Get block by hash excluding failed traces (includes bank transfers) |
 | `sei2_getBlockByNumberExcludeTraceFail` | Get block by number excluding failed traces (includes bank transfers) |
 
-</details>
+</Accordion>
 
 ### Address & Cross-VM Helpers
 
 These endpoints provide cross-VM address resolution and transaction lookup between the EVM and Cosmos environments. `sei_getSeiAddress`, `sei_getEVMAddress`, and `sei_getCosmosTx` are enabled by default.
 
-<details>
-<summary>View Address & Cross-VM Helper Endpoints</summary>
-
+<Accordion title="View Address & Cross-VM Helper Endpoints">
 #### sei_associate
 
 Sends a transaction to establish association between the signer's Sei address
@@ -919,7 +897,7 @@ Returns the Cosmos transaction details for a given EVM transaction hash.
 }
 ```
 
-</details>
+</Accordion>
 
 
 ### Legacy Deprecation Error
