@@ -554,10 +554,19 @@ button[aria-selected="true"][role="tab"] {
 /* 1. The sidebar column itself */
 #sidebar {
   width: 220px !important;
+  left: 0 !important;
+  margin-left: 0 !important;
 }
 
 /* 2. Main content wrapper — slide left to match new sidebar width */
 @media (min-width: 1024px) {
+  [class*="peer-[.is-not-custom]:peer-[.is-not-center]:max-w-8xl"][class*="peer-[.is-not-custom]:px-4"][class*="peer-[.is-not-custom]:mx-auto"] {
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+  }
+
   div[class*="lg:ml-[19rem]"]:not(#footer):not(.advanced-footer) {
     margin-left: 220px !important;
   }
@@ -701,6 +710,21 @@ header,
 .dark [class*="navbar"],
 .dark [class*="topbar"] {
   border-bottom-color: var(--sei-grey-300);
+}
+
+@media (min-width: 1024px) {
+  #navbar > div[class*="max-w-8xl"][class*="mx-auto"] {
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  #navbar [class*="lg:px-12"][class*="mx-4"] {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
 }
 
 /* Navbar link items — small, body font */
