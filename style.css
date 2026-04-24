@@ -558,7 +558,11 @@ button[aria-selected="true"][role="tab"] {
   margin-left: 0 !important;
 }
 
-/* 2. Main content wrapper — slide left to match new sidebar width */
+/* 2. Main content wrapper — align with our 220px sidebar.
+      Mintlify adds `lg:pl-[23.7rem]` (≈379px, sized for its 19rem/304px sidebar)
+      together with `lg:-ml-12` (-48px) on #content-area. That pushes text far
+      past our narrower sidebar and leaves a huge blank gutter on the right.
+      We reset the negative margin and shrink the padding to `sidebar + gutter`. */
 @media (min-width: 1024px) {
   [class*="peer-[.is-not-custom]:peer-[.is-not-center]:max-w-8xl"][class*="peer-[.is-not-custom]:px-4"][class*="peer-[.is-not-custom]:mx-auto"] {
     max-width: none !important;
@@ -567,6 +571,17 @@ button[aria-selected="true"][role="tab"] {
     padding-left: 0 !important;
   }
 
+  #content-area[class*="lg:pl-[23.7rem]"],
+  div[class*="lg:pl-[23.7rem]"] {
+    padding-left: 252px !important; /* 220px sidebar + 32px gutter */
+    padding-right: 32px !important;
+  }
+
+  div[class*="lg:-ml-12"] {
+    margin-left: 0 !important;
+  }
+
+  /* Legacy selectors kept for older Mintlify builds */
   div[class*="lg:ml-[19rem]"]:not(#footer):not(.advanced-footer) {
     margin-left: 220px !important;
   }
@@ -575,9 +590,14 @@ button[aria-selected="true"][role="tab"] {
   }
 }
 
-/* 3. Article width override */
-div[class*="xl:w-[calc(100%-19rem)]"] {
-  width: calc(100% - 220px) !important;
+/* 3. Article width override — wide pages have no TOC, so the `calc(100%-19rem)`
+      width (that reserves TOC space) would leave the column narrow and,
+      together with `mx-auto`, centered with blank space on the right. Let it
+      fill the full width of its flex parent instead. */
+@media (min-width: 1280px) {
+  div[class*="xl:w-[calc(100%-19rem)]"] {
+    width: 100% !important;
+  }
 }
 
 /* 4. Footer — always full-width, never indented by the sidebar */

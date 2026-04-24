@@ -307,28 +307,7 @@
       }
     ],
     "global": {
-      "anchors": [
-        {
-          "anchor": "Dashboard",
-          "href": "https://dashboard.sei.io",
-          "icon": "gauge"
-        },
-        {
-          "anchor": "Ecosystem",
-          "href": "https://www.sei.io/ecosystem",
-          "icon": "grid-2"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://blog.sei.io",
-          "icon": "newspaper"
-        },
-        {
-          "anchor": "GitHub",
-          "href": "https://github.com/sei-protocol",
-          "icon": "github"
-        }
-      ]
+      "anchors": []
     }
   },
   "navbar": {
@@ -341,12 +320,7 @@
         "label": "GitHub",
         "href": "https://github.com/sei-protocol"
       }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Launch dApp",
-      "href": "https://dashboard.sei.io"
-    }
+    ]
   },
   "contextual": {
     "options": [
@@ -382,6 +356,7 @@
       {
         "header": "Ecosystem",
         "items": [
+          { "label": "Dashboard", "href": "https://dashboard.sei.io" },
           { "label": "Ecosystem Hub", "href": "https://www.sei.io/ecosystem" },
           { "label": "Join the Ecosystem", "href": "https://sei-forms.typeform.com/join-ecosystem" },
           { "label": "Bridge", "href": "https://dashboard.sei.io/bridge" },
