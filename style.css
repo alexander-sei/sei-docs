@@ -590,13 +590,30 @@ button[aria-selected="true"][role="tab"] {
   }
 }
 
-/* 3. Article width override — wide pages have no TOC, so the `calc(100%-19rem)`
+/* 3. Article width override — wide pages have no TOC, so the `calc(100%-Nrem)`
       width (that reserves TOC space) would leave the column narrow and,
       together with `mx-auto`, centered with blank space on the right. Let it
       fill the full width of its flex parent instead. */
 @media (min-width: 1280px) {
-  div[class*="xl:w-[calc(100%-19rem)]"] {
+  div[class*="xl:w-[calc(100%-19rem)]"],
+  div[class*="xl:w-[calc(100%-28rem)]"] {
     width: 100% !important;
+  }
+
+  /* 3a. Symmetrical content/TOC gutter.
+         Mintlify stacks three pieces of horizontal space between the article
+         text and the TOC text: (a) the content-area's own `padding-right: 32px`
+         (set above), (b) a `gap-12` (48px) on the flex row between content and
+         TOC, and (c) a `pl-10` (40px) inside the TOC layout. That totals 120px
+         on the right while the left gutter (sidebar edge → article text) is
+         only 32px. Collapse (b) and (c) so the right-hand gap matches the left. */
+  #content-container > div[class*="flex-row-reverse"][class*="gap-12"] {
+    gap: 0 !important;
+  }
+
+  div[class*="pl-10"][class*="w-[19rem]"],
+  #table-of-contents-layout {
+    padding-left: 0 !important;
   }
 }
 
